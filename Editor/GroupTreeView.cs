@@ -35,15 +35,28 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             foreach (var group in buildLayout.groups)
             {
-                var child = new GroupItem
+                var groupItem = new GroupItem
                 {
                     source = group,
                     id = m_UniqueId++,
                     depth = 0,
-                    displayName = group.name
+                    displayName = group.name,
+                    icon = Styles.groupIcon
                 };
+                rootItem.AddChild(groupItem);
 
-                rootItem.AddChild(child);
+                foreach (var bundle in group.bundles)
+                {
+                    var bundleItem = new BundleItem()
+                    {
+                        source = bundle,
+                        id = m_UniqueId++,
+                        depth = groupItem.depth + 1,
+                        displayName = bundle.name,
+                        icon = Styles.bundleIcon
+                    };
+                    groupItem.AddChild(bundleItem);
+                }
             }
         }
 
@@ -88,6 +101,51 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.bundles:
                         EditorGUI.LabelField(position, $"{source.bundles.Count}");
+                        break;
+                }
+            }
+        }
+
+        [System.Serializable]
+        class BundleItem : BaseItem
+        {
+            public BuildLayout.Archive source;
+
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as BundleItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return string.Compare(source.name, otherItem.source.name, true);
+
+                    case ColumnIDs.size:
+                        return source.size.CompareTo(otherItem.source.size);
+
+                    case ColumnIDs.bundles:
+                        return 0;
+                }
+
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        EditorGUI.LabelField(position, source.name);
+                        break;
+
+                    case ColumnIDs.size:
+                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(source.size)}");
+                        break;
+
+                    case ColumnIDs.bundles:
+                        EditorGUI.LabelField(position, $"1");
                         break;
                 }
             }
