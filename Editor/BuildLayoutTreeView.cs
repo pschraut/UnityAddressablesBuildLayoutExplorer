@@ -31,6 +31,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             baseIndent = 0;
             multiColumnHeader.sortingChanged += OnSortingChanged;
             multiColumnHeader.ResizeToFit();
+            Reload();
         }
 
         protected override TreeViewItem BuildRoot()
