@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Oddworm.EditorFramework
+namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     public class BuildLayoutWindow : EditorWindow
     {

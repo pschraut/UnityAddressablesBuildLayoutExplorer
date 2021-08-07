@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 
-namespace Oddworm.EditorFramework
+namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     public abstract class BuildLayoutTreeView : UnityEditor.IMGUI.Controls.TreeView
     {
