@@ -20,7 +20,7 @@ namespace Oddworm.EditorFramework
         public class Group
         {
             public string name;
-            public string size;
+            public long size;
             public List<Archive> bundles = new List<Archive>();
         }
 
@@ -28,7 +28,7 @@ namespace Oddworm.EditorFramework
         public class Archive
         {
             public string name;
-            public string size;
+            public long size;
             public List<string> bundleDependencies = new List<string>();
         }
 
@@ -100,7 +100,7 @@ namespace Oddworm.EditorFramework
                 var groupSize = groupLine;
                 groupSize = groupSize.Substring(groupSize.IndexOf("Total Size: ") + "Total Size: ".Length); // Remove everything before and including "Total Size: "
                 groupSize = groupSize.Substring(0, groupSize.IndexOf(", ")); // Remove everything after ", "
-                group.size = groupSize;
+                group.size = ParseSize(groupSize);
 
                 // Iterate over each group line
                 var loopguard = 0;
@@ -169,7 +169,7 @@ namespace Oddworm.EditorFramework
                 var archiveSize = archiveLine;
                 archiveSize = archiveSize.Substring(archiveSize.IndexOf("(Size: ") + "(Size: ".Length); // Remove everything before and including "(Size: "
                 archiveSize = archiveSize.Substring(0, archiveSize.IndexOf(", ")); // Remove everything after ", "
-                archive.size = archiveSize;
+                archive.size = ParseSize(archiveSize);
 
 
                 var loopguard = 0;
@@ -223,6 +223,35 @@ namespace Oddworm.EditorFramework
 
                 bundles.Sort();
                 return bundles;
+            }
+
+            long ParseSize(string size)
+            {
+                if (size.EndsWith("GB", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    var s = size.Substring(0, size.Length - 2);
+                    return (long)(float.Parse(s) * 1024 * 1024 * 1024);
+                }
+
+                if (size.EndsWith("MB", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    var s = size.Substring(0, size.Length - 2);
+                    return (long)(float.Parse(s) * 1024 * 1024);
+                }
+
+                if (size.EndsWith("KB", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    var s = size.Substring(0, size.Length - 2);
+                    return (long)(float.Parse(s) * 1024);
+                }
+
+                if (size.EndsWith("B", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    var s = size.Substring(0, size.Length - 1);
+                    return long.Parse(s);
+                }
+
+                return -1;
             }
 
             int GetIndend(string s)
