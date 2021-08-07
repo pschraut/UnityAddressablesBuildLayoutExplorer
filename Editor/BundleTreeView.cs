@@ -10,7 +10,6 @@ using UnityEditor.IMGUI.Controls;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
-
     public class BundleTreeView : BuildLayoutTreeView
     {
         static class ColumnIDs
@@ -42,15 +41,29 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     if (processed.ContainsKey(bundle.name))
                         continue;
 
-                    var child = new BundleItem
+                    var bundleItem = new BundleItem
                     {
                         source = bundle,
                         id = m_UniqueId++,
                         depth = 0,
-                        displayName = bundle.name
+                        displayName = bundle.name,
+                        icon = Styles.bundleIcon
                     };
+                    rootItem.AddChild(bundleItem);
 
-                    rootItem.AddChild(child);
+                    foreach(var dependency in bundle.bundleDependencies)
+                    {
+                        var dependencyItem = new DependencyItem
+                        {
+                            source = dependency,
+                            id = m_UniqueId++,
+                            depth = bundleItem.depth + 1,
+                            displayName = dependency,
+                            //icon = Styles.bundleIcon
+                        };
+                        bundleItem.AddChild(dependencyItem);
+                    }
+
                 }
             }
         }
@@ -95,6 +108,38 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.dependencies:
                         EditorGUI.LabelField(position, $"{source.bundleDependencies.Count}");
+                        break;
+                }
+            }
+        }
+
+
+        [System.Serializable]
+        class DependencyItem : BaseItem
+        {
+            public string source;
+
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as DependencyItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return string.Compare(source, otherItem.source, true);
+                }
+
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        EditorGUI.LabelField(position, source);
                         break;
                 }
             }
