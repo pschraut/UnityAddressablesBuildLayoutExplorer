@@ -30,7 +30,7 @@ namespace Oddworm.EditorFramework
             extraSpaceBeforeIconAndLabel = 0;
             baseIndent = 0;
             multiColumnHeader.sortingChanged += OnSortingChanged;
-            multiColumnHeader.sortedColumnIndex = 0;
+            multiColumnHeader.ResizeToFit();
         }
 
         protected override TreeViewItem BuildRoot()

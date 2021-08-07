@@ -13,6 +13,13 @@ namespace Oddworm.EditorFramework
 
     public class BundleTreeView : BuildLayoutTreeView
     {
+        static class ColumnIDs
+        {
+            public const int name = 0;
+            public const int size = 1;
+            public const int dependencies = 2;
+        }
+
         public BundleTreeView(BuildLayoutWindow window)
                    : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
@@ -20,6 +27,7 @@ namespace Oddworm.EditorFramework
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Dependencies"), width = 80, autoResize = true },
                             })))
         {
+            multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
 
@@ -34,7 +42,7 @@ namespace Oddworm.EditorFramework
                     if (processed.ContainsKey(bundle.name))
                         continue;
 
-                    var child = new GroupItem
+                    var child = new BundleItem
                     {
                         source = bundle,
                         id = m_UniqueId++,
@@ -48,21 +56,26 @@ namespace Oddworm.EditorFramework
         }
 
         [System.Serializable]
-        class GroupItem : BaseItem
+        class BundleItem : BaseItem
         {
             public BuildLayout.Archive source;
 
             public override int CompareTo(TreeViewItem other, int column)
             {
-                var otherItem = other as GroupItem;
+                var otherItem = other as BundleItem;
                 if (otherItem == null)
                     return 1;
 
                 switch (column)
                 {
-                    case 0: return string.Compare(source.name, otherItem.source.name, true);
-                    case 1: return source.size.CompareTo(otherItem.source.size);
-                    case 2: return source.bundleDependencies.Count.CompareTo(otherItem.source.bundleDependencies.Count);
+                    case ColumnIDs.name:
+                        return string.Compare(source.name, otherItem.source.name, true);
+
+                    case ColumnIDs.size:
+                        return source.size.CompareTo(otherItem.source.size);
+
+                    case ColumnIDs.dependencies:
+                        return source.bundleDependencies.Count.CompareTo(otherItem.source.bundleDependencies.Count);
                 }
 
                 return 0;
@@ -72,15 +85,15 @@ namespace Oddworm.EditorFramework
             {
                 switch(column)
                 {
-                    case 0:
+                    case ColumnIDs.name:
                         EditorGUI.LabelField(position, source.name);
                         break;
 
-                    case 1:
+                    case ColumnIDs.size:
                         EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(source.size)}");
                         break;
 
-                    case 2:
+                    case ColumnIDs.dependencies:
                         EditorGUI.LabelField(position, $"{source.bundleDependencies.Count}");
                         break;
                 }
