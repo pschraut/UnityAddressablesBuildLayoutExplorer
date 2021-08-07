@@ -11,16 +11,27 @@ namespace Oddworm.EditorFramework
 {
     public class BuildLayoutWindow : EditorWindow
     {
-        BuildLayout m_Layout;
+        [SerializeField] BuildLayout m_Layout;
+        [SerializeField] BuildLayoutTreeView m_TreeView;
+
+        void Awake()
+        {
+        }
 
         void OnEnable()
         {
-            titleContent = new GUIContent("Build Layout Explorer");
+            titleContent = new GUIContent("Build Layout");
+
+            m_TreeView = new BundleTreeView(this);
+            m_TreeView.Reload();
         }
 
         void OnGUI()
         {
             DrawToolbar();
+
+            var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            m_TreeView.OnGUI(rect);
         }
 
         void DrawToolbar()
@@ -45,6 +56,7 @@ namespace Oddworm.EditorFramework
         void LoadBuildLayout(string path)
         {
             m_Layout = BuildLayout.Load(path);
+            m_TreeView.SetBuildLayout(m_Layout);
 
             var json = JsonUtility.ToJson(m_Layout, true);
             System.IO.File.WriteAllText("Assets/BuildLayout.json", json);
