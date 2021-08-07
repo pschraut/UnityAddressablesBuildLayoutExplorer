@@ -88,6 +88,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     rect.x += extraSpaceBeforeIconAndLabel;
                     rect.width -= extraSpaceBeforeIconAndLabel;
+                    rect = IndentByDepth(item.depth, rect);
+
+                    if (item.icon != null)
+                    {
+                        var r = rect;
+                        r.width = 20;
+                        EditorGUI.LabelField(r, new GUIContent(item.icon), Styles.iconStyle);
+                        rect.x += 20;
+                        rect.width -= 20;
+                    }
                 }
 
                 if (item != null)
@@ -192,6 +202,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     stack.Push(child);
                 }
             }
+        }
+
+        Rect IndentByDepth(int itemDepth, Rect rect)
+        {
+            var foldoutWidth = 14;
+            var indent = itemDepth + 1;
+
+            rect.x += indent * foldoutWidth;
+            rect.width -= indent * foldoutWidth;
+
+            return rect;
         }
 
         [System.Serializable]
