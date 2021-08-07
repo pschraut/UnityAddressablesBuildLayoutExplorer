@@ -45,6 +45,22 @@ namespace Oddworm.EditorFramework
         {
             public BuildLayout.Group source;
 
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as GroupItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case 0: return string.Compare(source.name, otherItem.source.name, true);
+                    case 1: return source.size.CompareTo(otherItem.source.size);
+                    case 2: return source.bundles.Count.CompareTo(otherItem.source.bundles.Count);
+                }
+
+                return 0;
+            }
+
             public override void OnGUI(Rect position, int column)
             {
                 switch(column)

@@ -47,11 +47,26 @@ namespace Oddworm.EditorFramework
             }
         }
 
-
         [System.Serializable]
         class GroupItem : BaseItem
         {
             public BuildLayout.Archive source;
+
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as GroupItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case 0: return string.Compare(source.name, otherItem.source.name, true);
+                    case 1: return source.size.CompareTo(otherItem.source.size);
+                    case 2: return source.bundleDependencies.Count.CompareTo(otherItem.source.bundleDependencies.Count);
+                }
+
+                return 0;
+            }
 
             public override void OnGUI(Rect position, int column)
             {

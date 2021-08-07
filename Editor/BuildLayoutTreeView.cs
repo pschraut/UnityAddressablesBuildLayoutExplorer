@@ -16,6 +16,7 @@ namespace Oddworm.EditorFramework
         [SerializeField] TreeViewItem m_CachedTree;
         [SerializeField] int m_FirstVisibleRow;
         [SerializeField] protected int m_UniqueId = 100;
+        List<TreeViewItem> m_RowsCache;
 
         public BuildLayoutTreeView(BuildLayoutWindow window, TreeViewState state, MultiColumnHeader multiColumnHeader)
                    : base(state, multiColumnHeader)
@@ -28,6 +29,8 @@ namespace Oddworm.EditorFramework
             columnIndexForTreeFoldouts = 0;
             extraSpaceBeforeIconAndLabel = 0;
             baseIndent = 0;
+            multiColumnHeader.sortingChanged += OnSortingChanged;
+            multiColumnHeader.sortedColumnIndex = 0;
         }
 
         protected override TreeViewItem BuildRoot()
@@ -94,10 +97,107 @@ namespace Oddworm.EditorFramework
             }
         }
 
+        void OnSortingChanged(MultiColumnHeader multiColumnHeader)
+        {
+            if (rootItem == null || !rootItem.hasChildren)
+                return;
+
+            Reload();
+        }
+
+        protected int CompareItem(TreeViewItem x, TreeViewItem y)
+        {
+            var sortingColumn = multiColumnHeader.sortedColumnIndex;
+            if (sortingColumn < 0)
+                sortingColumn = 0;
+
+            var ascending = multiColumnHeader.IsSortedAscending(sortingColumn);
+            var itemA = (ascending ? x : y);
+            var itemB = (ascending ? y : x);
+
+            var result = 0;
+            var typedItemA = itemA as BaseItem;
+            if (typedItemA != null)
+                result = typedItemA.CompareTo(itemB, sortingColumn);
+            else if (itemA != null)
+                return itemA.id.CompareTo(itemB.id);
+
+            return result;
+        }
+
+        protected virtual void SortAndAddExpandedRows(TreeViewItem root, IList<TreeViewItem> rows)
+        {
+            if (!root.hasChildren)
+                return;
+
+            root.children.Sort(CompareItem);
+            foreach (var child in root.children)
+                GetAndSortExpandedRowsRecursive(child, rows);
+        }
+
+        void GetAndSortExpandedRowsRecursive(TreeViewItem item, IList<TreeViewItem> expandedRows)
+        {
+            if (item == null)
+                return;
+
+            expandedRows.Add(item);
+
+            if (item.hasChildren && IsExpanded(item.id))
+            {
+                item.children.Sort(CompareItem);
+                foreach (var child in item.children)
+                    GetAndSortExpandedRowsRecursive(child, expandedRows);
+            }
+        }
+
+        protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
+        {
+            if (m_RowsCache == null)
+                m_RowsCache = new List<TreeViewItem>(128);
+            m_RowsCache.Clear();
+
+            if (hasSearch)
+            {
+                SearchTree(root, searchString, m_RowsCache);
+                m_RowsCache.Sort(CompareItem);
+            }
+            else
+            {
+                SortAndAddExpandedRows(root, m_RowsCache);
+            }
+
+            return m_RowsCache;
+        }
+
+        protected virtual void SearchTree(TreeViewItem root, string search, List<TreeViewItem> result)
+        {
+            var stack = new Stack<TreeViewItem>();
+
+            stack.Push(root);
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                if (!current.hasChildren)
+                    continue;
+
+                foreach (var child in current.children)
+                {
+                    if (child == null)
+                        continue;
+
+                    if (DoesItemMatchSearch(child, search))
+                        result.Add(child);
+
+                    stack.Push(child);
+                }
+            }
+        }
+
         [System.Serializable]
         protected abstract class BaseItem : TreeViewItem
         {
             public abstract void OnGUI(Rect position, int column);
+            public abstract int CompareTo(TreeViewItem other, int column);
         }
     }
 }
