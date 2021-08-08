@@ -55,7 +55,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     if (bundle.bundleDependencies.Count > 0)
                     {
-                        var categoryItem = new CategoryItem
+                        var categoryItem = new NameItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
@@ -66,9 +66,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                         foreach (var dependency in bundle.bundleDependencies)
                         {
-                            var dependencyItem = new DependencyItem
+                            var dependencyItem = new NameItem
                             {
-                                source = dependency,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
                                 displayName = dependency
@@ -79,7 +78,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     if (bundle.expandedBundleDependencies.Count > 0)
                     {
-                        var categoryItem = new CategoryItem
+                        var categoryItem = new NameItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
@@ -90,9 +89,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                         foreach (var dependency in bundle.expandedBundleDependencies)
                         {
-                            var dependencyItem = new DependencyItem
+                            var dependencyItem = new NameItem
                             {
-                                source = dependency,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
                                 displayName = dependency,
@@ -104,14 +102,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     if (bundle.explicitAssets.Count > 0)
                     {
-                        var categoryItem = new CategoryItem
+                        var assetsCategoryItem = new NameItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Explicit Assets",
                             icon = Styles.explicitAssetsIcon
                         };
-                        bundleItem.AddChild(categoryItem);
+                        bundleItem.AddChild(assetsCategoryItem);
 
                         foreach (var asset in bundle.explicitAssets)
                         {
@@ -119,32 +117,58 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             {
                                 source = asset,
                                 id = m_UniqueId++,
-                                depth = categoryItem.depth + 1,
-                                displayName = asset.name,
-                                //icon = Styles.bundleIcon
+                                depth = assetsCategoryItem.depth + 1,
+                                displayName = asset.name
                             };
-                            categoryItem.AddChild(assetItem);
+                            assetsCategoryItem.AddChild(assetItem);
+
+                            if (asset.externalReferences.Count > 0)
+                            {
+                                var erefCategoryItem = new NameItem
+                                {
+                                    id = m_UniqueId++,
+                                    depth = assetItem.depth + 1,
+                                    displayName = "External References",
+                                    icon = Styles.externalAssetReferenceIcon
+                                };
+                                assetItem.AddChild(erefCategoryItem);
+
+                                foreach(var eref in asset.externalReferences)
+                                {
+                                    var erefItem = new NameItem
+                                    {
+                                        id = m_UniqueId++,
+                                        depth = erefCategoryItem.depth + 1,
+                                        displayName = eref
+                                    };
+                                    erefCategoryItem.AddChild(erefItem);
+                                }
+                            }
+
+                            if (asset.internalReferences.Count > 0)
+                            {
+                                var irefCategoryItem = new NameItem
+                                {
+                                    id = m_UniqueId++,
+                                    depth = assetItem.depth + 1,
+                                    displayName = "Internal References",
+                                    icon = Styles.internalAssetReferenceIcon
+                                };
+                                assetItem.AddChild(irefCategoryItem);
+
+                                foreach (var eref in asset.internalReferences)
+                                {
+                                    var erefItem = new NameItem
+                                    {
+                                        id = m_UniqueId++,
+                                        depth = irefCategoryItem.depth + 1,
+                                        displayName = eref
+                                    };
+                                    irefCategoryItem.AddChild(erefItem);
+                                }
+                            }
                         }
                     }
-                }
-            }
-        }
-
-        [System.Serializable]
-        class CategoryItem : BaseItem
-        {
-            public override int CompareTo(TreeViewItem other, int column)
-            {
-                return 0;
-            }
-
-            public override void OnGUI(Rect position, int column)
-            {
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName);
-                        break;
                 }
             }
         }
@@ -203,20 +227,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
 
         [System.Serializable]
-        class DependencyItem : BaseItem
+        class NameItem : BaseItem
         {
-            public string source;
+            //public string source;
 
             public override int CompareTo(TreeViewItem other, int column)
             {
-                var otherItem = other as DependencyItem;
+                var otherItem = other as NameItem;
                 if (otherItem == null)
                     return 1;
 
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(source, otherItem.source, true);
+                        return string.Compare(displayName, otherItem.displayName, true);
                 }
 
                 return 0;
@@ -227,7 +251,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, source);
+                        EditorGUI.LabelField(position, displayName);
                         break;
                 }
             }

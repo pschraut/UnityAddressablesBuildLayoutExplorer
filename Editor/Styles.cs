@@ -41,6 +41,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static Texture2D externalAssetReferenceIcon
+        {
+            get;
+            private set;
+        }
+
+        public static Texture2D internalAssetReferenceIcon
+        {
+            get;
+            private set;
+        }
+
         public static GUIStyle iconStyle
         {
             get;
@@ -52,8 +64,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             groupIcon = FindBuiltinTexture("ScriptableObject Icon");
             bundleIcon = FindBuiltinTexture("d_DefaultAsset Icon");
             bundleDependenciesIcon = FindBuiltinTexture("Animator Icon");
-            bundleExpandedDependenciesIcon = FindBuiltinTexture("d_AnimatorController Icon");
-            explicitAssetsIcon = FindBuiltinTexture("d_ToolHandleCenter");
+            bundleExpandedDependenciesIcon = FindBuiltinTexture("d_NetworkAnimator Icon");
+            explicitAssetsIcon = FindBuiltinTexture("LODGroup Icon");
+            internalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController On Icon");
+            externalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController Icon");
 
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;
