@@ -29,8 +29,11 @@ namespace Oddworm.EditorFramework
         {
             public string name;
             public long size;
+            public string compression;
+            public long assetBundleObjectSize;
             public List<string> bundleDependencies = new List<string>();
             public List<string> expandedBundleDependencies = new List<string>();
+            public List<ExplicitAsset> explicitAssets = new List<ExplicitAsset>();
         }
 
         [System.Serializable]
@@ -107,11 +110,11 @@ namespace Oddworm.EditorFramework
                 groupName = groupName.Trim();
                 group.name = groupName;
 
-                // Read the group size
-                var groupSize = groupLine;
-                groupSize = groupSize.Substring(groupSize.IndexOf("Total Size: ") + "Total Size: ".Length); // Remove everything before and including "Total Size: "
-                groupSize = groupSize.Substring(0, groupSize.IndexOf(", ")); // Remove everything after ", "
-                group.size = ParseSize(groupSize);
+                foreach (var attribute in ReadAttributes(groupLine))
+                {
+                    if (attribute.Key == "Total Size")
+                        group.size = ParseSize(attribute.Value);
+                }
 
                 // Iterate over each group line
                 var loopguard = 0;
@@ -176,12 +179,17 @@ namespace Oddworm.EditorFramework
                 archiveName = archiveName.Trim();
                 archive.name = archiveName;
 
-                // Read the archive size
-                var archiveSize = archiveLine;
-                archiveSize = archiveSize.Substring(archiveSize.IndexOf("(Size: ") + "(Size: ".Length); // Remove everything before and including "(Size: "
-                archiveSize = archiveSize.Substring(0, archiveSize.IndexOf(", ")); // Remove everything after ", "
-                archive.size = ParseSize(archiveSize);
+                foreach (var attribute in ReadAttributes(archiveLine))
+                {
+                    if (attribute.Key == "Size")
+                        archive.size = ParseSize(attribute.Value);
 
+                    if (attribute.Key == "Compression")
+                        archive.compression = attribute.Value;
+
+                    if (attribute.Key == "Asset Bundle Object Size")
+                        archive.assetBundleObjectSize = ParseSize(attribute.Value);
+                }
 
                 var loopguard = 0;
 
@@ -197,26 +205,28 @@ namespace Oddworm.EditorFramework
                         break;
 
                     var trimmedLine = lines[index].Trim();
-                    if (trimmedLine.StartsWith("Bundle Dependencies", System.StringComparison.OrdinalIgnoreCase))
+                    if (trimmedLine.StartsWith("Bundle Dependencies:", System.StringComparison.OrdinalIgnoreCase))
                     {
-                        archive.bundleDependencies.AddRange(ReadBundleDependencies(ref index));
+                        archive.bundleDependencies.AddRange(ReadCommaSeparatedStrings(ref index));
                         continue;
                     }
 
-                    if (trimmedLine.StartsWith("Expanded Bundle Dependencies", System.StringComparison.OrdinalIgnoreCase))
+                    if (trimmedLine.StartsWith("Expanded Bundle Dependencies:", System.StringComparison.OrdinalIgnoreCase))
                     {
-                        archive.expandedBundleDependencies.AddRange(ReadExpandedBundleDependencies(ref index));
+                        archive.expandedBundleDependencies.AddRange(ReadCommaSeparatedStrings(ref index));
                         continue;
                     }
 
                     if (trimmedLine.StartsWith("Explicit Assets", System.StringComparison.OrdinalIgnoreCase))
                     {
-
+                        archive.explicitAssets.AddRange(ReadExplicitAssets(ref index));
+                        continue;
                     }
 
                     if (trimmedLine.StartsWith("Files", System.StringComparison.OrdinalIgnoreCase))
                     {
-
+                        //SkipBlock(ref index);
+                        continue;
                     }
                 }
 
@@ -225,30 +235,142 @@ namespace Oddworm.EditorFramework
 
             List<ExplicitAsset> ReadExplicitAssets(ref int index)
             {
+                //Explicit Assets
+                //	Assets/configs/shake/camera_shake_empty.prefab (Total Size: 319B, Size from Objects: 319B, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/configs/shake/camera_shake_empty.prefab)
+                //		Internal References: Packages/com.unity.cinemachine/Presets/Noise/Handheld_tele_mild.asset
+                //	Assets/configs/bundles/bundle_01.prefab (Total Size: 411B, Size from Objects: 411B, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/configs/bundles/bundle_01.prefab)
+                //		External References: Assets/configs/item/item_02.prefab, Assets/configs/item/item_01.prefab, Assets/configs/equipment/saddlecloth/saddlecloth_config_01_01_01.prefab, Assets/configs/equipment/saddle/saddle_config_01_01_01.prefab
+                //	Assets/art/debug/debug_checkerboard.png (Total Size: 170.88KB, Size from Objects: 204B, Size from Streamed Data: 170.68KB, File Index: 0, Addressable Name: Assets/art/debug/debug_checkerboard.png)
+
                 var assets = new List<ExplicitAsset>();
+                var explicitAssetsIndend = GetIndend(lines[index]);
+                index++; // skip "Explicit Assets" line
+
+                for (; index < lines.Count-1; ++index)
+                {
+                    var line = lines[index];
+                    var lineIndend = GetIndend(line);
+                    if (lineIndend <= explicitAssetsIndend)
+                    {
+                        index--;
+                        break;
+                    }
+
+                    var asset = ReadExplicitAsset(ref index);
+                    if (asset != null)
+                        assets.Add(asset);
+                }
+
                 return assets;
             }
 
-            List<string> ReadExpandedBundleDependencies(ref int index)
+            Dictionary<string, string> ReadAttributes(string line)
             {
-		        // Expanded Bundle Dependencies: lr-globals_assets_assets/configs/horse_0aae3772e478c44f7a52a3c70dd19634.bundle, lr-globals_assets_assets/configs/horsehair_0ce9fe7b12df74c0252ac5b88850c01a.bundle
-                var bundlesLine = lines[index];
-                bundlesLine = bundlesLine.Substring(bundlesLine.IndexOf("Expanded Bundle Dependencies:") + "Expanded Bundle Dependencies:".Length); // Remove everything before and including "Bundle Dependencies:"
-                bundlesLine = bundlesLine.Trim();
+                // Read everything between the brackets
+                // Assets/art/debug/debug_checkerboard.png (Total Size: 170.88KB, Size from Objects: 204B, Size from Streamed Data: 170.68KB, File Index: 0, Addressable Name: Assets/art/debug/debug_checkerboard.png)
 
-                var bundles = new List<string>();
-                foreach (var b in bundlesLine.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
-                    bundles.Add(b.Trim());
+                var last = line.LastIndexOf(')');
+                var first = last;
+                var result = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);
 
-                bundles.Sort();
-                return bundles;
+                var count = 1;
+                for (var n = last - 1; n >= 0; --n)
+                {
+                    if (line[n] == ')')
+                        count++;
+                    if (line[n] == '(')
+                        count--;
+                    if (count == 0)
+                    {
+                        first = n+1;
+                        break;
+                    }
+                }
+
+                if (first != last)
+                {
+                    // Now line contains:
+                    // Total Size: 170.88KB, Size from Objects: 204B, Size from Streamed Data: 170.68KB, File Index: 0, Addressable Name: Assets/art/debug/debug_checkerboard.png
+                    line = line.Substring(first, last - first);
+
+                    // Now split it to:
+                    // Total Size: 170.88KB
+                    // Size from Objects: 204B
+                    // Size from Streamed Data: 170.68KB
+                    // File Index: 0
+                    // Addressable Name: Assets/art/debug/debug_checkerboard.png
+                    foreach (var entry in line.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        // entry contains:
+                        // Total Size: 170.88KB
+                        if (string.IsNullOrEmpty(entry.Trim()))
+                            continue;
+
+                        // split entry to:
+                        // Total Size
+                        // 170.88KB
+                        var pair = entry.Split(new[] { ':' }, System.StringSplitOptions.RemoveEmptyEntries);
+                        if (pair.Length == 2)
+                            result[pair[0].Trim()] = pair[1].Trim();
+                        else if (pair.Length >= 1)
+                            result[pair[0].Trim()] = pair[0].Trim();
+                    }
+                }
+
+                return result;
             }
 
-            List<string> ReadBundleDependencies(ref int index)
+            ExplicitAsset ReadExplicitAsset(ref int index)
             {
-                // Bundle Dependencies: lr-globals_assets_assets/configs/item_68ba73d55166d41b4ec9f04c1cfc54a7.bundle, lr-globals_assets_assets/configs/equipment_6f2a3eff33b3f8d981c5603238a6c004.bundle, defaultlocalgroup_monoscripts_48eef9bf5ed5a3584cd1e8dd9725f4e1.bundle
+                var result = new ExplicitAsset();
+                var assetLine = lines[index++];
+                var assetIndend = GetIndend(assetLine);
+
+                // Read the asset name
+                var assetName = assetLine;
+                assetName = assetName.Substring(0, assetName.IndexOf(" (Total Size:")); // Remove everything after and including " (Total Size:"
+                assetName = assetName.Trim();
+                result.name = assetName;
+
+                foreach (var attribute in ReadAttributes(assetLine))
+                {
+                    if (attribute.Key == "Total Size")
+                        result.size = ParseSize(attribute.Value);
+
+                    if (attribute.Key == "Addressable Name")
+                        result.address = attribute.Value;
+                }
+
+                for (; index < lines.Count - 1; ++index)
+                {
+                    var line = lines[index];
+                    var lineIndend = GetIndend(line);
+                    if (lineIndend <= assetIndend)
+                    {
+                        index--;
+                        return result;
+                    }
+
+                    var trimmedLine = line.Trim();
+                    if (trimmedLine.StartsWith("External References:", System.StringComparison.OrdinalIgnoreCase))
+                        result.externalReferences.AddRange(ReadCommaSeparatedStrings(ref index));
+
+                    if (trimmedLine.StartsWith("Internal References:", System.StringComparison.OrdinalIgnoreCase))
+                        result.internalReferences.AddRange(ReadCommaSeparatedStrings(ref index));
+                }
+
+                index--;
+                return result;
+            }
+
+            List<string> ReadCommaSeparatedStrings(ref int index)
+            {
+                // Expanded Bundle Dependencies: lr-globals_assets_assets/configs/horse_0aae3772e478c44f7a52a3c70dd19634.bundle, lr-globals_assets_assets/configs/horsehair_0ce9fe7b12df74c0252ac5b88850c01a.bundle
                 var bundlesLine = lines[index];
-                bundlesLine = bundlesLine.Substring(bundlesLine.IndexOf("Bundle Dependencies:") + "Bundle Dependencies:".Length); // Remove everything before and including "Bundle Dependencies:"
+                if (bundlesLine.IndexOf(":") == -1)
+                    return new List<string>();
+
+                bundlesLine = bundlesLine.Substring(bundlesLine.IndexOf(":") + ":".Length); // Remove everything before and including "Bundle Dependencies:"
                 bundlesLine = bundlesLine.Trim();
 
                 var bundles = new List<string>();
