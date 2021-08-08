@@ -51,19 +51,73 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     };
                     rootItem.AddChild(bundleItem);
 
-                    foreach(var dependency in bundle.bundleDependencies)
+                    if (bundle.bundleDependencies.Count > 0)
                     {
-                        var dependencyItem = new DependencyItem
+                        var dependencyGroupItem = new DependencyGroupItem
                         {
-                            source = dependency,
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
-                            displayName = dependency,
-                            //icon = Styles.bundleIcon
+                            displayName = "Bundle Dependencies",
+                            icon = Styles.bundleDependenciesIcon
                         };
-                        bundleItem.AddChild(dependencyItem);
+                        bundleItem.AddChild(dependencyGroupItem);
+
+                        foreach (var dependency in bundle.bundleDependencies)
+                        {
+                            var dependencyItem = new DependencyItem
+                            {
+                                source = dependency,
+                                id = m_UniqueId++,
+                                depth = dependencyGroupItem.depth + 1,
+                                displayName = dependency
+                            };
+                            dependencyGroupItem.AddChild(dependencyItem);
+                        }
                     }
 
+                    if (bundle.expandedBundleDependencies.Count > 0)
+                    {
+                        var dependencyGroupItem = new DependencyGroupItem
+                        {
+                            id = m_UniqueId++,
+                            depth = bundleItem.depth + 1,
+                            displayName = "Expanded Bundle Dependencies",
+                            icon = Styles.bundleExpandedDependenciesIcon
+                        };
+                        bundleItem.AddChild(dependencyGroupItem);
+
+                        foreach (var dependency in bundle.expandedBundleDependencies)
+                        {
+                            var dependencyItem = new DependencyItem
+                            {
+                                source = dependency,
+                                id = m_UniqueId++,
+                                depth = dependencyGroupItem.depth + 1,
+                                displayName = dependency,
+                                //icon = Styles.bundleIcon
+                            };
+                            dependencyGroupItem.AddChild(dependencyItem);
+                        }
+                    }
+                }
+            }
+        }
+
+        [System.Serializable]
+        class DependencyGroupItem : BaseItem
+        {
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        EditorGUI.LabelField(position, displayName);
+                        break;
                 }
             }
         }

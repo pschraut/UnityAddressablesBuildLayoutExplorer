@@ -30,6 +30,17 @@ namespace Oddworm.EditorFramework
             public string name;
             public long size;
             public List<string> bundleDependencies = new List<string>();
+            public List<string> expandedBundleDependencies = new List<string>();
+        }
+
+        [System.Serializable]
+        public class ExplicitAsset
+        {
+            public string name;
+            public long size;
+            public string address;
+            public List<string> externalReferences = new List<string>();
+            public List<string> internalReferences = new List<string>();
         }
 
         public static BuildLayout Load(string path)
@@ -194,7 +205,8 @@ namespace Oddworm.EditorFramework
 
                     if (trimmedLine.StartsWith("Expanded Bundle Dependencies", System.StringComparison.OrdinalIgnoreCase))
                     {
-
+                        archive.expandedBundleDependencies.AddRange(ReadExpandedBundleDependencies(ref index));
+                        continue;
                     }
 
                     if (trimmedLine.StartsWith("Explicit Assets", System.StringComparison.OrdinalIgnoreCase))
@@ -211,8 +223,30 @@ namespace Oddworm.EditorFramework
                 return archive;
             }
 
+            List<ExplicitAsset> ReadExplicitAssets(ref int index)
+            {
+                var assets = new List<ExplicitAsset>();
+                return assets;
+            }
+
+            List<string> ReadExpandedBundleDependencies(ref int index)
+            {
+		        // Expanded Bundle Dependencies: lr-globals_assets_assets/configs/horse_0aae3772e478c44f7a52a3c70dd19634.bundle, lr-globals_assets_assets/configs/horsehair_0ce9fe7b12df74c0252ac5b88850c01a.bundle
+                var bundlesLine = lines[index];
+                bundlesLine = bundlesLine.Substring(bundlesLine.IndexOf("Expanded Bundle Dependencies:") + "Expanded Bundle Dependencies:".Length); // Remove everything before and including "Bundle Dependencies:"
+                bundlesLine = bundlesLine.Trim();
+
+                var bundles = new List<string>();
+                foreach (var b in bundlesLine.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
+                    bundles.Add(b.Trim());
+
+                bundles.Sort();
+                return bundles;
+            }
+
             List<string> ReadBundleDependencies(ref int index)
             {
+                // Bundle Dependencies: lr-globals_assets_assets/configs/item_68ba73d55166d41b4ec9f04c1cfc54a7.bundle, lr-globals_assets_assets/configs/equipment_6f2a3eff33b3f8d981c5603238a6c004.bundle, defaultlocalgroup_monoscripts_48eef9bf5ed5a3584cd1e8dd9725f4e1.bundle
                 var bundlesLine = lines[index];
                 bundlesLine = bundlesLine.Substring(bundlesLine.IndexOf("Bundle Dependencies:") + "Bundle Dependencies:".Length); // Remove everything before and including "Bundle Dependencies:"
                 bundlesLine = bundlesLine.Trim();
