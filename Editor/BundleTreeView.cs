@@ -16,13 +16,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             public const int name = 0;
             public const int size = 1;
-            public const int dependencies = 2;
+            public const int compression = 2;
+            public const int dependencies = 3;
         }
 
         public BundleTreeView(BuildLayoutWindow window)
                    : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
+                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Compression"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Dependencies"), width = 80, autoResize = true },
                             })))
         {
@@ -53,14 +55,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     if (bundle.bundleDependencies.Count > 0)
                     {
-                        var dependencyGroupItem = new DependencyGroupItem
+                        var categoryItem = new CategoryItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Bundle Dependencies",
                             icon = Styles.bundleDependenciesIcon
                         };
-                        bundleItem.AddChild(dependencyGroupItem);
+                        bundleItem.AddChild(categoryItem);
 
                         foreach (var dependency in bundle.bundleDependencies)
                         {
@@ -68,23 +70,23 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             {
                                 source = dependency,
                                 id = m_UniqueId++,
-                                depth = dependencyGroupItem.depth + 1,
+                                depth = categoryItem.depth + 1,
                                 displayName = dependency
                             };
-                            dependencyGroupItem.AddChild(dependencyItem);
+                            categoryItem.AddChild(dependencyItem);
                         }
                     }
 
                     if (bundle.expandedBundleDependencies.Count > 0)
                     {
-                        var dependencyGroupItem = new DependencyGroupItem
+                        var categoryItem = new CategoryItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Expanded Bundle Dependencies",
                             icon = Styles.bundleExpandedDependenciesIcon
                         };
-                        bundleItem.AddChild(dependencyGroupItem);
+                        bundleItem.AddChild(categoryItem);
 
                         foreach (var dependency in bundle.expandedBundleDependencies)
                         {
@@ -92,11 +94,36 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             {
                                 source = dependency,
                                 id = m_UniqueId++,
-                                depth = dependencyGroupItem.depth + 1,
+                                depth = categoryItem.depth + 1,
                                 displayName = dependency,
                                 //icon = Styles.bundleIcon
                             };
-                            dependencyGroupItem.AddChild(dependencyItem);
+                            categoryItem.AddChild(dependencyItem);
+                        }
+                    }
+
+                    if (bundle.explicitAssets.Count > 0)
+                    {
+                        var categoryItem = new CategoryItem
+                        {
+                            id = m_UniqueId++,
+                            depth = bundleItem.depth + 1,
+                            displayName = "Explicit Assets",
+                            icon = Styles.explicitAssetsIcon
+                        };
+                        bundleItem.AddChild(categoryItem);
+
+                        foreach (var asset in bundle.explicitAssets)
+                        {
+                            var assetItem = new AssetItem
+                            {
+                                source = asset,
+                                id = m_UniqueId++,
+                                depth = categoryItem.depth + 1,
+                                displayName = asset.name,
+                                //icon = Styles.bundleIcon
+                            };
+                            categoryItem.AddChild(assetItem);
                         }
                     }
                 }
@@ -104,7 +131,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
         [System.Serializable]
-        class DependencyGroupItem : BaseItem
+        class CategoryItem : BaseItem
         {
             public override int CompareTo(TreeViewItem other, int column)
             {
@@ -141,6 +168,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     case ColumnIDs.size:
                         return source.size.CompareTo(otherItem.source.size);
 
+                    case ColumnIDs.compression:
+                        return string.Compare(source.compression, otherItem.source.compression, true);
+
                     case ColumnIDs.dependencies:
                         return source.bundleDependencies.Count.CompareTo(otherItem.source.bundleDependencies.Count);
                 }
@@ -158,6 +188,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.size:
                         EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(source.size)}");
+                        break;
+
+                    case ColumnIDs.compression:
+                        EditorGUI.LabelField(position, source.compression);
                         break;
 
                     case ColumnIDs.dependencies:
@@ -194,6 +228,37 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         EditorGUI.LabelField(position, source);
+                        break;
+                }
+            }
+        }
+
+        [System.Serializable]
+        class AssetItem : BaseItem
+        {
+            public BuildLayout.ExplicitAsset source;
+
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as AssetItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return string.Compare(source.name, otherItem.source.name, true);
+                }
+
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        EditorGUI.LabelField(position, source.name);
                         break;
                 }
             }

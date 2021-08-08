@@ -34,8 +34,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             get;
             private set;
-
         }
+        public static Texture2D explicitAssetsIcon
+        {
+            get;
+            private set;
+        }
+
         public static GUIStyle iconStyle
         {
             get;
@@ -48,6 +53,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             bundleIcon = FindBuiltinTexture("d_DefaultAsset Icon");
             bundleDependenciesIcon = FindBuiltinTexture("Animator Icon");
             bundleExpandedDependenciesIcon = FindBuiltinTexture("d_AnimatorController Icon");
+            explicitAssetsIcon = FindBuiltinTexture("d_ToolHandleCenter");
 
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;
