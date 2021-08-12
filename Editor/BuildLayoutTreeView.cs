@@ -126,8 +126,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var itemA = (ascending ? x : y);
             var itemB = (ascending ? y : x);
 
-            var result = 0;
+            // Some items should not be affected by the sort, for example category
+            // nodes should be stable regardless of sorting up or down.
             var typedItemA = itemA as BaseItem;
+            if (typedItemA != null && !typedItemA.supportsSortingOrder)
+            {
+                itemA = x;
+                itemB = y;
+            }
+
+            var result = 0;
             if (typedItemA != null)
                 result = typedItemA.CompareTo(itemB, sortingColumn);
 
@@ -219,6 +227,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         protected abstract class BaseItem : TreeViewItem
         {
+            public bool supportsSortingOrder = true;
+
             public abstract void OnGUI(Rect position, int column);
             public abstract int CompareTo(TreeViewItem other, int column);
         }
