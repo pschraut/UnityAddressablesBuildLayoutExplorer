@@ -14,12 +14,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
     public class BundlesView : BuildLayoutView
     {
         [SerializeField] BuildLayoutTreeView m_TreeView;
+        SearchField m_SearchField;
 
         public override void Awake()
         {
             base.Awake();
 
             m_TreeView = new BundleTreeView(window);
+            m_SearchField = new SearchField(window);
         }
 
         public override void Rebuild(BuildLayout buildLayout)
@@ -33,6 +35,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             m_TreeView.OnGUI(rect);
+        }
+
+        public override void OnToolbarGUI()
+        {
+            base.OnToolbarGUI();
+
+            GUILayout.Space(10);
+
+            if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
+                m_TreeView.searchString = m_SearchField.text;
         }
     }
 }
