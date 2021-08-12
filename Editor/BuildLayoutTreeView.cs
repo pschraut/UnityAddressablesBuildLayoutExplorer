@@ -130,8 +130,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var typedItemA = itemA as BaseItem;
             if (typedItemA != null)
                 result = typedItemA.CompareTo(itemB, sortingColumn);
-            else if (itemA != null)
-                return itemA.id.CompareTo(itemB.id);
+
+            if (result == 0 && itemA != null && itemB != null)
+                result = itemA.id.CompareTo(itemB.id);
 
             return result;
         }
