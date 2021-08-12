@@ -167,6 +167,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         ShowView(o as BuildLayoutView);
                     }, view);
                 }
+
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("BuildLayout Explorer"), false, NewWindow);
+
                 menu.DropDown(m_ViewButtonRect);
             }
         }
@@ -182,12 +186,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void OnToolbarGUI()
         {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            DrawFileToolbarItem();
-            DrawViewToolbarItem();
-            DrawCustomToolbarItems();
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+            {
+                DrawFileToolbarItem();
+                DrawViewToolbarItem();
+                DrawCustomToolbarItems();
+            }
+        }
+
+        void NewWindow()
+        {
+            var wnd = CreateInstance<BuildLayoutWindow>();
+            wnd.Show();
+
+            // Unity positions the window at the same location as the current window is.
+            // This looks like no window opened, therefore we slightly change the position of the new window.
+            var rect = position;
+            rect.x += 50;
+            rect.y += 50;
+            wnd.position = rect;
         }
 
         void OpenFileDialog()
