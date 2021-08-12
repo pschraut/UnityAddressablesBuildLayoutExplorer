@@ -66,6 +66,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             public BuildLayout.Group source;
 
+            public GroupItem()
+            {
+                supportsSearch = true;
+            }
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as GroupItem;

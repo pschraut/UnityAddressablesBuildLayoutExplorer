@@ -14,12 +14,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
     public class GroupsView : BuildLayoutView
     {
         [SerializeField] BuildLayoutTreeView m_TreeView;
+        SearchField m_SearchField;
 
         public override void Awake()
         {
             base.Awake();
 
             m_TreeView = new GroupTreeView(window);
+            m_SearchField = new SearchField(window);
         }
 
         public override void Rebuild(BuildLayout buildLayout)
@@ -39,7 +41,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             base.OnToolbarGUI();
 
-            GUILayout.FlexibleSpace();
+            GUILayout.Space(10);
+
+            if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
+                m_TreeView.searchString = m_SearchField.text;
         }
     }
 }
