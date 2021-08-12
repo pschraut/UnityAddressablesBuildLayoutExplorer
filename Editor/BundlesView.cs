@@ -15,6 +15,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
     {
         [SerializeField] BuildLayoutTreeView m_TreeView;
         SearchField m_SearchField;
+        string m_StatusLabel;
 
         public override void Awake()
         {
@@ -29,6 +30,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             base.Rebuild(buildLayout);
 
             m_TreeView.SetBuildLayout(buildLayout);
+
+            var size = 0L;
+            var count = 0;
+            foreach(var group in buildLayout.groups)
+            {
+                foreach(var bundle in group.bundles)
+                {
+                    size += bundle.size;
+                    count++;
+                }
+            }
+            m_StatusLabel = $"{count} bundles making up {EditorUtility.FormatBytes(size)}";
         }
 
         public override void OnGUI()
@@ -45,6 +58,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
                 m_TreeView.searchString = m_SearchField.text;
+        }
+
+        public override void OnStatusbarGUI()
+        {
+            base.OnStatusbarGUI();
+
+            GUILayout.Label(m_StatusLabel);
         }
     }
 }
