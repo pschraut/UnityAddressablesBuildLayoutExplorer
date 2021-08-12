@@ -62,10 +62,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         static Styles()
         {
             groupIcon = FindBuiltinTexture("ScriptableObject Icon");
-            bundleIcon = FindBuiltinTexture("d_DefaultAsset Icon");
+            bundleIcon = FindBuiltinTexture("LODGroup Icon");
             bundleDependenciesIcon = FindBuiltinTexture("Animator Icon");
             bundleExpandedDependenciesIcon = FindBuiltinTexture("d_NetworkAnimator Icon");
-            explicitAssetsIcon = FindBuiltinTexture("LODGroup Icon");
+            explicitAssetsIcon = FindBuiltinTexture("d_DefaultAsset Icon");
             internalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController On Icon");
             externalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController Icon");
 
