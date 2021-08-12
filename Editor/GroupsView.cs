@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq.Expressions;
 using System;
+using UnityEditor.IMGUI.Controls;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
@@ -22,7 +23,26 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             base.Awake();
 
             m_TreeView = new GroupTreeView(window);
+            m_TreeView.selectedItemChanged += OnSelectedItemChanged;
             m_SearchField = new SearchField(window);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            m_TreeView.selectedItemChanged -= OnSelectedItemChanged;
+        }
+
+        void OnSelectedItemChanged(TreeViewItem selectedItem)
+        {
+            if (selectedItem == null)
+                return;
+
+            var name = selectedItem.displayName;
+            var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>($"Assets/AddressableAssetsData/AssetGroups/{name}.asset");
+            if (asset != null)
+                Selection.activeObject = asset;
         }
 
         public override void Rebuild(BuildLayout buildLayout)

@@ -18,6 +18,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [SerializeField] protected int m_UniqueId = 100;
         List<TreeViewItem> m_RowsCache;
 
+        public System.Action<TreeViewItem> selectedItemChanged;
+
         public BuildLayoutTreeView(BuildLayoutWindow window, TreeViewState state, MultiColumnHeader multiColumnHeader)
                    : base(state, multiColumnHeader)
         {
@@ -226,6 +228,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             rect.width -= indent * foldoutWidth;
 
             return rect;
+        }
+
+        protected override void SelectionChanged(IList<int> selectedIds)
+        {
+            base.SelectionChanged(selectedIds);
+
+            TreeViewItem selectedItem = null;
+
+            if (selectedIds != null && selectedIds.Count > 0)
+                selectedItem = FindItem(selectedIds[0], rootItem);
+
+            selectedItemChanged?.Invoke(selectedItem);
         }
 
         [System.Serializable]
