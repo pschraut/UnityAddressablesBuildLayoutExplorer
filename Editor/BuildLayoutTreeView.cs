@@ -205,6 +205,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     if (child == null)
                         continue;
 
+                    var item = child as BaseItem;
+                    if (item != null && !item.supportsSearch)
+                        continue;
+
                     if (DoesItemMatchSearch(child, search))
                         result.Add(child);
 
@@ -228,6 +232,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         protected abstract class BaseItem : TreeViewItem
         {
             public bool supportsSortingOrder = true;
+            public bool supportsSearch = false;
 
             public abstract void OnGUI(Rect position, int column);
             public abstract int CompareTo(TreeViewItem other, int column);
