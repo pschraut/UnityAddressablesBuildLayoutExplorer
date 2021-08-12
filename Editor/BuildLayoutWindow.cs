@@ -18,6 +18,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         List<BuildLayoutView> m_Views = new List<BuildLayoutView>();
         string m_LoadedPath;
         string[] m_RecentPaths = new string[0];
+        Rect m_StatusbarRect;
 
         public string[] recentPaths
         {
@@ -97,23 +98,51 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void OnStatusbarGUI()
         {
-            using (new GUILayout.HorizontalScope(GUILayout.ExpandWidth(true)))
-            {
-                GUILayout.FlexibleSpace();
-                EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Label(m_LoadedPath ?? "");
-                EditorGUI.EndDisabledGroup();
-            }
-
             // Darken the status area a little
-            if (Event.current.type == EventType.Repaint)
+            if (Event.current.type == EventType.Repaint && m_StatusbarRect.size.magnitude > 1)
             {
-                var r = GUILayoutUtility.GetLastRect();
-                r.height += 2; r.x -= 4; r.width += 8;
+                var r = m_StatusbarRect;
+                r.height += 4; r.x -= 4; r.width += 8;
                 var oldcolor = GUI.color;
-                GUI.color = new Color(0, 0, 0, 0.1f);
+                GUI.color = EditorGUIUtility.isProSkin ? new Color(0, 0, 0, 0.25f) : new Color(0, 0, 0, 0.125f);
+
                 GUI.DrawTexture(r, EditorGUIUtility.whiteTexture, ScaleMode.StretchToFill);
                 GUI.color = oldcolor;
+            }
+
+            using (new GUILayout.HorizontalScope(GUILayout.Height(20), GUILayout.ExpandWidth(true)))
+            {
+                using (new GUILayout.VerticalScope())
+                {
+                    GUILayout.Space(2);
+
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Space(10);
+                        DrawCustomStatusbarGUI();
+                        GUILayout.FlexibleSpace();
+                        DrawPathStatusbarGUI();
+                        GUILayout.Space(10);
+                    }
+                }
+            }
+            if (Event.current.type == EventType.Repaint)
+                m_StatusbarRect = GUILayoutUtility.GetLastRect();
+        }
+
+        void DrawPathStatusbarGUI()
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            GUILayout.Label(m_LoadedPath ?? "");
+            EditorGUI.EndDisabledGroup();
+        }
+
+        void DrawCustomStatusbarGUI()
+        {
+            foreach (var view in m_Views)
+            {
+                if (view.isVisible)
+                    view.OnStatusbarGUI();
             }
         }
 
