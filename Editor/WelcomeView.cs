@@ -58,6 +58,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
+        public override void OnToolbarGUI()
+        {
+            base.OnToolbarGUI();
+
+            GUILayout.FlexibleSpace();
+        }
+
         void DrawRecentPaths()
         {
             if (window.recentPaths.Length == 0)

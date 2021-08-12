@@ -34,5 +34,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             m_TreeView.OnGUI(rect);
         }
+
+        public override void OnToolbarGUI()
+        {
+            base.OnToolbarGUI();
+
+            GUILayout.FlexibleSpace();
+        }
     }
 }
