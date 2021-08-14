@@ -157,6 +157,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Open File..."), false, OpenFileDialog);
+            if (System.IO.File.Exists("Library/com.unity.addressables/buildlayout.txt"))
+                menu.AddItem(new GUIContent("Open buildlayout.txt"), false, delegate() { LoadBuildLayout("Library/com.unity.addressables/buildlayout.txt"); });
             menu.AddSeparator("");
 
             if (m_Layout != null)
@@ -364,36 +366,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             var wnd = GetWindow<BuildLayoutWindow>();
             wnd.Show();
-        }
-
-        [MenuItem("Test/Read Layout")]
-        static void TestReadLayoutMenuItem()
-        {
-            var path = "Assets/buildlayout.txt";
-            var layout = BuildLayout.Load(path);
-            var json = JsonUtility.ToJson(layout, true);
-            System.IO.File.WriteAllText("Assets/BuildLayout.json", json);
-
-            foreach (var group in layout.groups)
-            {
-                var sb = new System.Text.StringBuilder();
-                sb.Append($"{group.name} = {group.size}\n");
-
-                foreach (var archive in group.bundles)
-                {
-                    sb.Append($"    Archive {archive.name} {archive.size}\n");
-
-                    if (archive.bundleDependencies.Count > 0)
-                        sb.Append($"      BundleDependencies {archive.bundleDependencies.Count}\n");
-
-                    foreach (var dep in archive.bundleDependencies)
-                    {
-                        sb.Append($"        {dep}\n");
-                    }
-                }
-
-                Debug.Log(sb.ToString());
-            }
         }
     }
 }
