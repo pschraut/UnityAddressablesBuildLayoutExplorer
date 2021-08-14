@@ -98,14 +98,23 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public void SetBuildLayout(RichBuildLayout buildLayout)
         {
-            var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
+            var expandedIDs = new List<int>(state.expandedIDs);
+            var selectedIDs = new List<int>(state.selectedIDs);
+            var scrollPos = state.scrollPos;
+
+            m_UniqueId = 0;
+            var root = new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "Root" };
 
             OnBuildTree(root, buildLayout);
             if (!root.hasChildren)
-                root.AddChild(new TreeViewItem { id = root.id + 1, depth = -1, displayName = "" });
+                root.AddChild(new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "" });
 
             m_CachedTree = root;
             Reload();
+
+            SetExpanded(expandedIDs);
+            SetSelection(selectedIDs);
+            state.scrollPos = scrollPos;
         }
 
         public void Search(string search)
