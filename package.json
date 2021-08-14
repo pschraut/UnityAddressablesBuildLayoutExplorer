@@ -1,0 +1,23 @@
+{
+  "name": "com.oddworm.addressablesbuildlayoutexplorer",
+  "version": "1.0.0",
+  "displayName": "Addressables BuildLayout Explorer",
+  "description": "Addressables BuildLayout Explorer allows you to inspect the 'buildlayout.txt' file that Addressables generated when building content.",
+  "unity": "2019.3",
+  "documentationUrl": "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer",
+  "dependencies": {
+  },
+  "keywords": [
+    "unity",
+    "addressables",
+    "editor"
+  ],
+  "author": {
+    "name": "Peter Schraut",
+    "url": "http://console-dev.de"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer.git"
+  }
+}
