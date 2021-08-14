@@ -11,7 +11,6 @@ namespace Oddworm.EditorFramework
     /// The <see cref="RichBuildLayout"/> class provides a higher-level abstraction of the <see cref="BuildLayout"/>
     /// that provides additional data.
     /// </summary>
-    [System.Serializable]
     public class RichBuildLayout
     {
         public BuildLayout lowlevel; // a reference to the underlaying object
@@ -19,8 +18,8 @@ namespace Oddworm.EditorFramework
         public string addressablesVersion = "";
         public List<Group> groups = new List<Group>();
         public List<Archive> bundles = new List<Archive>();
+        public List<Asset> assets = new List<Asset>();
 
-        [System.Serializable]
         public class Group
         {
             public string name = "";
@@ -29,7 +28,6 @@ namespace Oddworm.EditorFramework
             public BuildLayout.Group lowlevel; // a reference to the underlaying object
         }
 
-        [System.Serializable]
         public class Archive
         {
             public string name = "";
@@ -38,13 +36,12 @@ namespace Oddworm.EditorFramework
             public long assetBundleObjectSize;
             public List<Archive> bundleDependencies = new List<Archive>();
             public List<Archive> expandedBundleDependencies = new List<Archive>();
-            public List<ExplicitAsset> explicitAssets = new List<ExplicitAsset>();
+            public List<Asset> explicitAssets = new List<Asset>();
             public BuildLayout.Archive lowlevel; // a reference to the underlaying object
             public List<Group> referencedByGroups = new List<Group>();
         }
 
-        [System.Serializable]
-        public class ExplicitAsset
+        public class Asset
         {
             public string name;
             public long size;
@@ -52,6 +49,11 @@ namespace Oddworm.EditorFramework
             public List<string> externalReferences = new List<string>();
             public List<string> internalReferences = new List<string>();
             public BuildLayout.ExplicitAsset lowlevel; // a reference to the underlaying object
+            public List<Archive> referencedByBundle = new List<Archive>();
+        }
+
+        public RichBuildLayout()
+        {
         }
 
         public RichBuildLayout(BuildLayout buildLayout)
@@ -60,7 +62,7 @@ namespace Oddworm.EditorFramework
             unityVersion = buildLayout.unityVersion;
             addressablesVersion = buildLayout.addressablesVersion;
 
-            // 1st pass is to collect all bundles
+            // collect all bundles
             foreach (var baseGroup in buildLayout.groups)
             {
                 foreach(var baseBundle in baseGroup.bundles)
@@ -73,6 +75,7 @@ namespace Oddworm.EditorFramework
                     {
                         lowlevel = baseBundle,
                         name = baseBundle.name,
+                        size = baseBundle.size,
                         compression = baseBundle.compression,
                         assetBundleObjectSize = baseBundle.assetBundleObjectSize
                     };
@@ -80,7 +83,58 @@ namespace Oddworm.EditorFramework
                 }
             }
 
-            // 2nd pass on groups to fill groups with earlier collected bundles
+            // resolve bundle dependencies
+            foreach(var bundle in bundles)
+            {
+                foreach (var baseBundle in bundle.lowlevel.bundleDependencies)
+                {
+                    var bundleDependency = FindBundle(baseBundle);
+                    if (bundleDependency == null)
+                    {
+                        //Debug.LogError($"Cannot resolve bundle dependency to '{baseBundle}' in bundle '{bundle.name}'.");
+                        continue;
+                    }
+                    bundle.bundleDependencies.Add(bundleDependency);
+                }
+
+                foreach (var baseBundle in bundle.lowlevel.expandedBundleDependencies)
+                {
+                    var bundleDependency = FindBundle(baseBundle);
+                    if (bundleDependency == null)
+                    {
+                        //Debug.LogError($"Cannot resolve bundle dependency to '{baseBundle}' in bundle '{bundle.name}'.");
+                        continue;
+                    }
+                    bundle.expandedBundleDependencies.Add(bundleDependency);
+                }
+            }
+
+            // collect all assets
+            foreach (var bundle in bundles)
+            {
+                foreach (var baseAsset in bundle.lowlevel.explicitAssets)
+                {
+                    var asset = FindAsset(baseAsset.name);
+                    if (asset == null)
+                    {
+                        asset = new Asset()
+                        {
+                            lowlevel = baseAsset,
+                            name = baseAsset.name,
+                            size = baseAsset.size,
+                            address = baseAsset.address,
+                            externalReferences = new List<string>(baseAsset.externalReferences),
+                            internalReferences = new List<string>(baseAsset.internalReferences)
+                        };
+                        assets.Add(asset);
+                    }
+                    bundle.explicitAssets.Add(asset);
+                    asset.referencedByBundle.Add(bundle);
+                }
+            }
+
+
+            // fill groups with earlier collected bundles
             foreach (var baseGroup in buildLayout.groups)
             {
                 var group = new Group
@@ -94,13 +148,24 @@ namespace Oddworm.EditorFramework
                 foreach (var baseBundle in baseGroup.bundles)
                 {
                     var bundle = FindBundle(baseBundle.name);
-                    if (bundle != null)
+                    if (bundle == null)
                         continue;
 
                     bundle.referencedByGroups.Add(group);
                     group.bundles.Add(bundle);
                 }
             }
+        }
+
+        public Asset FindAsset(string assetName)
+        {
+            foreach (var asset in assets)
+            {
+                if (string.Equals(asset.name, assetName, System.StringComparison.OrdinalIgnoreCase))
+                    return asset;
+            }
+
+            return null;
         }
 
         public Archive FindBundle(string bundleName)

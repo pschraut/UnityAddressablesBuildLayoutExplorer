@@ -10,7 +10,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     public class BuildLayoutWindow : EditorWindow
     {
-        [SerializeField] BuildLayout m_Layout;
+        RichBuildLayout m_Layout;
 
         Rect m_ViewButtonRect;
         Rect m_FileButtonRect;
@@ -253,7 +253,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void CloseBuildLayout()
         {
-            m_Layout = new BuildLayout();
+            m_Layout = new RichBuildLayout();
             m_LoadedPath = "";
 
             foreach (var view in m_Views)
@@ -321,7 +321,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             try
             {
-                m_Layout = BuildLayout.Load(path);
+                m_Layout = new RichBuildLayout(BuildLayout.Load(path));
                 m_LoadedPath = path;
             }
             catch (System.Exception e)

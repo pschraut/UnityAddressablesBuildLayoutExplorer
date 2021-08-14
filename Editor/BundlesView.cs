@@ -21,7 +21,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_SearchField = new SearchField(window);
         }
 
-        public override void Rebuild(BuildLayout buildLayout)
+        public override void Rebuild(RichBuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
 

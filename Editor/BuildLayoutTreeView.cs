@@ -96,7 +96,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return false;
         }
 
-        public void SetBuildLayout(BuildLayout buildLayout)
+        public void SetBuildLayout(RichBuildLayout buildLayout)
         {
             var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
 
@@ -108,7 +108,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             Reload();
         }
 
-        protected abstract void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout);
+        protected abstract void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout);
 
         protected override void BeforeRowsGUI()
         {

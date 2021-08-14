@@ -50,7 +50,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
-        public BuildLayout buildLayout
+        public RichBuildLayout buildLayout
         {
             get;
             private set;
@@ -88,7 +88,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             window = null;
         }
 
-        public virtual void Rebuild(BuildLayout buildLayout)
+        public virtual void Rebuild(RichBuildLayout buildLayout)
         {
             this.buildLayout = buildLayout;
 

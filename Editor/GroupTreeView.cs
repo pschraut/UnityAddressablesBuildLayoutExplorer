@@ -28,7 +28,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
 
-        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
             foreach (var group in buildLayout.groups)
             {
@@ -63,7 +63,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class GroupItem : BaseItem
         {
-            public BuildLayout.Group group;
+            public RichBuildLayout.Group group;
 
             public GroupItem()
             {
@@ -113,7 +113,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class BundleItem : BaseItem
         {
-            public BuildLayout.Archive bundle;
+            public RichBuildLayout.Archive bundle;
 
             public override int CompareTo(TreeViewItem other, int column)
             {
@@ -145,11 +145,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(bundle.size)}");
+                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(bundle.size)}", Styles.ghostLabelStyle);
                         break;
 
                     case ColumnIDs.bundles:
-                        EditorGUI.LabelField(position, $"1");
+                        EditorGUI.LabelField(position, $"1", Styles.ghostLabelStyle);
                         break;
                 }
             }

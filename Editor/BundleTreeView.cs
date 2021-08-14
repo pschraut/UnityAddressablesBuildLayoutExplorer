@@ -30,7 +30,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
             var processed = new Dictionary<string, bool>();
 
@@ -44,7 +44,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     var bundleItem = new BundleItem
                     {
                         treeView = this,
-                        source = bundle,
+                        bundle = bundle,
                         id = m_UniqueId++,
                         depth = 0,
                         displayName = bundle.name,
@@ -68,7 +68,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         {
                             var assetItem = new AssetItem
                             {
-                                source = asset,
+                                asset = asset,
                                 id = m_UniqueId++,
                                 depth = assetsCategoryItem.depth + 1,
                                 displayName = asset.name
@@ -142,9 +142,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             var dependencyItem = new BundleReferenceItem
                             {
                                 treeView = this,
+                                bundle = dependency,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
-                                displayName = dependency
+                                displayName = dependency.name
                             };
                             categoryItem.AddChild(dependencyItem);
                         }
@@ -167,9 +168,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             var dependencyItem = new BundleReferenceItem
                             {
                                 treeView = this,
+                                bundle = dependency,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
-                                displayName = dependency
+                                displayName = dependency.name
                             };
                             categoryItem.AddChild(dependencyItem);
                         }
@@ -181,7 +183,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class BundleItem : BaseItem
         {
-            public BuildLayout.Archive source;
+            public RichBuildLayout.Archive bundle;
 
             public BundleItem()
             {
@@ -197,16 +199,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(source.name, otherItem.source.name, true);
+                        return string.Compare(bundle.name, otherItem.bundle.name, true);
 
                     case ColumnIDs.size:
-                        return source.size.CompareTo(otherItem.source.size);
+                        return bundle.size.CompareTo(otherItem.bundle.size);
 
                     case ColumnIDs.compression:
-                        return string.Compare(source.compression, otherItem.source.compression, true);
+                        return string.Compare(bundle.compression, otherItem.bundle.compression, true);
 
                     case ColumnIDs.dependencies:
-                        return source.bundleDependencies.Count.CompareTo(otherItem.source.bundleDependencies.Count);
+                        return bundle.bundleDependencies.Count.CompareTo(otherItem.bundle.bundleDependencies.Count);
                 }
 
                 return 0;
@@ -217,19 +219,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch(column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, source.name);
+                        EditorGUI.LabelField(position, bundle.name);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(source.size)}");
+                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(bundle.size)}");
                         break;
 
                     case ColumnIDs.compression:
-                        EditorGUI.LabelField(position, source.compression);
+                        EditorGUI.LabelField(position, bundle.compression);
                         break;
 
                     case ColumnIDs.dependencies:
-                        EditorGUI.LabelField(position, $"{source.bundleDependencies.Count}");
+                        var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
+                        EditorGUI.LabelField(position, $"{dependencyCount}");
                         break;
                 }
             }
@@ -269,7 +272,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class AssetItem : BaseItem
         {
-            public BuildLayout.ExplicitAsset source;
+            public RichBuildLayout.Asset asset;
 
             public override int CompareTo(TreeViewItem other, int column)
             {
@@ -280,7 +283,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(source.name, otherItem.source.name, true);
+                        return string.Compare(asset.name, otherItem.asset.name, true);
+
+                    case ColumnIDs.size:
+                        return asset.size.CompareTo(otherItem.asset.size);
                 }
 
                 return 0;
@@ -291,7 +297,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, source.name);
+                        EditorGUI.LabelField(position, asset.name);
+                        break;
+
+                    case ColumnIDs.size:
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(asset.size), Styles.ghostLabelStyle);
                         break;
                 }
             }
@@ -329,6 +339,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class BundleReferenceItem : BaseItem
         {
+            public RichBuildLayout.Archive bundle;
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as BundleReferenceItem;
@@ -339,6 +351,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         return string.Compare(displayName, otherItem.displayName, true);
+
+                    case ColumnIDs.size:
+                        return bundle.size.CompareTo(otherItem.bundle.size);
                 }
 
                 return 0;
@@ -355,6 +370,19 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                             EditorGUI.LabelField(position, displayName);
                         }
+                        break;
+
+                    case ColumnIDs.size:
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(bundle.size), Styles.ghostLabelStyle);
+                        break;
+
+                    case ColumnIDs.compression:
+                        EditorGUI.LabelField(position, bundle.compression, Styles.ghostLabelStyle);
+                        break;
+
+                    case ColumnIDs.dependencies:
+                        var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
+                        EditorGUI.LabelField(position, $"{dependencyCount}", Styles.ghostLabelStyle);
                         break;
                 }
             }

@@ -41,7 +41,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 Selection.activeObject = asset;
         }
 
-        public override void Rebuild(BuildLayout buildLayout)
+        public override void Rebuild(RichBuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
 

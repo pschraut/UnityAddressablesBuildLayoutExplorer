@@ -55,6 +55,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             get;
             private set;
         }
+        public static GUIStyle ghostLabelStyle
+        {
+            get;
+            private set;
+        }
 
         static Styles()
         {
@@ -71,6 +76,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             iconStyle.fixedHeight = 18;
             iconStyle.padding = new RectOffset();
             iconStyle.contentOffset = new Vector2(0, 0);
+
+            ghostLabelStyle = new GUIStyle(EditorStyles.label);
+            var tc = ghostLabelStyle.normal.textColor;
+            tc.a *= 0.6f;
+            ghostLabelStyle.normal.textColor = tc;
         }
 
         static Texture2D FindBuiltinTexture(string name)
