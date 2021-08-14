@@ -2,10 +2,8 @@
 // Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {

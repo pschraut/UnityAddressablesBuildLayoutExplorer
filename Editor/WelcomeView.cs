@@ -2,12 +2,8 @@
 // Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
-using System.Linq.Expressions;
-using System;
+using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
@@ -20,7 +16,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             base.Awake();
 
-            viewMenuOrder = -1;
+            viewMenuOrder = -1; // negative number indicates to hide it in the View menu
         }
 
         public override void OnGUI()

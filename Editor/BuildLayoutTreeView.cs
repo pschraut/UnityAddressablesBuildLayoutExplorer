@@ -2,23 +2,23 @@
 // Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     public abstract class BuildLayoutTreeView : UnityEditor.IMGUI.Controls.TreeView
     {
-        [SerializeField] protected BuildLayoutWindow m_Window;
-        [SerializeField] TreeViewItem m_CachedTree;
-        [SerializeField] int m_FirstVisibleRow;
-        [SerializeField] protected int m_UniqueId = 100;
-        List<TreeViewItem> m_RowsCache;
-
         public System.Action<TreeViewItem> selectedItemChanged;
+
+        protected BuildLayoutWindow m_Window;
+        protected int m_UniqueId = 100;
+
+        int m_FirstVisibleRow;
+        TreeViewItem m_CachedTree;
+        List<TreeViewItem> m_CachedRows;
 
         public BuildLayoutTreeView(BuildLayoutWindow window, TreeViewState state, MultiColumnHeader multiColumnHeader)
                    : base(state, multiColumnHeader)
@@ -174,21 +174,21 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
-            if (m_RowsCache == null)
-                m_RowsCache = new List<TreeViewItem>(128);
-            m_RowsCache.Clear();
+            if (m_CachedRows == null)
+                m_CachedRows = new List<TreeViewItem>(128);
+            m_CachedRows.Clear();
 
             if (hasSearch)
             {
-                SearchTree(root, searchString, m_RowsCache);
-                m_RowsCache.Sort(CompareItem);
+                SearchTree(root, searchString, m_CachedRows);
+                m_CachedRows.Sort(CompareItem);
             }
             else
             {
-                SortAndAddExpandedRows(root, m_RowsCache);
+                SortAndAddExpandedRows(root, m_CachedRows);
             }
 
-            return m_RowsCache;
+            return m_CachedRows;
         }
 
         protected virtual void SearchTree(TreeViewItem root, string search, List<TreeViewItem> result)
