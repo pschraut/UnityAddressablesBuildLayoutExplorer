@@ -14,6 +14,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         Rect m_ViewButtonRect;
         Rect m_FileButtonRect;
+        Rect m_SettingsButtonRect;
         List<BuildLayoutView> m_Views = new List<BuildLayoutView>();
         string m_LoadedPath;
         string[] m_RecentPaths = new string[0];
@@ -27,9 +28,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         void OnEnable()
         {
             titleContent = new GUIContent("BuildLayout Explorer");
-            m_Layout = null;
+            m_Layout = new RichBuildLayout();
             m_LoadedPath = "";
             m_Views = new List<BuildLayoutView>();
+            Settings.LoadSettings();
             LoadRecentPaths();
 
             CreateView<WelcomeView>();
@@ -42,6 +44,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void OnDisable()
         {
+            Settings.SaveSettings();
             CloseBuildLayout();
 
             foreach (var view in m_Views)
@@ -169,6 +172,32 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             menu.DropDown(m_FileButtonRect);
         }
 
+        void DrawSettingsToolbarItem()
+        {
+            var click = GUILayout.Button("Settings", EditorStyles.toolbarDropDown, GUILayout.Width(70));
+            if (Event.current.type == EventType.Repaint)
+                m_SettingsButtonRect = GUILayoutUtility.GetLastRect();
+            if (!click)
+                return;
+
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Strip Hash from Bundle name"), Settings.stripHashFromBundleName, delegate()
+            {
+                Settings.stripHashFromBundleName = !Settings.stripHashFromBundleName;
+                Settings.SaveSettings();
+                RebuildViews();
+            });
+
+            menu.AddItem(new GUIContent("Strip Extension from Bundle name"), Settings.stripExtensionFromBundleName, delegate ()
+            {
+                Settings.stripExtensionFromBundleName = !Settings.stripExtensionFromBundleName;
+                Settings.SaveSettings();
+                RebuildViews();
+            });
+
+            menu.DropDown(m_SettingsButtonRect);
+        }
+
         void DrawViewToolbarItem()
         {
             using(new EditorGUI.DisabledScope(m_Layout == null))
@@ -212,6 +241,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 DrawFileToolbarItem();
+                DrawSettingsToolbarItem();
                 DrawViewToolbarItem();
                 DrawCustomToolbarItems();
             }
@@ -257,10 +287,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_Layout = new RichBuildLayout();
             m_LoadedPath = "";
 
+            RebuildViews();
+            ShowView(FindView<WelcomeView>());
+        }
+
+        void RebuildViews()
+        {
             foreach (var view in m_Views)
                 view.Rebuild(m_Layout);
-
-            ShowView(FindView<WelcomeView>());
         }
 
         void SaveRecentPaths()
@@ -333,8 +367,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
             }
 
-            foreach (var view in m_Views)
-                view.Rebuild(m_Layout);
+            RebuildViews();
 
             var welcomeView = FindView<WelcomeView>();
             if (welcomeView != null && welcomeView.isVisible)

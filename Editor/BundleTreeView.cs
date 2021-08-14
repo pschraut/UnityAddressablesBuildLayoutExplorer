@@ -47,7 +47,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         bundle = bundle,
                         id = m_UniqueId++,
                         depth = 0,
-                        displayName = bundle.name,
+                        displayName = Utility.TransformBundleName(bundle.name),
                         icon = Styles.bundleIcon
                     };
                     rootItem.AddChild(bundleItem);
@@ -145,7 +145,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                                 bundle = dependency,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
-                                displayName = dependency.name
+                                displayName = Utility.TransformBundleName(dependency.name)
                             };
                             categoryItem.AddChild(dependencyItem);
                         }
@@ -171,7 +171,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                                 bundle = dependency,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
-                                displayName = dependency.name
+                                displayName = Utility.TransformBundleName(dependency.name)
                             };
                             categoryItem.AddChild(dependencyItem);
                         }
@@ -199,7 +199,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(bundle.name, otherItem.bundle.name, true);
+                        return string.Compare(displayName, otherItem.displayName, true);
 
                     case ColumnIDs.size:
                         return bundle.size.CompareTo(otherItem.bundle.size);
@@ -208,7 +208,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return string.Compare(bundle.compression, otherItem.bundle.compression, true);
 
                     case ColumnIDs.dependencies:
-                        return bundle.bundleDependencies.Count.CompareTo(otherItem.bundle.bundleDependencies.Count);
+                        {
+                            var a = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
+                            var b = otherItem.bundle.bundleDependencies.Count + otherItem.bundle.expandedBundleDependencies.Count;
+                            return a.CompareTo(b);
+                        }
                 }
 
                 return 0;
@@ -219,11 +223,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch(column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, bundle.name);
+                        EditorGUI.LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(bundle.size)}");
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(bundle.size));
                         break;
 
                     case ColumnIDs.compression:

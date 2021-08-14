@@ -51,7 +51,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         bundle = bundle,
                         id = m_UniqueId++,
                         depth = groupItem.depth + 1,
-                        displayName = bundle.name,
+                        displayName = Utility.TransformBundleName(bundle.name),
                         icon = Styles.bundleIcon
                     };
                     groupItem.AddChild(bundleItem);
@@ -124,7 +124,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(bundle.name, otherItem.bundle.name, true);
+                        return string.Compare(displayName, otherItem.displayName, true);
 
                     case ColumnIDs.size:
                         return bundle.size.CompareTo(otherItem.bundle.size);
@@ -141,7 +141,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, bundle.name);
+                        EditorGUI.LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
