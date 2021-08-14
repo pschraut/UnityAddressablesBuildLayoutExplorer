@@ -9,7 +9,7 @@ namespace Oddworm.EditorFramework
 {
     /// <summary>
     /// The <see cref="RichBuildLayout"/> class provides a higher-level abstraction of the <see cref="BuildLayout"/>
-    /// that provides additional data.
+    /// and provides additional data.
     /// </summary>
     public class RichBuildLayout
     {
@@ -49,7 +49,7 @@ namespace Oddworm.EditorFramework
             public long sizeFromObjects;
             public long sizeFromStreamedData;
             public string address;
-            public List<string> externalReferences = new List<string>();
+            public List<Asset> externalReferences = new List<Asset>();
             public List<string> internalReferences = new List<string>();
             public BuildLayout.ExplicitAsset lowlevel; // a reference to the underlaying object
             public List<Archive> referencedByBundle = new List<Archive>();
@@ -130,7 +130,7 @@ namespace Oddworm.EditorFramework
                             sizeFromObjects = baseAsset.sizeFromObjects,
                             sizeFromStreamedData = baseAsset.sizeFromStreamedData,
                             address = baseAsset.address,
-                            externalReferences = new List<string>(baseAsset.externalReferences),
+                            //externalReferences = new List<string>(baseAsset.externalReferences),
                             internalReferences = new List<string>(baseAsset.internalReferences)
                         };
                         assets.Add(asset);
@@ -140,6 +140,18 @@ namespace Oddworm.EditorFramework
                 }
             }
 
+            // resolve external asset references
+            foreach(var asset in assets)
+            {
+                foreach (var baseReferece in asset.lowlevel.externalReferences)
+                {
+                    var reference = FindAsset(baseReferece);
+                    if (reference == null)
+                        continue;
+
+                    asset.externalReferences.Add(reference);
+                }
+            }
 
             // fill groups with earlier collected bundles
             foreach (var baseGroup in buildLayout.groups)

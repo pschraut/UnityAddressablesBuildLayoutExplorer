@@ -70,6 +70,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         {
                             var assetItem = new AssetItem
                             {
+                                treeView = this,
                                 asset = asset,
                                 id = m_UniqueId++,
                                 depth = assetsCategoryItem.depth + 1,
@@ -81,6 +82,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             {
                                 var irefCategoryItem = new CategoryItem
                                 {
+                                    treeView = this,
                                     id = m_UniqueId++,
                                     depth = assetItem.depth + 1,
                                     displayName = "Internal References",
@@ -93,6 +95,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                                 {
                                     var erefItem = new AssetReferenceItem
                                     {
+                                        treeView = this,
                                         id = m_UniqueId++,
                                         depth = irefCategoryItem.depth + 1,
                                         displayName = eref
@@ -105,6 +108,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             {
                                 var erefCategoryItem = new CategoryItem
                                 {
+                                    treeView = this,
                                     id = m_UniqueId++,
                                     depth = assetItem.depth + 1,
                                     displayName = "External References",
@@ -115,11 +119,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                                 foreach (var eref in asset.externalReferences)
                                 {
-                                    var erefItem = new AssetReferenceItem
+                                    var erefItem = new AssetItem
                                     {
+                                        treeView = this,
+                                        asset = eref,
                                         id = m_UniqueId++,
                                         depth = erefCategoryItem.depth + 1,
-                                        displayName = eref
+                                        displayName = eref.name
                                     };
                                     erefCategoryItem.AddChild(erefItem);
                                 }
