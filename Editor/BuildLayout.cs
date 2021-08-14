@@ -39,6 +39,8 @@ namespace Oddworm.EditorFramework
         {
             public string name;
             public long size;
+            public long sizeFromObjects;
+            public long sizeFromStreamedData;
             public string address;
             public List<string> externalReferences = new List<string>();
             public List<string> internalReferences = new List<string>();
@@ -340,6 +342,12 @@ namespace Oddworm.EditorFramework
 
                     if (attribute.Key == "Addressable Name")
                         result.address = attribute.Value;
+
+                    if (attribute.Key == "Size from Objects")
+                        result.sizeFromObjects = ParseSize(attribute.Value);
+
+                    if (attribute.Key == "Size from Streamed Data")
+                        result.sizeFromStreamedData = ParseSize(attribute.Value);
                 }
 
                 for (; index < lines.Count - 1; ++index)

@@ -45,6 +45,8 @@ namespace Oddworm.EditorFramework
         {
             public string name;
             public long size;
+            public long sizeFromObjects;
+            public long sizeFromStreamedData;
             public string address;
             public List<string> externalReferences = new List<string>();
             public List<string> internalReferences = new List<string>();
@@ -122,6 +124,8 @@ namespace Oddworm.EditorFramework
                             lowlevel = baseAsset,
                             name = baseAsset.name,
                             size = baseAsset.size,
+                            sizeFromObjects = baseAsset.sizeFromObjects,
+                            sizeFromStreamedData = baseAsset.sizeFromStreamedData,
                             address = baseAsset.address,
                             externalReferences = new List<string>(baseAsset.externalReferences),
                             internalReferences = new List<string>(baseAsset.internalReferences)
