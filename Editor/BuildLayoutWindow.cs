@@ -167,11 +167,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 menu.AddDisabledItem(new GUIContent("Close"), false);
             menu.AddSeparator("");
 
-            if (m_Layout != null)
-                menu.AddItem(new GUIContent("Save JSON..."), false, SaveJsonDialog);
-            else
-                menu.AddDisabledItem(new GUIContent("Save JSON..."), false);
-            menu.AddSeparator("");
+            //if (m_Layout != null)
+            //    menu.AddItem(new GUIContent("Save JSON..."), false, SaveJsonDialog);
+            //else
+            //    menu.AddDisabledItem(new GUIContent("Save JSON..."), false);
+            //menu.AddSeparator("");
 
             menu.AddItem(new GUIContent("Exit"), false, delegate() { Close(); });
 
