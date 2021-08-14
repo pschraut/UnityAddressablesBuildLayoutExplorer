@@ -59,8 +59,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Explicit Assets",
-                            icon = Styles.explicitAssetsIcon,
-                            sortValue = 1
+                            icon = Styles.explicitAssetsIcon
                         };
                         bundleItem.AddChild(assetsCategoryItem);
 
@@ -125,19 +124,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         }
                     }
 
-                    if (bundle.expandedBundleDependencies.Count > 0)
+                    if (bundle.bundleDependencies.Count > 0)
                     {
                         var categoryItem = new CategoryItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
-                            displayName = "Expanded Bundle Dependencies",
-                            icon = Styles.bundleExpandedDependenciesIcon,
-                            sortValue = 2
+                            displayName = "Bundle Dependencies",
+                            icon = Styles.bundleDependenciesIcon
                         };
                         bundleItem.AddChild(categoryItem);
 
-                        foreach (var dependency in bundle.expandedBundleDependencies)
+                        foreach (var dependency in bundle.bundleDependencies)
                         {
                             var dependencyItem = new AssetReferenceItem
                             {
@@ -149,19 +147,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         }
                     }
 
-                    if (bundle.bundleDependencies.Count > 0)
+                    if (bundle.expandedBundleDependencies.Count > 0)
                     {
                         var categoryItem = new CategoryItem
                         {
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
-                            displayName = "Bundle Dependencies",
-                            icon = Styles.bundleDependenciesIcon,
-                            sortValue = 3
+                            displayName = "Expanded Bundle Dependencies",
+                            icon = Styles.bundleExpandedDependenciesIcon
                         };
                         bundleItem.AddChild(categoryItem);
 
-                        foreach (var dependency in bundle.bundleDependencies)
+                        foreach (var dependency in bundle.expandedBundleDependencies)
                         {
                             var dependencyItem = new AssetReferenceItem
                             {
