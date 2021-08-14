@@ -108,6 +108,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             Reload();
         }
 
+        public void Search(string search)
+        {
+            var selection = GetSelection();
+            searchString = search;
+
+            SetSelection(selection, TreeViewSelectionOptions.RevealAndFrame);
+        }
+
         protected abstract void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout);
 
         protected override void BeforeRowsGUI()

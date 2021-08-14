@@ -53,7 +53,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             GUILayout.Space(10);
 
             if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
-                m_TreeView.searchString = m_SearchField.text;
+                m_TreeView.Search(m_SearchField.text);
         }
 
         public override void OnStatusbarGUI()

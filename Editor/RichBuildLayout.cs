@@ -78,7 +78,7 @@ namespace Oddworm.EditorFramework
                         lowlevel = baseBundle,
                         name = baseBundle.name,
                         size = baseBundle.size,
-                        compression = baseBundle.compression,
+                        compression = baseBundle.compression.ToUpper(),
                         assetBundleObjectSize = baseBundle.assetBundleObjectSize
                     };
                     bundles.Add(bundle);

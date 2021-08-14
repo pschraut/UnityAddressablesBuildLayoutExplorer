@@ -35,6 +35,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             CreateView<WelcomeView>();
             CreateView<BundlesView>();
             CreateView<GroupsView>();
+            CreateView<AssetsView>();
 
             ShowView(FindView< WelcomeView>());
         }
