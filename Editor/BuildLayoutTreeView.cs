@@ -14,7 +14,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         public System.Action<TreeViewItem> selectedItemChanged;
 
         protected BuildLayoutWindow m_Window;
-        protected int m_UniqueId = 100;
+        protected int m_UniqueId;
 
         int m_FirstVisibleRow;
         TreeViewItem m_CachedTree;
@@ -44,6 +44,56 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
             root.AddChild(new TreeViewItem { id = root.id + 1, depth = -1, displayName = "" });
             return root;
+        }
+
+        /// <summary>
+        /// Iterates the tree and calls the specified <paramref name="callback"/> for each tree item.
+        /// </summary>
+        /// <param name="callback">The method that is called for each item. Return true to abort the iteration process, false to continue.</param>
+        public void IterateItems(System.Func<TreeViewItem, bool> callback)
+        {
+            IterateItemsInternal(rootItem, callback);
+        }
+
+        /// <summary>
+        /// Iterates the tree and calls the specified <paramref name="callback"/> for each item that is part of the specified <paramref name="parent"/>.
+        /// </summary>
+        /// <param name="callback">The method that is called for each item. Return true to abort the iteration process, false to continue.</param>
+        public void IterateItems(TreeViewItem parent, System.Func<TreeViewItem, bool> callback)
+        {
+            IterateItemsInternal(parent, callback);
+        }
+
+        // Return value indicates to abort the iteration process. false=continue, true=abort
+        bool IterateItemsInternal(TreeViewItem parent, System.Func<TreeViewItem, bool> callback)
+        {
+            if (parent == null)
+                return false;
+
+            if (callback.Invoke(parent))
+                return true;
+
+            if (!parent.hasChildren)
+                return false;
+
+            for (int n = 0, nend = parent.children.Count; n < nend; ++n)
+            {
+                var child = parent.children[n];
+                if (child == null)
+                    continue;
+
+                if (!child.hasChildren)
+                {
+                    if (callback.Invoke(child))
+                        return true;
+                    continue;
+                }
+
+                if (IterateItemsInternal(child, callback))
+                    return true;
+            }
+
+            return false;
         }
 
         public void SetBuildLayout(BuildLayout buildLayout)
@@ -242,11 +292,41 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             selectedItemChanged?.Invoke(selectedItem);
         }
 
+        protected static Rect SpaceL(ref Rect position, float pixels)
+        {
+            var r = position;
+            r.width = Mathf.Min(pixels, r.width);
+            position.x += r.width;
+            position.width -= r.width;
+            return r;
+        }
+
+        protected static Rect SpaceR(ref Rect position, float pixels)
+        {
+            var r = position;
+            r.x = r.xMax;
+            r.width = Mathf.Min(pixels, r.width); //pixels;
+            r.x -= (r.width + 2);
+            position.width -= (r.width + 2);
+            return r;
+        }
+
         [System.Serializable]
         protected abstract class BaseItem : TreeViewItem
         {
             public bool supportsSortingOrder = true;
             public bool supportsSearch = false;
+            public BuildLayoutTreeView treeView;
+
+            static GUIContent s_GUIContent = new GUIContent();
+
+            protected static GUIContent CachedGUIContent(Texture image, string tooltip)
+            {
+                s_GUIContent.text = "";
+                s_GUIContent.tooltip = tooltip;
+                s_GUIContent.image = image;
+                return s_GUIContent;
+            }
 
             public abstract void OnGUI(Rect position, int column);
             public abstract int CompareTo(TreeViewItem other, int column);

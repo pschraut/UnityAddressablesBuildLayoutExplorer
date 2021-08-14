@@ -34,6 +34,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 var groupItem = new GroupItem
                 {
+                    treeView = this,
                     group = group,
                     id = m_UniqueId++,
                     depth = 0,
@@ -46,6 +47,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     var bundleItem = new BundleItem()
                     {
+                        treeView = this,
                         bundle = bundle,
                         id = m_UniqueId++,
                         depth = groupItem.depth + 1,

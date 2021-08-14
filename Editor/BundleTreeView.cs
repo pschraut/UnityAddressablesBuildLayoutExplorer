@@ -30,7 +30,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-
         protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
         {
             var processed = new Dictionary<string, bool>();
@@ -44,6 +43,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     var bundleItem = new BundleItem
                     {
+                        treeView = this,
                         source = bundle,
                         id = m_UniqueId++,
                         depth = 0,
@@ -56,6 +56,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     {
                         var assetsCategoryItem = new CategoryItem
                         {
+                            treeView = this,
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Explicit Assets",
@@ -128,6 +129,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     {
                         var categoryItem = new CategoryItem
                         {
+                            treeView = this,
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Bundle Dependencies",
@@ -137,8 +139,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                         foreach (var dependency in bundle.bundleDependencies)
                         {
-                            var dependencyItem = new AssetReferenceItem
+                            var dependencyItem = new BundleReferenceItem
                             {
+                                treeView = this,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
                                 displayName = dependency
@@ -151,6 +154,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     {
                         var categoryItem = new CategoryItem
                         {
+                            treeView = this,
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Expanded Bundle Dependencies",
@@ -160,8 +164,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                         foreach (var dependency in bundle.expandedBundleDependencies)
                         {
-                            var dependencyItem = new AssetReferenceItem
+                            var dependencyItem = new BundleReferenceItem
                             {
+                                treeView = this,
                                 id = m_UniqueId++,
                                 depth = categoryItem.depth + 1,
                                 displayName = dependency
@@ -318,6 +323,64 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         EditorGUI.LabelField(position, displayName);
                         break;
                 }
+            }
+        }
+
+        [System.Serializable]
+        class BundleReferenceItem : BaseItem
+        {
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as BundleReferenceItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return string.Compare(displayName, otherItem.displayName, true);
+                }
+
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        {
+                            if (GUI.Button(SpaceR(ref position, 20), CachedGUIContent(Styles.bundleIcon, "Jump to bundle")))
+                                JumpToBundleItem();
+
+                            EditorGUI.LabelField(position, displayName);
+                        }
+                        break;
+                }
+            }
+
+            void JumpToBundleItem()
+            {
+                BundleItem jump = null;
+
+                // find the bundle in question
+                treeView.IterateItems(delegate (TreeViewItem i)
+                {
+                    var b = i as BundleItem;
+                    if (b == null)
+                        return false;
+
+                    if (!string.Equals(b.displayName, displayName, System.StringComparison.OrdinalIgnoreCase))
+                        return false;
+
+                    jump = b;
+                    return true;
+                });
+
+                if (jump == null)
+                    return;
+
+                treeView.SetSelection(new[] { jump.id }, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
             }
         }
     }
