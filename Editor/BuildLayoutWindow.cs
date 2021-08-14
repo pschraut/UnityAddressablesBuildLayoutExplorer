@@ -133,7 +133,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         void DrawPathStatusbarGUI()
         {
             EditorGUI.BeginDisabledGroup(true);
-            GUILayout.Label(m_LoadedPath ?? "");
+            var size = EditorStyles.label.CalcSize(new GUIContent(m_LoadedPath));
+            GUILayout.Label(m_LoadedPath ?? "", GUILayout.MinWidth(size.x + 10));
             EditorGUI.EndDisabledGroup();
         }
 
@@ -260,11 +261,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void CloseBuildLayout()
         {
-            foreach (var view in m_Views)
-                view.Rebuild(new BuildLayout());
-
-            m_Layout = null;
+            m_Layout = new BuildLayout();
             m_LoadedPath = "";
+
+            foreach (var view in m_Views)
+                view.Rebuild(m_Layout);
 
             ShowView(FindView<WelcomeView>());
         }
@@ -326,8 +327,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public void LoadBuildLayout(string path)
         {
-            m_Layout = BuildLayout.Load(path);
-            m_LoadedPath = path;
+            try
+            {
+                m_Layout = BuildLayout.Load(path);
+                m_LoadedPath = path;
+            }
+            catch (System.Exception e)
+            {
+                CloseBuildLayout();
+                Debug.LogException(e);
+                EditorUtility.DisplayDialog("Error", $"BuildLayout Explorer cannot load the file '{path}'.\n\nError message:\n{e.Message}\n\nSee Console window for additional information.", "OK");
+                return;
+            }
 
             foreach (var view in m_Views)
                 view.Rebuild(m_Layout);
@@ -348,7 +359,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return view;
         }
 
-        [MenuItem("Window/Asset Management/Addressables/BuildLayout Explorer", priority = 1000)]
+        [MenuItem("Window/Asset Management/Addressables/BuildLayout Explorer", priority = 100000)]
         static void OpenWindowMenuItem()
         {
             var wnd = GetWindow<BuildLayoutWindow>();

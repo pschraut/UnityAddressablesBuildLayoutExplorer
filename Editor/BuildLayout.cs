@@ -54,6 +54,9 @@ namespace Oddworm.EditorFramework
 
         public static BuildLayout Parse(string text)
         {
+            if (string.IsNullOrWhiteSpace(text))
+                throw new System.ArgumentException($"argument '{nameof(text)}' must not be empty.");
+
             var layout = new BuildLayout();
 
             // Convert text to lines for easier processing
