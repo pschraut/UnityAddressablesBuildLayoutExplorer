@@ -32,6 +32,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             get;
             private set;
         }
+        public static Texture2D referencedByBundleIcon
+        {
+            get;
+            private set;
+        }
+
         public static Texture2D explicitAssetsIcon
         {
             get;
@@ -70,6 +76,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             explicitAssetsIcon = FindBuiltinTexture("d_DefaultAsset Icon");
             internalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController On Icon");
             externalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController Icon");
+            referencedByBundleIcon = FindBuiltinTexture("d_VisualEffectSubgraphOperator Icon");
 
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;

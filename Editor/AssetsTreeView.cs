@@ -53,7 +53,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         treeView = this,
                         id = m_UniqueId++,
                         depth = assetItem.depth + 1,
-                        displayName = "Referenced by",
+                        displayName = "Referenced by Bundle",
                         icon = Styles.bundleDependenciesIcon
                     };
                     assetItem.AddChild(categoryItem);
@@ -66,8 +66,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             treeView = this,
                             id = m_UniqueId++,
                             depth = categoryItem.depth + 1,
-                            displayName = Utility.TransformBundleName(rbundle.name),
-                            icon = Styles.bundleIcon
+                            displayName = Utility.TransformBundleName(rbundle.name)
                         };
                         categoryItem.AddChild(bundleItem);
                     }

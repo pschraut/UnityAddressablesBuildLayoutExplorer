@@ -17,6 +17,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public const int size = 1;
             public const int compression = 2;
             public const int dependencies = 3;
+            public const int referencedByBundles = 4;
         }
 
         public BundleTreeView(BuildLayoutWindow window)
@@ -25,6 +26,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Compression"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Dependencies"), width = 80, autoResize = true },
+                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Referenced by Bundles"), width = 80, autoResize = true },
                             })))
         {
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
@@ -176,6 +178,32 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             categoryItem.AddChild(dependencyItem);
                         }
                     }
+
+                    if (bundle.referencedByBundles.Count > 0)
+                    {
+                        var categoryItem = new CategoryItem
+                        {
+                            treeView = this,
+                            id = m_UniqueId++,
+                            depth = bundleItem.depth + 1,
+                            displayName = "Referenced by Bundles",
+                            icon = Styles.referencedByBundleIcon
+                        };
+                        bundleItem.AddChild(categoryItem);
+
+                        foreach (var referencedByBundle in bundle.referencedByBundles)
+                        {
+                            var referencedByBundleItem = new BundleReferenceItem
+                            {
+                                treeView = this,
+                                bundle = referencedByBundle,
+                                id = m_UniqueId++,
+                                depth = categoryItem.depth + 1,
+                                displayName = Utility.TransformBundleName(referencedByBundle.name)
+                            };
+                            categoryItem.AddChild(referencedByBundleItem);
+                        }
+                    }
                 }
             }
         }
@@ -213,6 +241,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             var b = otherItem.bundle.bundleDependencies.Count + otherItem.bundle.expandedBundleDependencies.Count;
                             return a.CompareTo(b);
                         }
+
+                    case ColumnIDs.referencedByBundles:
+                        return bundle.referencedByBundles.Count.CompareTo(otherItem.bundle.referencedByBundles.Count);
                 }
 
                 return 0;
@@ -236,7 +267,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.dependencies:
                         var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
-                        EditorGUI.LabelField(position, $"{dependencyCount}");
+                        if (dependencyCount == 0)
+                            EditorGUI.LabelField(position, $"{dependencyCount}", Styles.ghostLabelStyle);
+                        else
+                            EditorGUI.LabelField(position, $"{dependencyCount}");
+                        break;
+
+                    case ColumnIDs.referencedByBundles:
+                        if (bundle.referencedByBundles.Count == 0)
+                            EditorGUI.LabelField(position, $"{bundle.referencedByBundles.Count}", Styles.ghostLabelStyle);
+                        else
+                            EditorGUI.LabelField(position, $"{bundle.referencedByBundles.Count}");
                         break;
                 }
             }

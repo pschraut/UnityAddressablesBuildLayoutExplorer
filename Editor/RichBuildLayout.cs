@@ -39,6 +39,7 @@ namespace Oddworm.EditorFramework
             public List<Asset> explicitAssets = new List<Asset>();
             public BuildLayout.Archive lowlevel; // a reference to the underlaying object
             public List<Group> referencedByGroups = new List<Group>();
+            public List<Archive> referencedByBundles = new List<Archive>();
         }
 
         public class Asset
@@ -97,6 +98,7 @@ namespace Oddworm.EditorFramework
                         continue;
                     }
                     bundle.bundleDependencies.Add(bundleDependency);
+                    bundleDependency.referencedByBundles.Add(bundle);
                 }
 
                 foreach (var baseBundle in bundle.lowlevel.expandedBundleDependencies)
@@ -108,6 +110,7 @@ namespace Oddworm.EditorFramework
                         continue;
                     }
                     bundle.expandedBundleDependencies.Add(bundleDependency);
+                    bundleDependency.referencedByBundles.Add(bundle);
                 }
             }
 
