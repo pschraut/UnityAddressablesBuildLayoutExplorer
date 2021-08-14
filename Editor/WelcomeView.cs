@@ -45,6 +45,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 using (new EditorGUILayout.VerticalScope())
                 {
+                    DrawAddressablesHelp();
+
                     DrawRecentPaths();
                     GUILayout.Space(8);
 
@@ -63,6 +65,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             base.OnToolbarGUI();
 
             GUILayout.FlexibleSpace();
+        }
+
+        void DrawAddressablesHelp()
+        {
+#if ADDRESSABLES_PRESENT
+            if (!UnityEditor.AddressableAssets.Settings.ProjectConfigData.GenerateBuildLayout)
+            {
+                EditorGUILayout.HelpBox($"Build Layout is disabled in Addressables Preferences.\nEnable the option from the main menu under 'Edit > Preferences', then select the 'Addressables' tab and tick the 'Debug Build Layout' setting.\nAddressables will then generate the file 'Library/com.unity.addressables/buildlayout.txt' the next time you build Addressables content.", MessageType.Warning);
+                GUILayout.Space(8);
+            }
+#else
+            EditorGUILayout.HelpBox($"Addressables package is not installed.\nYou can install the Addressables package from the main menu under 'Window > Package Manager'.", MessageType.Warning);
+            GUILayout.Space(8);
+#endif
         }
 
         void DrawRecentPaths()
