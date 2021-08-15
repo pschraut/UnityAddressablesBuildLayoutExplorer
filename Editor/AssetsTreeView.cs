@@ -28,6 +28,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Address"), width = 80, autoResize = true },
                             })))
         {
+            multiColumnHeader.SetSortDirection(ColumnIDs.name, true);
+            multiColumnHeader.SetSortDirection(ColumnIDs.size, false);
+            multiColumnHeader.SetSortDirection(ColumnIDs.sizeFromObjects, false);
+            multiColumnHeader.SetSortDirection(ColumnIDs.sizeFromStreamedData, false);
+            multiColumnHeader.SetSortDirection(ColumnIDs.address, true);
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 

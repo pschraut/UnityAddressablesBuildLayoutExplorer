@@ -29,6 +29,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Referenced by Bundles"), width = 80, autoResize = true },
                             })))
         {
+            multiColumnHeader.SetSortDirection(ColumnIDs.name, true);
+            multiColumnHeader.SetSortDirection(ColumnIDs.size, false);
+            multiColumnHeader.SetSortDirection(ColumnIDs.compression, true);
+            multiColumnHeader.SetSortDirection(ColumnIDs.dependencies, false);
+            multiColumnHeader.SetSortDirection(ColumnIDs.referencedByBundles, false);
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
