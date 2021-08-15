@@ -63,6 +63,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             GUILayout.FlexibleSpace();
         }
 
+        public override void SetBookmark(NavigationBookmark bookmark)
+        {
+        }
+
+        public override NavigationBookmark GetBookmark()
+        {
+            return new NavigationBookmark();
+        }
+
         void DrawAddressablesHelp()
         {
 #if ADDRESSABLES_PRESENT

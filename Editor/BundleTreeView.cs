@@ -32,6 +32,26 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
+        public TreeViewItem FindItem(RichBuildLayout.Archive bundle)
+        {
+            TreeViewItem result = null;
+
+            IterateItems(delegate (TreeViewItem i)
+            {
+                var b = i as BundleItem;
+                if (b == null)
+                    return false;
+
+                if (b.bundle != bundle)
+                    return false;
+
+                result = b;
+                return true;
+            });
+
+            return result;
+        }
+
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
             var processed = new Dictionary<string, bool>();
@@ -352,6 +372,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.explicitAssetsIcon, "Navigate to asset")))
+                            NavigateTo(asset);
+
                         EditorGUI.LabelField(position, asset.name);
                         break;
 
@@ -420,8 +443,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         {
-                            if (GUI.Button(SpaceR(ref position, 20), CachedGUIContent(Styles.bundleIcon, "Jump to bundle")))
-                                JumpToBundleItem();
+                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle")))
+                                NavigateTo(bundle);
 
                             EditorGUI.LabelField(position, displayName);
                         }
@@ -440,30 +463,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         EditorGUI.LabelField(position, $"{dependencyCount}", Styles.ghostLabelStyle);
                         break;
                 }
-            }
-
-            void JumpToBundleItem()
-            {
-                BundleItem jump = null;
-
-                // find the bundle in question
-                treeView.IterateItems(delegate (TreeViewItem i)
-                {
-                    var b = i as BundleItem;
-                    if (b == null)
-                        return false;
-
-                    if (!string.Equals(b.displayName, displayName, System.StringComparison.OrdinalIgnoreCase))
-                        return false;
-
-                    jump = b;
-                    return true;
-                });
-
-                if (jump == null)
-                    return;
-
-                treeView.SetSelection(new[] { jump.id }, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
             }
         }
     }

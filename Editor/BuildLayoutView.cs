@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
-    public class BuildLayoutView
+    public abstract class BuildLayoutView
     {
         /// <summary>
         /// The titleContent is shown in toolbar View menu.
@@ -139,6 +139,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         public virtual void OnStatusbarGUI()
         {
         }
+
+        public virtual bool CanNavigateTo(object target)
+        {
+            return false;
+        }
+
+        public virtual void NavigateTo(object target)
+        {
+        }
+
+        /// <summary>
+        /// Returns an object that can be used to restore the current view.
+        /// </summary>
+        public abstract NavigationBookmark GetBookmark();
+
+        /// <summary>
+        /// Restores the view using the specified <paramref name="bookmark"/>.
+        /// </summary>
+        public abstract void SetBookmark(NavigationBookmark bookmark);
 
         // This allows to pass a member variable whose name is converted to a string.
         protected string GetPrefsKey(Expression<Func<object>> exp)

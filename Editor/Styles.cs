@@ -9,6 +9,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     internal static class Styles
     {
+        public static Texture2D navigateBackwardsIcon
+        {
+            get;
+            private set;
+        }
+
+        public static Texture2D navigateForwardsIcon
+        {
+            get;
+            private set;
+        }
+
         public static Texture2D groupIcon
         {
             get;
@@ -39,6 +51,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
         public static Texture2D explicitAssetsIcon
+        {
+            get;
+            private set;
+        }
+
+        public static Texture2D assetIcon
         {
             get;
             private set;
@@ -77,6 +95,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             internalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController On Icon");
             externalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController Icon");
             referencedByBundleIcon = FindBuiltinTexture("d_VisualEffectSubgraphOperator Icon");
+            navigateBackwardsIcon = FindBuiltinTexture("SubAssetCollapseButton");
+            navigateForwardsIcon = FindBuiltinTexture("SubAssetExpandButton");
+            assetIcon = FindBuiltinTexture("d_DefaultAsset Icon");
 
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;

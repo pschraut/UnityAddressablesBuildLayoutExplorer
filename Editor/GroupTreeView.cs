@@ -27,6 +27,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
+        public TreeViewItem FindItem(RichBuildLayout.Group group)
+        {
+            TreeViewItem result = null;
+
+            IterateItems(delegate (TreeViewItem i)
+            {
+                var b = i as GroupItem;
+                if (b == null)
+                    return false;
+
+                if (b.group != group)
+                    return false;
+
+                result = b;
+                return true;
+            });
+
+            return result;
+        }
 
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
@@ -141,11 +160,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle")))
+                            NavigateTo(bundle);
                         EditorGUI.LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(bundle.size)}", Styles.ghostLabelStyle);
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(bundle.size), Styles.ghostLabelStyle);
                         break;
 
                     case ColumnIDs.bundles:

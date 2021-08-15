@@ -4,13 +4,15 @@
 //
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.IMGUI.Controls;
+using System.Collections.Generic;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     [BuildLayoutView]
     public class BundlesView : BuildLayoutView
     {
-        BuildLayoutTreeView m_TreeView;
+        BundleTreeView m_TreeView;
         SearchField m_SearchField;
         string m_StatusLabel;
 
@@ -63,6 +65,60 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             base.OnStatusbarGUI();
 
             GUILayout.Label(m_StatusLabel);
+        }
+
+        public override bool CanNavigateTo(object target)
+        {
+            if (target is RichBuildLayout.Archive)
+                return true;
+
+            return base.CanNavigateTo(target);
+        }
+
+        public override void NavigateTo(object target)
+        {
+            // is the target object a bundle?
+            var bundle = target as RichBuildLayout.Archive;
+            if (bundle == null)
+                return; // nope, we can only process bundle
+
+            // find item that represents the bundle
+            var item = m_TreeView.FindItem(bundle);
+            if (item == null)
+                return;
+
+            // select the item
+            m_TreeView.SetSelection(new[] { item.id }, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.SetFocus();
+        }
+
+        public override void SetBookmark(NavigationBookmark bookmark)
+        {
+            var bm = bookmark as Bookmark;
+            if (bm == null)
+            {
+                Debug.LogError($"Cannot set bookmark, because the argument '{nameof(bookmark)}' is of the wrong type or null.");
+                return;
+            }
+
+            bm = bookmark as Bookmark;
+            m_TreeView.SetExpanded(bm.expandedIDs);
+            m_TreeView.SetSelection(bm.selectedIDs, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.SetFocus();
+        }
+
+        public override NavigationBookmark GetBookmark()
+        {
+            var command = new Bookmark();
+            command.selectedIDs = new List<int>(m_TreeView.GetSelection());
+            command.expandedIDs = new List<int>(m_TreeView.GetExpanded());
+            return command;
+        }
+
+        class Bookmark : NavigationBookmark
+        {
+            public List<int> selectedIDs = new List<int>();
+            public List<int> expandedIDs = new List<int>();
         }
     }
 }

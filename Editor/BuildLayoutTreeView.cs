@@ -25,7 +25,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             m_Window = window;
 
-            rowHeight = 20;
+            rowHeight = 22;
             showAlternatingRowBackgrounds = true;
             showBorder = false;
             columnIndexForTreeFoldouts = 0;
@@ -34,6 +34,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortingChanged += OnSortingChanged;
             multiColumnHeader.ResizeToFit();
             Reload();
+        }
+
+        protected override bool CanMultiSelect(TreeViewItem item)
+        {
+            return false;
         }
 
         protected override TreeViewItem BuildRoot()
@@ -309,25 +314,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             selectedItemChanged?.Invoke(selectedItem);
         }
 
-        protected static Rect SpaceL(ref Rect position, float pixels)
-        {
-            var r = position;
-            r.width = Mathf.Min(pixels, r.width);
-            position.x += r.width;
-            position.width -= r.width;
-            return r;
-        }
-
-        protected static Rect SpaceR(ref Rect position, float pixels)
-        {
-            var r = position;
-            r.x = r.xMax;
-            r.width = Mathf.Min(pixels, r.width); //pixels;
-            r.x -= (r.width + 2);
-            position.width -= (r.width + 2);
-            return r;
-        }
-
         [System.Serializable]
         protected abstract class BaseItem : TreeViewItem
         {
@@ -347,6 +333,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public abstract void OnGUI(Rect position, int column);
             public abstract int CompareTo(TreeViewItem other, int column);
+
+            public void NavigateTo(object target)
+            {
+                treeView.m_Window.NavigateTo(target);
+            }
+
+            protected Rect ButtonSpaceR(ref Rect position)
+            {
+                var pixels = treeView.rowHeight - 2;
+
+                var r = position;
+                r.x = r.xMax;
+                r.width = Mathf.Min(pixels, r.width); //pixels;
+                r.x -= (r.width + 2);
+                r.y += 1;
+                r.height -= 2;
+                position.width -= (r.width + 2);
+                return r;
+            }
         }
     }
 }

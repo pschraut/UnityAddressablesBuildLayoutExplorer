@@ -19,10 +19,24 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         string m_LoadedPath;
         string[] m_RecentPaths = new string[0];
         Rect m_StatusbarRect;
+        NavigationHistory m_Navigation = new NavigationHistory();
 
         public string[] recentPaths
         {
             get => m_RecentPaths;
+        }
+
+        public BuildLayoutView activeView
+        {
+            get
+            {
+                foreach(var view in m_Views)
+                {
+                    if (view.isVisible)
+                        return view;
+                }
+                return null;
+            }
         }
 
         void OnEnable()
@@ -69,6 +83,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void ShowView(BuildLayoutView view)
         {
+            if (view.isVisible)
+                return;
+
             foreach (var v in m_Views)
             {
                 if (v.isVisible)
@@ -140,6 +157,41 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
+        void DrawNavigationToolbarItem()
+        {
+            using (new EditorGUI.DisabledGroupScope(!m_Navigation.HasBack()))
+            {
+                if (GUILayout.Button(new GUIContent(Styles.navigateBackwardsIcon, "Navigate Backward"), EditorStyles.toolbarButton, GUILayout.Width(24)))
+                {
+                    if (m_Navigation.current != null)
+                        m_Navigation.current.bookmark = m_Navigation.current.view.GetBookmark();
+
+                    var cmd = m_Navigation.Back();
+                    if (cmd != null)
+                    {
+                        ShowView(cmd.view);
+                        cmd.view.SetBookmark(cmd.bookmark);
+                    }
+                }
+            }
+
+            using (new EditorGUI.DisabledGroupScope(!m_Navigation.HasForward()))
+            {
+                if (GUILayout.Button(new GUIContent(Styles.navigateForwardsIcon, "Navigate Forward"), EditorStyles.toolbarButton, GUILayout.Width(24)))
+                {
+                    if (m_Navigation.current != null)
+                        m_Navigation.current.bookmark = m_Navigation.current.view.GetBookmark();
+
+                    var cmd = m_Navigation.Forward();
+                    if (cmd != null)
+                    {
+                        ShowView(cmd.view);
+                        cmd.view.SetBookmark(cmd.bookmark);
+                    }
+                }
+            }
+        }
+
         void DrawFileToolbarItem()
         {
             var click = GUILayout.Button("File", EditorStyles.toolbarDropDown, GUILayout.Width(60));
@@ -205,6 +257,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             menu.DropDown(m_SettingsButtonRect);
         }
 
+
         void DrawViewToolbarItem()
         {
             using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(m_LoadedPath)))
@@ -251,6 +304,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     menu.AddItem(c, view.isVisible, (GenericMenu.MenuFunction2)delegate (object o)
                     {
+                        var fromCommand = new NavigationCommand();
+                        fromCommand.view = activeView;
+                        fromCommand.bookmark = activeView.GetBookmark();
+
+                        var v = o as BuildLayoutView;
+                        var toCommand = new NavigationCommand();
+                        toCommand.view = v;
+                        toCommand.bookmark = v.GetBookmark();
+
+                        m_Navigation.Add(fromCommand, toCommand);
+
                         ShowView(o as BuildLayoutView);
                     }, view);
                 }
@@ -275,6 +339,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
+                DrawNavigationToolbarItem();
                 DrawFileToolbarItem();
                 DrawSettingsToolbarItem();
                 DrawViewToolbarItem();
@@ -321,8 +386,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             m_Layout = new RichBuildLayout();
             m_LoadedPath = "";
+            m_Navigation = new NavigationHistory();
 
-            RebuildViews();
+            foreach (var view in m_Views)
+                view.OnDestroy();
+            m_Views = new List<BuildLayoutView>();
+
+            CreateView(typeof(WelcomeView));
+            foreach (var viewType in TypeCache.GetTypesWithAttribute<BuildLayoutViewAttribute>())
+                CreateView(viewType);
+
             ShowView(FindView<WelcomeView>());
         }
 
@@ -373,6 +446,52 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             m_RecentPaths = list.ToArray();
             SaveRecentPaths();
+        }
+
+        public void NavigateTo(object target)
+        {
+            BuildLayoutView activeView = null;
+            foreach (var view in m_Views)
+            {
+                if (!view.isVisible)
+                    continue;
+                activeView = view;
+                break;
+            }
+
+            var sortedViews = new List<BuildLayoutView>(m_Views);
+            for (var n = sortedViews.Count - 1; n >= 0; --n)
+            {
+                if (sortedViews[n].viewMenuOrder < 0)
+                    sortedViews.RemoveAt(n);
+            }
+
+            sortedViews.Sort(delegate (BuildLayoutView a, BuildLayoutView b)
+            {
+                return a.viewMenuOrder.CompareTo(b.viewMenuOrder);
+            });
+
+            foreach(var view in sortedViews)
+            {
+                if (!view.CanNavigateTo(target))
+                    continue;
+
+                var fromCommand = new NavigationCommand();
+                fromCommand.bookmark = activeView.GetBookmark();
+                fromCommand.view = activeView;
+
+                var toCommand = new NavigationCommand();
+                toCommand.bookmark = view.GetBookmark();
+                toCommand.view = view;
+                toCommand.target = target;
+
+                m_Navigation.Add(fromCommand, toCommand);
+
+                //command.toView = view;
+                ShowView(view);
+                view.NavigateTo(target);
+                return;
+            }
         }
 
         public void RemoveRecentPath(string path)

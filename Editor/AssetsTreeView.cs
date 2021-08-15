@@ -31,6 +31,26 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
+        public TreeViewItem FindItem(RichBuildLayout.Asset asset)
+        {
+            TreeViewItem result = null;
+
+            IterateItems(delegate (TreeViewItem i)
+            {
+                var b = i as AssetItem;
+                if (b == null)
+                    return false;
+
+                if (b.asset != asset)
+                    return false;
+
+                result = b;
+                return true;
+            });
+
+            return result;
+        }
+
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
             foreach (var asset in buildLayout.assets)
@@ -42,7 +62,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     id = m_UniqueId++,
                     depth = 0,
                     displayName = asset.name,
-                    icon = Styles.explicitAssetsIcon
+                    icon = Styles.assetIcon
                 };
                 rootItem.AddChild(assetItem);
 
@@ -182,6 +202,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle")))
+                            NavigateTo(bundle);
                         EditorGUI.LabelField(position, displayName);
                         break;
 
