@@ -80,7 +80,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         asset = asset,
                         id = m_UniqueId++,
                         depth = bundleItem.depth + 1,
-                        displayName = asset.name
+                        displayName = asset.name,
+                        icon = Styles.GetBuildLayoutObjectIcon(asset)
                     };
                     bundleItem.AddChild(assetItem);
 
@@ -325,17 +326,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.dependencies:
                         var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
-                        if (dependencyCount == 0)
-                            EditorGUI.LabelField(position, $"{dependencyCount}", Styles.ghostLabelStyle);
-                        else
-                            EditorGUI.LabelField(position, $"{dependencyCount}");
+                        EditorGUI.LabelField(position, $"{dependencyCount}");
                         break;
 
                     case ColumnIDs.referencedByBundles:
-                        if (bundle.referencedByBundles.Count == 0)
-                            EditorGUI.LabelField(position, $"{bundle.referencedByBundles.Count}", Styles.ghostLabelStyle);
-                        else
-                            EditorGUI.LabelField(position, $"{bundle.referencedByBundles.Count}");
+                        EditorGUI.LabelField(position, $"{bundle.referencedByBundles.Count}");
                         break;
                 }
             }
@@ -410,7 +405,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(asset), "Navigate to asset"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(asset);
 
                         EditorGUI.LabelField(position, asset.name);
@@ -491,9 +486,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         {
-                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(bundle), "Navigate to bundle"), Styles.iconButtonStyle))
+                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                                 NavigateTo(bundle);
-
                             EditorGUI.LabelField(position, displayName);
                         }
                         break;

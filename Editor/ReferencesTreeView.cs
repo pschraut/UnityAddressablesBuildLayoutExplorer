@@ -219,7 +219,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(GetObject()), "Navigate to bundle"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
                         EditorGUI.LabelField(position, displayName);
@@ -269,7 +269,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(GetObject()), "Navigate to asset"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
                         EditorGUI.LabelField(position, displayName);
@@ -319,7 +319,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(GetObject()), "Navigate to group"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to group"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
                         EditorGUI.LabelField(position, displayName);

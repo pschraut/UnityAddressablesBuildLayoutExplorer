@@ -80,6 +80,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static Texture2D navigateIcon
+        {
+            get;
+            private set;
+        }
+
+        public static Texture2D settingsIcon
+        {
+            get;
+            private set;
+        }
+
         public static GUIStyle iconStyle
         {
             get;
@@ -108,10 +120,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             internalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController On Icon");
             externalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController Icon");
             referencedByBundleIcon = FindBuiltinTexture("d_VisualEffectSubgraphOperator Icon");
-            navigateBackwardsIcon = FindBuiltinTexture("SubAssetCollapseButton");
-            navigateForwardsIcon = FindBuiltinTexture("SubAssetExpandButton");
+            navigateBackwardsIcon = FindBuiltinTexture("d_back@2x");
+            navigateForwardsIcon = FindBuiltinTexture("d_forward@2x");
             assetIcon = FindBuiltinTexture("d_DefaultAsset Icon");
             builtinBundleIcon = FindBuiltinTexture("CanvasGroup Icon");
+            navigateIcon = FindBuiltinTexture("d_PlayButton@2x");
+            settingsIcon = FindBuiltinTexture("d_Settings@2x");
+            // d_UnityEditor.Graphs.AnimatorControllerTool@2x
 
             iconButtonStyle = new GUIStyle(GUI.skin.button);
             iconButtonStyle.fixedWidth = 18;

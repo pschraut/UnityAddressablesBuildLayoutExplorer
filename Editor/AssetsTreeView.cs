@@ -92,7 +92,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             treeView = this,
                             id = m_UniqueId++,
                             depth = categoryItem.depth + 1,
-                            displayName = Utility.TransformBundleName(rbundle.name)
+                            displayName = Utility.TransformBundleName(rbundle.name),
+                            icon = Styles.GetBuildLayoutObjectIcon(rbundle)
                         };
                         categoryItem.AddChild(bundleItem);
                     }
@@ -171,10 +172,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                 void DrawSize(Rect r, long size)
                 {
-                    if (size == 0)
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(size), Styles.ghostLabelStyle);
-                    else
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(size));
+                    EditorGUI.LabelField(position, EditorUtility.FormatBytes(size));
                 }
             }
         }
@@ -217,7 +215,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(bundle);
                         EditorGUI.LabelField(position, displayName);
                         break;
