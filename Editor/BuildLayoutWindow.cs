@@ -341,9 +341,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 DrawNavigationToolbarItem();
                 DrawFileToolbarItem();
-                DrawSettingsToolbarItem();
                 DrawViewToolbarItem();
                 DrawCustomToolbarItems();
+                DrawSettingsToolbarItem();
             }
         }
 
