@@ -15,13 +15,13 @@ namespace Oddworm.EditorFramework
         {
             get;
             set;
-        } = true;
+        } = false;
 
         public static bool stripExtensionFromBundleName
         {
             get;
             set;
-        } = true;
+        } = false;
 
         public static bool debugViewMenu
         {
