@@ -62,7 +62,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Explicit Assets",
-                            icon = Styles.explicitAssetsIcon
+                            icon = Styles.explicitAssetsIcon,
+                            sortValue = 1
                         };
                         bundleItem.AddChild(assetsCategoryItem);
 
@@ -141,7 +142,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Bundle Dependencies",
-                            icon = Styles.bundleDependenciesIcon
+                            icon = Styles.bundleDependenciesIcon,
+                            sortValue = 2
                         };
                         bundleItem.AddChild(categoryItem);
 
@@ -167,7 +169,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Expanded Bundle Dependencies",
-                            icon = Styles.bundleExpandedDependenciesIcon
+                            icon = Styles.bundleExpandedDependenciesIcon,
+                            sortValue = 3
                         };
                         bundleItem.AddChild(categoryItem);
 
@@ -193,7 +196,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             id = m_UniqueId++,
                             depth = bundleItem.depth + 1,
                             displayName = "Referenced by Bundles",
-                            icon = Styles.referencedByBundleIcon
+                            icon = Styles.referencedByBundleIcon,
+                            sortValue = 4
                         };
                         bundleItem.AddChild(categoryItem);
 

@@ -54,7 +54,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         id = m_UniqueId++,
                         depth = assetItem.depth + 1,
                         displayName = "Referenced by Bundle",
-                        icon = Styles.bundleDependenciesIcon
+                        icon = Styles.bundleDependenciesIcon,
+                        sortValue = 1
                     };
                     assetItem.AddChild(categoryItem);
 
