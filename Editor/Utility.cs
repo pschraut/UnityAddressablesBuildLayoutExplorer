@@ -4,11 +4,132 @@
 //
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     internal static class Utility
     {
+        public static List<object> GetReferencedBy(object obj)
+        {
+            var hashset = new HashSet<object>();
+
+            var archive = obj as RichBuildLayout.Archive;
+            if (archive != null)
+                hashset.UnionWith(GetReferencedBy(archive));
+
+            var group = obj as RichBuildLayout.Group;
+            if (group != null)
+                hashset.UnionWith(GetReferencedBy(group));
+
+            var asset = obj as RichBuildLayout.Asset;
+            if (asset != null)
+                hashset.UnionWith(GetReferencedBy(asset));
+
+            return new List<object>(hashset);
+        }
+
+        public static List<object> GetReferencesTo(object obj)
+        {
+            var hashset = new HashSet<object>();
+
+            var archive = obj as RichBuildLayout.Archive;
+            if (archive != null)
+                hashset.UnionWith(GetReferencesTo(archive));
+
+            var group = obj as RichBuildLayout.Group;
+            if (group != null)
+                hashset.UnionWith(GetReferencesTo(group));
+
+            var asset = obj as RichBuildLayout.Asset;
+            if (asset != null)
+                hashset.UnionWith(GetReferencesTo(asset));
+
+            return new List<object>(hashset);
+        }
+
+        static HashSet<object> GetReferencedBy(RichBuildLayout.Archive archive)
+        {
+            var result = new HashSet<object>();
+            if (archive == null)
+                return result;
+
+            foreach (var b in archive.referencedByBundles)
+                result.Add(b);
+
+            foreach (var b in archive.referencedByGroups)
+                result.Add(b);
+
+            return result;
+        }
+
+        static HashSet<object> GetReferencesTo(RichBuildLayout.Archive archive)
+        {
+            var result = new HashSet<object>();
+            if (archive == null)
+                return result;
+
+            foreach (var b in archive.bundleDependencies)
+                result.Add(b);
+
+            foreach (var b in archive.expandedBundleDependencies)
+                result.Add(b);
+
+            foreach (var a in archive.explicitAssets)
+            {
+                foreach (var b in a.externalReferences)
+                    result.Add(b);
+            }
+
+            return result;
+        }
+
+        static HashSet<object> GetReferencedBy(RichBuildLayout.Group group)
+        {
+            var result = new HashSet<object>();
+            if (group == null)
+                return result;
+
+            // TODO
+            return result;
+        }
+
+        static HashSet<object> GetReferencesTo(RichBuildLayout.Group group)
+        {
+            var result = new HashSet<object>();
+            if (group == null)
+                return result;
+
+            foreach (var b in group.bundles)
+                result.Add(b);
+
+            return result;
+        }
+
+        static HashSet<object> GetReferencedBy(RichBuildLayout.Asset asset)
+        {
+            var result = new HashSet<object>();
+            if (asset == null)
+                return result;
+
+            foreach (var b in asset.referencedByBundle)
+                result.Add(b);
+
+            return result;
+        }
+
+        static HashSet<object> GetReferencesTo(RichBuildLayout.Asset asset)
+        {
+            var result = new HashSet<object>();
+            if (asset == null)
+                return result;
+
+            foreach (var b in asset.externalReferences)
+                result.Add(b);
+
+            return result;
+        }
+
         /// <summary>
         /// Transforms a bundle name according to the current <see cref="Settings"/>.
         /// </summary>
@@ -63,16 +184,30 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var hashLength = "dc5ec83866547c5a3123179af400036e".Length;
             for (int n = bundleName.Length - bundleLength - 1, i = hashLength; n >= 0 && i > 0; --n, --i)
             {
-                switch(bundleName[n])
+                switch (bundleName[n])
                 {
-                    case 'a': case 'A':
-                    case 'b': case 'B':
-                    case 'c': case 'C':
-                    case 'd': case 'D':
-                    case 'e': case 'E':
-                    case 'f': case 'F':
-                    case '0': case '1': case '2': case '3': case '4':
-                    case '5': case '6': case '7': case '8': case '9':
+                    case 'a':
+                    case 'A':
+                    case 'b':
+                    case 'B':
+                    case 'c':
+                    case 'C':
+                    case 'd':
+                    case 'D':
+                    case 'e':
+                    case 'E':
+                    case 'f':
+                    case 'F':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
                         break;
 
                     default: // letter not part of a hash, so it can't be a bundleName with hash

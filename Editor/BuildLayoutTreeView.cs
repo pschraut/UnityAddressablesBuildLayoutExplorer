@@ -9,9 +9,16 @@ using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
+    public class BuildLayoutTreeViewState : NavigationBookmark
+    {
+        public List<int> selectedIDs = new List<int>();
+        public List<int> expandedIDs = new List<int>();
+        public Vector2 scrollPosition;
+    }
+
     public abstract class BuildLayoutTreeView : UnityEditor.IMGUI.Controls.TreeView
     {
-        public System.Action<TreeViewItem> selectedItemChanged;
+        public System.Action<BaseItem> selectedItemChanged;
 
         protected BuildLayoutWindow m_Window;
         protected int m_UniqueId;
@@ -34,6 +41,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortingChanged += OnSortingChanged;
             multiColumnHeader.ResizeToFit();
             Reload();
+        }
+
+        public BuildLayoutTreeViewState GetState()
+        {
+            var result = new BuildLayoutTreeViewState();
+            result.selectedIDs = new List<int>(GetSelection());
+            result.expandedIDs = new List<int>(GetExpanded());
+            result.scrollPosition = state.scrollPos;
+            return result;
+        }
+
+        public void SetState(BuildLayoutTreeViewState treeViewState)
+        {
+            if (treeViewState == null)
+                return;
+
+            SetExpanded(treeViewState.expandedIDs);
+            SetSelection(treeViewState.selectedIDs, TreeViewSelectionOptions.FireSelectionChanged);
+            state.scrollPos = treeViewState.scrollPosition;
         }
 
         protected override bool CanMultiSelect(TreeViewItem item)
@@ -101,6 +127,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return false;
         }
 
+        public void Clear()
+        {
+            m_UniqueId = 0;
+            var root = new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "Root" };
+            root.AddChild(new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "" });
+
+            m_CachedTree = root;
+            Reload();
+
+            state.scrollPos = Vector2.zero;
+            SetExpanded(new List<int>());
+            SetSelection(new List<int>());
+        }
+
         public void SetBuildLayout(RichBuildLayout buildLayout)
         {
             var expandedIDs = new List<int>(state.expandedIDs);
@@ -144,6 +184,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
             {
                 var item = args.item as BaseItem;
+                if (item == null)
+                    continue;
+
                 var rect = args.GetCellRect(i);
 
                 if (args.row == m_FirstVisibleRow)
@@ -306,16 +349,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             base.SelectionChanged(selectedIds);
 
-            TreeViewItem selectedItem = null;
+            BaseItem selectedItem = null;
 
             if (selectedIds != null && selectedIds.Count > 0)
-                selectedItem = FindItem(selectedIds[0], rootItem);
+                selectedItem = FindItem(selectedIds[0], rootItem) as BaseItem;
 
-            selectedItemChanged?.Invoke(selectedItem);
+            if (selectedItem != null)
+                selectedItemChanged?.Invoke(selectedItem);
         }
 
         [System.Serializable]
-        protected abstract class BaseItem : TreeViewItem
+        public abstract class BaseItem : TreeViewItem
         {
             public bool supportsSortingOrder = true;
             public bool supportsSearch = false;
@@ -331,6 +375,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return s_GUIContent;
             }
 
+            public abstract object GetObject();
             public abstract void OnGUI(Rect position, int column);
             public abstract int CompareTo(TreeViewItem other, int column);
 

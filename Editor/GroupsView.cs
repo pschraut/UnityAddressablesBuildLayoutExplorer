@@ -114,23 +114,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
             }
 
-            m_TreeView.SetExpanded(bm.expandedIDs);
-            m_TreeView.SetSelection(bm.selectedIDs, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.SetState(bm.groupsState);
             m_TreeView.SetFocus();
         }
 
         public override NavigationBookmark GetBookmark()
         {
             var bm = new Bookmark();
-            bm.selectedIDs = new List<int>(m_TreeView.GetSelection());
-            bm.expandedIDs = new List<int>(m_TreeView.GetExpanded());
+            bm.groupsState = m_TreeView.GetState();
             return bm;
         }
 
         class Bookmark : NavigationBookmark
         {
-            public List<int> selectedIDs = new List<int>();
-            public List<int> expandedIDs = new List<int>();
+            public BuildLayoutTreeViewState groupsState;
         }
     }
 }

@@ -95,23 +95,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
             }
 
-            m_TreeView.SetExpanded(bm.expandedIDs);
-            m_TreeView.SetSelection(bm.selectedIDs, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.SetState(bm.assetsState);
             m_TreeView.SetFocus();
         }
 
         public override NavigationBookmark GetBookmark()
         {
-            var command = new Bookmark();
-            command.selectedIDs = new List<int>(m_TreeView.GetSelection());
-            command.expandedIDs = new List<int>(m_TreeView.GetExpanded());
-            return command;
+            var bm = new Bookmark();
+            bm.assetsState = m_TreeView.GetState();
+            return bm;
         }
 
         class Bookmark : NavigationBookmark
         {
-            public List<int> selectedIDs = new List<int>();
-            public List<int> expandedIDs = new List<int>();
+            public BuildLayoutTreeViewState assetsState;
         }
     }
 }

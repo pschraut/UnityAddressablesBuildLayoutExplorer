@@ -106,6 +106,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 supportsSearch = true;
             }
 
+            public override object GetObject()
+            {
+                return asset;
+            }
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as AssetItem;
@@ -179,6 +184,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 supportsSearch = true;
             }
 
+            public override object GetObject()
+            {
+                return bundle;
+            }
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as BundleItem;
@@ -222,6 +232,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public CategoryItem()
             {
                 supportsSortingOrder = false;
+            }
+
+            public override object GetObject()
+            {
+                return null;
             }
 
             public override int CompareTo(TreeViewItem other, int column)

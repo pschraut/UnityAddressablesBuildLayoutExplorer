@@ -15,6 +15,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         BundleTreeView m_TreeView;
         SearchField m_SearchField;
         string m_StatusLabel;
+        ReferencesView m_ReferencesToView;
+        ReferencesView m_ReferencedByView;
 
         public override void Awake()
         {
@@ -22,7 +24,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             viewMenuOrder = 5;
             m_TreeView = new BundleTreeView(window);
+            m_TreeView.selectedItemChanged += SelectionChanged;
             m_SearchField = new SearchField(window);
+
+            m_ReferencesToView = CreateView<ReferencesView>();
+            m_ReferencesToView.titleContent = new GUIContent("References to");
+
+            m_ReferencedByView = CreateView<ReferencesView>();
+            m_ReferencedByView.titleContent = new GUIContent("Referenced by");
         }
 
         public override void Rebuild(RichBuildLayout buildLayout)
@@ -48,6 +57,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             m_TreeView.OnGUI(rect);
+
+            using (new EditorGUILayout.HorizontalScope(GUILayout.Height(window.position.height * 0.333f)))
+            {
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    m_ReferencesToView.OnGUI();
+                }
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    m_ReferencedByView.OnGUI();
+                }
+            }
         }
 
         public override void OnToolbarGUI()
@@ -101,24 +122,33 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
             }
 
-            bm = bookmark as Bookmark;
-            m_TreeView.SetExpanded(bm.expandedIDs);
-            m_TreeView.SetSelection(bm.selectedIDs, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.SetState(bm.bundlesState);
             m_TreeView.SetFocus();
+
+            m_ReferencesToView.SetBookmark(bm.referencesToBookmark);
+            m_ReferencedByView.SetBookmark(bm.referencedByBookmark);
         }
 
         public override NavigationBookmark GetBookmark()
         {
-            var command = new Bookmark();
-            command.selectedIDs = new List<int>(m_TreeView.GetSelection());
-            command.expandedIDs = new List<int>(m_TreeView.GetExpanded());
-            return command;
+            var bm = new Bookmark();
+            bm.bundlesState = m_TreeView.GetState();
+            bm.referencesToBookmark = m_ReferencesToView.GetBookmark();
+            bm.referencedByBookmark = m_ReferencedByView.GetBookmark();
+            return bm;
+        }
+
+        void SelectionChanged(BuildLayoutTreeView.BaseItem item)
+        {
+            m_ReferencesToView.ShowReferences(Utility.GetReferencesTo(item.GetObject()));
+            m_ReferencedByView.ShowReferences(Utility.GetReferencedBy(item.GetObject()));
         }
 
         class Bookmark : NavigationBookmark
         {
-            public List<int> selectedIDs = new List<int>();
-            public List<int> expandedIDs = new List<int>();
+            public BuildLayoutTreeViewState bundlesState;
+            public NavigationBookmark referencesToBookmark;
+            public NavigationBookmark referencedByBookmark;
         }
     }
 }

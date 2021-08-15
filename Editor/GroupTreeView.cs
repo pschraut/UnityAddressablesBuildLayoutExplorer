@@ -89,6 +89,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 supportsSearch = true;
             }
 
+            public override object GetObject()
+            {
+                return group;
+            }
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as GroupItem;
@@ -133,6 +138,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         class BundleItem : BaseItem
         {
             public RichBuildLayout.Archive bundle;
+
+            public override object GetObject()
+            {
+                return bundle;
+            }
 
             public override int CompareTo(TreeViewItem other, int column)
             {

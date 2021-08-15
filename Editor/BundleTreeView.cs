@@ -67,6 +67,31 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 };
                 rootItem.AddChild(bundleItem);
 
+                foreach (var asset in bundle.explicitAssets)
+                {
+                    var assetItem = new AssetItem
+                    {
+                        treeView = this,
+                        asset = asset,
+                        id = m_UniqueId++,
+                        depth = bundleItem.depth + 1,
+                        displayName = asset.name
+                    };
+                    bundleItem.AddChild(assetItem);
+
+                    foreach(var internalReference in asset.internalReferences)
+                    {
+                        var assetReference = new AssetReferenceItem()
+                        {
+                            treeView = this,
+                            id = m_UniqueId++,
+                            depth = assetItem.depth + 1,
+                            displayName = internalReference
+                        };
+                        assetItem.AddChild(assetReference);
+                    }
+                }
+#if false
                 if (bundle.explicitAssets.Count > 0)
                 {
                     var assetsCategoryItem = new CategoryItem
@@ -227,7 +252,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         categoryItem.AddChild(referencedByBundleItem);
                     }
                 }
-            }
+#endif
+                }
         }
 
         [System.Serializable]
@@ -238,6 +264,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public BundleItem()
             {
                 supportsSearch = true;
+            }
+
+            public override object GetObject()
+            {
+                return bundle;
             }
 
             public override int CompareTo(TreeViewItem other, int column)
@@ -316,6 +347,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 supportsSortingOrder = false;
             }
 
+            public override object GetObject()
+            {
+                return null;
+            }
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as CategoryItem;
@@ -340,6 +376,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         class AssetItem : BaseItem
         {
             public RichBuildLayout.Asset asset;
+
+            public override object GetObject()
+            {
+                return asset;
+            }
 
             public override int CompareTo(TreeViewItem other, int column)
             {
@@ -380,6 +421,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class AssetReferenceItem : BaseItem
         {
+            public override object GetObject()
+            {
+                return null;
+            }
+
             public override int CompareTo(TreeViewItem other, int column)
             {
                 var otherItem = other as AssetReferenceItem;
@@ -410,6 +456,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         class BundleReferenceItem : BaseItem
         {
             public RichBuildLayout.Archive bundle;
+
+            public override object GetObject()
+            {
+                return bundle;
+            }
 
             public override int CompareTo(TreeViewItem other, int column)
             {
