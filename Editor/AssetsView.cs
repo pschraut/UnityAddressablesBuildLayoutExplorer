@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
+    [BuildLayoutView]
     public class AssetsView : BuildLayoutView
     {
         BuildLayoutTreeView m_TreeView;

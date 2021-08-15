@@ -34,12 +34,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             Settings.LoadSettings();
             LoadRecentPaths();
 
-            CreateView<WelcomeView>();
-            CreateView<BundlesView>();
-            CreateView<GroupsView>();
-            CreateView<AssetsView>();
+            CreateView(typeof(WelcomeView));
+            foreach(var viewType in TypeCache.GetTypesWithAttribute<BuildLayoutViewAttribute>())
+                CreateView(viewType);
 
-            ShowView(FindView< WelcomeView>());
+            ShowView(FindView<WelcomeView>());
         }
 
         void OnDisable()
@@ -218,7 +217,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                 var prevOrder = -1;
                 var menu = new GenericMenu();
-                foreach (var view in m_Views)
+                var views = new List<BuildLayoutView>(m_Views);
+                views.Sort(delegate (BuildLayoutView a, BuildLayoutView b)
+                {
+                    return a.viewMenuOrder.CompareTo(b.viewMenuOrder);
+                });
+
+                foreach (var view in views)
                 {
                     if (view.viewMenuOrder < 0)
                         continue;
@@ -248,7 +253,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 }
 
                 menu.AddSeparator("");
-                menu.AddItem(new GUIContent("BuildLayout Explorer"), false, NewWindow);
+                menu.AddItem(new GUIContent("New Window"), false, NewWindow);
 
                 menu.DropDown(m_ViewButtonRect);
             }
@@ -403,9 +408,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             AddRecentPath(path);
         }
 
-        T CreateView<T>() where T : BuildLayoutView, new()
+        BuildLayoutView CreateView(System.Type type)
         {
-            var view = new T();
+            var view = (BuildLayoutView)System.Activator.CreateInstance(type);
             view.window = this;
             view.Awake();
             m_Views.Add(view);

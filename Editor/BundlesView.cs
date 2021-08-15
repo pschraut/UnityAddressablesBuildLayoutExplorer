@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
+    [BuildLayoutView]
     public class BundlesView : BuildLayoutView
     {
         BuildLayoutTreeView m_TreeView;
