@@ -23,8 +23,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         /// <summary>
         /// Lets you control the menu item order in the View menu.
-        /// Specify a negative value to not create an item in the View menu.
-        /// If two items are 100 units apart it inserts a seperator item.
+        /// Use a negative value to hide an item from the View menu.
+        /// If two items are 100 units apart a seperator item is inserted inbetween.
         /// </summary>
         public int viewMenuOrder
         {
@@ -50,12 +50,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        /// <summary>
+        /// Gets the buildLayout.
+        /// </summary>
         public RichBuildLayout buildLayout
         {
             get;
             private set;
         }
-
 
         /// <summary>
         /// The key-prefix to load and save EditorPrefs.
@@ -94,6 +96,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             foreach (var v in m_Views)
                 v.Rebuild(buildLayout);
+
+            window.Repaint();
         }
 
         public virtual void Show()

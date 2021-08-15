@@ -217,22 +217,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                 var prevOrder = -1;
                 var menu = new GenericMenu();
+
+                // sorts views by their viewMenuOrder
                 var views = new List<BuildLayoutView>(m_Views);
                 views.Sort(delegate (BuildLayoutView a, BuildLayoutView b)
                 {
                     return a.viewMenuOrder.CompareTo(b.viewMenuOrder);
                 });
 
+                // add views to menu
                 foreach (var view in views)
                 {
                     if (view.viewMenuOrder < 0)
-                        continue;
+                        continue; // negative numbers indicate to ignore in view menu
                     if (prevOrder == -1)
                         prevOrder = view.viewMenuOrder;
 
-                    var p0 = prevOrder / 100;
-                    var p1 = view.viewMenuOrder / 100;
-                    if (p1 - p0 >= 1)
+                    var p0 = prevOrder;
+                    var p1 = view.viewMenuOrder;
+                    if (p1 - p0 >= 100)
                     {
                         var i = view.titleContent.text.LastIndexOf("/");
                         if (i == -1)
