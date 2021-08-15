@@ -18,6 +18,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             base.Awake();
 
+            viewMenuOrder = 15;
             m_TreeView = new AssetsTreeView(window);
             m_SearchField = new SearchField(window);
         }

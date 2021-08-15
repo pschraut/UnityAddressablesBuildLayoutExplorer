@@ -195,12 +195,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 RebuildViews();
             });
 
+            menu.AddSeparator("");
+            menu.AddItem(new GUIContent("Developer Tools/Debug View Menu"), Settings.debugViewMenu, delegate ()
+            {
+                Settings.debugViewMenu = !Settings.debugViewMenu;
+                Settings.SaveSettings();
+                RebuildViews();
+            });
+
             menu.DropDown(m_SettingsButtonRect);
         }
 
         void DrawViewToolbarItem()
         {
-            using(new EditorGUI.DisabledScope(m_Layout == null))
+            using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(m_LoadedPath)))
             {
                 var click = GUILayout.Button("View", EditorStyles.toolbarDropDown, GUILayout.Width(60));
                 if (Event.current.type == EventType.Repaint)
@@ -208,13 +216,32 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (!click)
                     return;
 
+                var prevOrder = -1;
                 var menu = new GenericMenu();
                 foreach (var view in m_Views)
                 {
                     if (view.viewMenuOrder < 0)
                         continue;
+                    if (prevOrder == -1)
+                        prevOrder = view.viewMenuOrder;
 
-                    menu.AddItem(view.titleContent, view.isVisible, (GenericMenu.MenuFunction2)delegate (object o)
+                    var p0 = prevOrder / 100;
+                    var p1 = view.viewMenuOrder / 100;
+                    if (p1 - p0 >= 1)
+                    {
+                        var i = view.titleContent.text.LastIndexOf("/");
+                        if (i == -1)
+                            menu.AddSeparator("");
+                        else
+                            menu.AddSeparator(view.titleContent.text.Substring(0, i));
+                    }
+                    prevOrder = view.viewMenuOrder;
+
+                    var c = new GUIContent(view.titleContent);
+                    if (Settings.debugViewMenu)
+                        c.text = $"{c.text}   [Order={view.viewMenuOrder}, Type={view.GetType().Name}]";
+
+                    menu.AddItem(c, view.isVisible, (GenericMenu.MenuFunction2)delegate (object o)
                     {
                         ShowView(o as BuildLayoutView);
                     }, view);

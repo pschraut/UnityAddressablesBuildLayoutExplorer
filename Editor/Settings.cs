@@ -23,16 +23,25 @@ namespace Oddworm.EditorFramework
             set;
         } = true;
 
+        public static bool debugViewMenu
+        {
+            get;
+            set;
+        } = false;
+
+
         public static void LoadSettings()
         {
             stripHashFromBundleName = UnityEditor.EditorPrefs.GetBool($"{k_Prefix}.{nameof(stripHashFromBundleName)}", stripHashFromBundleName);
             stripExtensionFromBundleName = UnityEditor.EditorPrefs.GetBool($"{k_Prefix}.{nameof(stripExtensionFromBundleName)}", stripExtensionFromBundleName);
+            debugViewMenu = UnityEditor.EditorPrefs.GetBool($"{k_Prefix}.{nameof(debugViewMenu)}", debugViewMenu);
         }
 
         public static void SaveSettings()
         {
             UnityEditor.EditorPrefs.SetBool($"{k_Prefix}.{nameof(stripHashFromBundleName)}", stripHashFromBundleName);
             UnityEditor.EditorPrefs.SetBool($"{k_Prefix}.{nameof(stripExtensionFromBundleName)}", stripExtensionFromBundleName);
+            UnityEditor.EditorPrefs.SetBool($"{k_Prefix}.{nameof(debugViewMenu)}", debugViewMenu);
         }
     }
 }

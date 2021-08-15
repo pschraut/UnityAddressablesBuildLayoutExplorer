@@ -18,6 +18,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             base.Awake();
 
+            viewMenuOrder = 10;
             m_TreeView = new GroupTreeView(window);
             m_TreeView.selectedItemChanged += OnSelectedItemChanged;
             m_SearchField = new SearchField(window);
