@@ -54,185 +54,177 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
-            var processed = new Dictionary<string, bool>();
-
-            foreach (var group in buildLayout.groups)
+            foreach(var bundle in buildLayout.bundles)
             {
-                foreach(var bundle in group.bundles)
+                var bundleItem = new BundleItem
                 {
-                    if (processed.ContainsKey(bundle.name))
-                        continue;
+                    treeView = this,
+                    bundle = bundle,
+                    id = m_UniqueId++,
+                    depth = 0,
+                    displayName = Utility.TransformBundleName(bundle.name),
+                    icon = Styles.GetBuildLayoutObjectIcon(bundle)
+                };
+                rootItem.AddChild(bundleItem);
 
-                    var bundleItem = new BundleItem
+                if (bundle.explicitAssets.Count > 0)
+                {
+                    var assetsCategoryItem = new CategoryItem
                     {
                         treeView = this,
-                        bundle = bundle,
                         id = m_UniqueId++,
-                        depth = 0,
-                        displayName = Utility.TransformBundleName(bundle.name),
-                        icon = Styles.bundleIcon
+                        depth = bundleItem.depth + 1,
+                        displayName = "Explicit Assets",
+                        icon = Styles.explicitAssetsIcon,
+                        sortValue = 1
                     };
-                    rootItem.AddChild(bundleItem);
+                    bundleItem.AddChild(assetsCategoryItem);
 
-                    if (bundle.explicitAssets.Count > 0)
+                    foreach (var asset in bundle.explicitAssets)
                     {
-                        var assetsCategoryItem = new CategoryItem
+                        var assetItem = new AssetItem
                         {
                             treeView = this,
+                            asset = asset,
                             id = m_UniqueId++,
-                            depth = bundleItem.depth + 1,
-                            displayName = "Explicit Assets",
-                            icon = Styles.explicitAssetsIcon,
-                            sortValue = 1
+                            depth = assetsCategoryItem.depth + 1,
+                            displayName = asset.name
                         };
-                        bundleItem.AddChild(assetsCategoryItem);
+                        assetsCategoryItem.AddChild(assetItem);
 
-                        foreach (var asset in bundle.explicitAssets)
+                        if (asset.internalReferences.Count > 0)
                         {
-                            var assetItem = new AssetItem
+                            var irefCategoryItem = new CategoryItem
                             {
                                 treeView = this,
-                                asset = asset,
                                 id = m_UniqueId++,
-                                depth = assetsCategoryItem.depth + 1,
-                                displayName = asset.name
+                                depth = assetItem.depth + 1,
+                                displayName = "Internal References",
+                                icon = Styles.internalAssetReferenceIcon,
+                                sortValue = 1
                             };
-                            assetsCategoryItem.AddChild(assetItem);
+                            assetItem.AddChild(irefCategoryItem);
 
-                            if (asset.internalReferences.Count > 0)
+                            foreach (var eref in asset.internalReferences)
                             {
-                                var irefCategoryItem = new CategoryItem
+                                var erefItem = new AssetReferenceItem
                                 {
                                     treeView = this,
                                     id = m_UniqueId++,
-                                    depth = assetItem.depth + 1,
-                                    displayName = "Internal References",
-                                    icon = Styles.internalAssetReferenceIcon,
-                                    sortValue = 1
+                                    depth = irefCategoryItem.depth + 1,
+                                    displayName = eref
                                 };
-                                assetItem.AddChild(irefCategoryItem);
-
-                                foreach (var eref in asset.internalReferences)
-                                {
-                                    var erefItem = new AssetReferenceItem
-                                    {
-                                        treeView = this,
-                                        id = m_UniqueId++,
-                                        depth = irefCategoryItem.depth + 1,
-                                        displayName = eref
-                                    };
-                                    irefCategoryItem.AddChild(erefItem);
-                                }
+                                irefCategoryItem.AddChild(erefItem);
                             }
+                        }
 
-                            if (asset.externalReferences.Count > 0)
+                        if (asset.externalReferences.Count > 0)
+                        {
+                            var erefCategoryItem = new CategoryItem
                             {
-                                var erefCategoryItem = new CategoryItem
+                                treeView = this,
+                                id = m_UniqueId++,
+                                depth = assetItem.depth + 1,
+                                displayName = "External References",
+                                icon = Styles.externalAssetReferenceIcon,
+                                sortValue = 2
+                            };
+                            assetItem.AddChild(erefCategoryItem);
+
+                            foreach (var eref in asset.externalReferences)
+                            {
+                                var erefItem = new AssetItem
                                 {
                                     treeView = this,
+                                    asset = eref,
                                     id = m_UniqueId++,
-                                    depth = assetItem.depth + 1,
-                                    displayName = "External References",
-                                    icon = Styles.externalAssetReferenceIcon,
-                                    sortValue = 2
+                                    depth = erefCategoryItem.depth + 1,
+                                    displayName = eref.name
                                 };
-                                assetItem.AddChild(erefCategoryItem);
-
-                                foreach (var eref in asset.externalReferences)
-                                {
-                                    var erefItem = new AssetItem
-                                    {
-                                        treeView = this,
-                                        asset = eref,
-                                        id = m_UniqueId++,
-                                        depth = erefCategoryItem.depth + 1,
-                                        displayName = eref.name
-                                    };
-                                    erefCategoryItem.AddChild(erefItem);
-                                }
+                                erefCategoryItem.AddChild(erefItem);
                             }
                         }
                     }
+                }
 
-                    if (bundle.bundleDependencies.Count > 0)
+                if (bundle.bundleDependencies.Count > 0)
+                {
+                    var categoryItem = new CategoryItem
                     {
-                        var categoryItem = new CategoryItem
+                        treeView = this,
+                        id = m_UniqueId++,
+                        depth = bundleItem.depth + 1,
+                        displayName = "Bundle Dependencies",
+                        icon = Styles.bundleDependenciesIcon,
+                        sortValue = 2
+                    };
+                    bundleItem.AddChild(categoryItem);
+
+                    foreach (var dependency in bundle.bundleDependencies)
+                    {
+                        var dependencyItem = new BundleReferenceItem
                         {
                             treeView = this,
+                            bundle = dependency,
                             id = m_UniqueId++,
-                            depth = bundleItem.depth + 1,
-                            displayName = "Bundle Dependencies",
-                            icon = Styles.bundleDependenciesIcon,
-                            sortValue = 2
+                            depth = categoryItem.depth + 1,
+                            displayName = Utility.TransformBundleName(dependency.name)
                         };
-                        bundleItem.AddChild(categoryItem);
-
-                        foreach (var dependency in bundle.bundleDependencies)
-                        {
-                            var dependencyItem = new BundleReferenceItem
-                            {
-                                treeView = this,
-                                bundle = dependency,
-                                id = m_UniqueId++,
-                                depth = categoryItem.depth + 1,
-                                displayName = Utility.TransformBundleName(dependency.name)
-                            };
-                            categoryItem.AddChild(dependencyItem);
-                        }
+                        categoryItem.AddChild(dependencyItem);
                     }
+                }
 
-                    if (bundle.expandedBundleDependencies.Count > 0)
+                if (bundle.expandedBundleDependencies.Count > 0)
+                {
+                    var categoryItem = new CategoryItem
                     {
-                        var categoryItem = new CategoryItem
+                        treeView = this,
+                        id = m_UniqueId++,
+                        depth = bundleItem.depth + 1,
+                        displayName = "Expanded Bundle Dependencies",
+                        icon = Styles.bundleExpandedDependenciesIcon,
+                        sortValue = 3
+                    };
+                    bundleItem.AddChild(categoryItem);
+
+                    foreach (var dependency in bundle.expandedBundleDependencies)
+                    {
+                        var dependencyItem = new BundleReferenceItem
                         {
                             treeView = this,
+                            bundle = dependency,
                             id = m_UniqueId++,
-                            depth = bundleItem.depth + 1,
-                            displayName = "Expanded Bundle Dependencies",
-                            icon = Styles.bundleExpandedDependenciesIcon,
-                            sortValue = 3
+                            depth = categoryItem.depth + 1,
+                            displayName = Utility.TransformBundleName(dependency.name)
                         };
-                        bundleItem.AddChild(categoryItem);
-
-                        foreach (var dependency in bundle.expandedBundleDependencies)
-                        {
-                            var dependencyItem = new BundleReferenceItem
-                            {
-                                treeView = this,
-                                bundle = dependency,
-                                id = m_UniqueId++,
-                                depth = categoryItem.depth + 1,
-                                displayName = Utility.TransformBundleName(dependency.name)
-                            };
-                            categoryItem.AddChild(dependencyItem);
-                        }
+                        categoryItem.AddChild(dependencyItem);
                     }
+                }
 
-                    if (bundle.referencedByBundles.Count > 0)
+                if (bundle.referencedByBundles.Count > 0)
+                {
+                    var categoryItem = new CategoryItem
                     {
-                        var categoryItem = new CategoryItem
+                        treeView = this,
+                        id = m_UniqueId++,
+                        depth = bundleItem.depth + 1,
+                        displayName = "Referenced by Bundles",
+                        icon = Styles.referencedByBundleIcon,
+                        sortValue = 4
+                    };
+                    bundleItem.AddChild(categoryItem);
+
+                    foreach (var referencedByBundle in bundle.referencedByBundles)
+                    {
+                        var referencedByBundleItem = new BundleReferenceItem
                         {
                             treeView = this,
+                            bundle = referencedByBundle,
                             id = m_UniqueId++,
-                            depth = bundleItem.depth + 1,
-                            displayName = "Referenced by Bundles",
-                            icon = Styles.referencedByBundleIcon,
-                            sortValue = 4
+                            depth = categoryItem.depth + 1,
+                            displayName = Utility.TransformBundleName(referencedByBundle.name)
                         };
-                        bundleItem.AddChild(categoryItem);
-
-                        foreach (var referencedByBundle in bundle.referencedByBundles)
-                        {
-                            var referencedByBundleItem = new BundleReferenceItem
-                            {
-                                treeView = this,
-                                bundle = referencedByBundle,
-                                id = m_UniqueId++,
-                                depth = categoryItem.depth + 1,
-                                displayName = Utility.TransformBundleName(referencedByBundle.name)
-                            };
-                            categoryItem.AddChild(referencedByBundleItem);
-                        }
+                        categoryItem.AddChild(referencedByBundleItem);
                     }
                 }
             }
@@ -372,7 +364,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.explicitAssetsIcon, "Navigate to asset"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(asset), "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(asset);
 
                         EditorGUI.LabelField(position, asset.name);
@@ -443,7 +435,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         {
-                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle"), Styles.iconButtonStyle))
+                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(bundle), "Navigate to bundle"), Styles.iconButtonStyle))
                                 NavigateTo(bundle);
 
                             EditorGUI.LabelField(position, displayName);

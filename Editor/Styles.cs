@@ -33,6 +33,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static Texture2D builtinBundleIcon
+        {
+            get;
+            private set;
+        }
+
         public static Texture2D bundleDependenciesIcon
         {
             get;
@@ -105,6 +111,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             navigateBackwardsIcon = FindBuiltinTexture("SubAssetCollapseButton");
             navigateForwardsIcon = FindBuiltinTexture("SubAssetExpandButton");
             assetIcon = FindBuiltinTexture("d_DefaultAsset Icon");
+            builtinBundleIcon = FindBuiltinTexture("CanvasGroup Icon");
 
             iconButtonStyle = new GUIStyle(GUI.skin.button);
             iconButtonStyle.fixedWidth = 18;
@@ -133,6 +140,29 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var c = EditorGUIUtility.IconContent(name);
             if (c != null && c.image != null)
                 return (Texture2D)c.image;
+
+            return null;
+        }
+
+        public static Texture2D GetBuildLayoutObjectIcon(object o)
+        {
+            if (o is RichBuildLayout.Archive)
+            {
+                var b = o as RichBuildLayout.Archive;
+                if (b.isBuiltin)
+                    return builtinBundleIcon;
+                return bundleIcon;
+            }
+
+            if (o is RichBuildLayout.Group)
+            {
+                return groupIcon;
+            }
+
+            if (o is RichBuildLayout.Asset)
+            {
+                return assetIcon;
+            }
 
             return null;
         }

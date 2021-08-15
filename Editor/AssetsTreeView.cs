@@ -62,7 +62,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     id = m_UniqueId++,
                     depth = 0,
                     displayName = asset.name,
-                    icon = Styles.assetIcon
+                    icon = Styles.GetBuildLayoutObjectIcon(asset)
                 };
                 rootItem.AddChild(assetItem);
 

@@ -58,7 +58,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     id = m_UniqueId++,
                     depth = 0,
                     displayName = group.name,
-                    icon = Styles.groupIcon
+                    icon = Styles.GetBuildLayoutObjectIcon(group)
                 };
                 rootItem.AddChild(groupItem);
 
@@ -71,7 +71,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         id = m_UniqueId++,
                         depth = groupItem.depth + 1,
                         displayName = Utility.TransformBundleName(bundle.name),
-                        icon = Styles.bundleIcon
+                        icon = Styles.GetBuildLayoutObjectIcon(bundle)
                     };
                     groupItem.AddChild(bundleItem);
                 }
@@ -119,7 +119,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, $"{EditorUtility.FormatBytes(group.size)}");
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(group.size));
                         break;
 
                     case ColumnIDs.bundles:
@@ -160,7 +160,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.GetBuildLayoutObjectIcon(bundle), "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(bundle);
                         EditorGUI.LabelField(position, displayName);
                         break;

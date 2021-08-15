@@ -30,6 +30,7 @@ namespace Oddworm.EditorFramework
 
         public class Archive
         {
+            public bool isBuiltin;
             public string name = "";
             public long size;
             public string compression = "";
@@ -64,6 +65,25 @@ namespace Oddworm.EditorFramework
             lowlevel = buildLayout;
             unityVersion = buildLayout.unityVersion;
             addressablesVersion = buildLayout.addressablesVersion;
+
+            // collect builtin bundles
+            foreach (var baseBundle in buildLayout.builtinBundles)
+            {
+                var bundle = FindBundle(baseBundle.name);
+                if (bundle != null)
+                    continue;
+
+                bundle = new Archive
+                {
+                    lowlevel = baseBundle,
+                    name = baseBundle.name,
+                    size = baseBundle.size,
+                    compression = baseBundle.compression.ToUpper(),
+                    assetBundleObjectSize = baseBundle.assetBundleObjectSize,
+                    isBuiltin = true
+                };
+                bundles.Add(bundle);
+            }
 
             // collect all bundles
             foreach (var baseGroup in buildLayout.groups)
