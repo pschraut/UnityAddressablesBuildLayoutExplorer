@@ -13,6 +13,7 @@ namespace Oddworm.EditorFramework
         public string unityVersion;
         public string addressablesVersion;
         public List<Group> groups = new List<Group>();
+        public List<Archive> builtinBundles = new List<Archive>();
 
         [System.Serializable]
         public class Group
@@ -80,6 +81,12 @@ namespace Oddworm.EditorFramework
                 if (line.StartsWith("com.unity.addressables:", System.StringComparison.Ordinal))
                 {
                     layout.addressablesVersion = line.Substring("com.unity.addressables:".Length).Trim();
+                    continue;
+                }
+
+                if (line.StartsWith("BuiltIn Bundles", System.StringComparison.Ordinal))
+                {
+                    layout.builtinBundles.AddRange(ReadBuiltInBundles(ref n));
                     continue;
                 }
 
@@ -154,6 +161,41 @@ namespace Oddworm.EditorFramework
                 }
 
                 return group;
+            }
+
+            List<Archive> ReadBuiltInBundles(ref int index)
+            {
+                var result = new List<Archive>();
+
+                // Iterate over each group line
+                var loopguard = 0;
+                index++;
+                for (; index < lines.Count; ++index)
+                {
+                loop:
+                    if (++loopguard > 30000)
+                    {
+                        Debug.LogError($"loopguard");
+                        break;
+                    }
+
+                    var line = lines[index];
+                    var lineIndend = GetIndend(line);
+                    if (lineIndend <= 0)
+                    {
+                        index--;
+                        return result;
+                    }
+
+                    if (line.StartsWith("\tArchive"))
+                    {
+                        var archive = ReadArchive(ref index);
+                        result.Add(archive);
+                        goto loop;
+                    }
+                }
+
+                return result;
             }
 
             void SkipSchemas(ref int index)
