@@ -79,7 +79,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             get;
             private set;
         }
+
         public static GUIStyle ghostLabelStyle
+        {
+            get;
+            private set;
+        }
+
+        public static GUIStyle iconButtonStyle
         {
             get;
             private set;
@@ -98,6 +105,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             navigateBackwardsIcon = FindBuiltinTexture("SubAssetCollapseButton");
             navigateForwardsIcon = FindBuiltinTexture("SubAssetExpandButton");
             assetIcon = FindBuiltinTexture("d_DefaultAsset Icon");
+
+            iconButtonStyle = new GUIStyle(GUI.skin.button);
+            iconButtonStyle.fixedWidth = 18;
+            iconButtonStyle.fixedHeight = 18;
+            iconButtonStyle.padding = new RectOffset();
+            iconButtonStyle.contentOffset = new Vector2(0, 0);
 
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;

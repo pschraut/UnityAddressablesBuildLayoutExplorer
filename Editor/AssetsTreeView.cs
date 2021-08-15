@@ -202,7 +202,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle")))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(bundle);
                         EditorGUI.LabelField(position, displayName);
                         break;

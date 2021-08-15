@@ -372,7 +372,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.explicitAssetsIcon, "Navigate to asset")))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.explicitAssetsIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(asset);
 
                         EditorGUI.LabelField(position, asset.name);
@@ -443,7 +443,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         {
-                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle")))
+                            if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.bundleIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                                 NavigateTo(bundle);
 
                             EditorGUI.LabelField(position, displayName);
