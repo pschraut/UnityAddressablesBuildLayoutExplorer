@@ -27,6 +27,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_TreeView.Clear();
             m_TreeView.references = references;
             m_TreeView.SetBuildLayout(buildLayout);
+            m_TreeView.ExpandCategories();
         }
 
         public override void Rebuild(RichBuildLayout buildLayout)

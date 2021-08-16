@@ -20,6 +20,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public List<object> references = new List<object>();
 
+        CategoryItem m_BundlesCategory;
+        CategoryItem m_AssetsCategory;
+        CategoryItem m_GroupsCategory;
+
         public ReferencesTreeView(BuildLayoutWindow window)
                    : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
@@ -33,11 +37,23 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.name;
         }
 
+        public void ExpandCategories()
+        {
+            if (m_BundlesCategory != null)
+                SetExpanded(m_BundlesCategory.id, true);
+
+            if (m_AssetsCategory != null)
+                SetExpanded(m_AssetsCategory.id, true);
+
+            if (m_GroupsCategory != null)
+                SetExpanded(m_GroupsCategory.id, true);
+        }
+
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
-            CategoryItem bundlesCategory = null;
-            CategoryItem assetsCategory = null;
-            CategoryItem groupsCategory = null;
+            m_BundlesCategory = null;
+            m_AssetsCategory = null;
+            m_GroupsCategory = null;
 
             foreach(var r in references)
             {
@@ -51,18 +67,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (bundle == null)
                     return;
 
-                if (bundlesCategory == null)
+                if (m_BundlesCategory == null)
                 {
-                    bundlesCategory = new CategoryItem()
+                    m_BundlesCategory = new CategoryItem()
                     {
                         treeView = this,
-                        sortValue = 1,
+                        sortValue = 5,
                         id = m_UniqueId++,
                         depth = rootItem.depth + 1,
-                        displayName = "Bundles",
-                        icon = Styles.bundleIcon
+                        displayName = "Bundles"
                     };
-                    rootItem.AddChild(bundlesCategory);
+                    rootItem.AddChild(m_BundlesCategory);
                 }
 
                 var bundleItem = new BundleItem()
@@ -70,11 +85,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     treeView = this,
                     bundle = bundle,
                     id = m_UniqueId++,
-                    depth = bundlesCategory.depth + 1,
+                    depth = m_BundlesCategory.depth + 1,
                     displayName = Utility.TransformBundleName(bundle.name),
                     icon = Styles.GetBuildLayoutObjectIcon(bundle)
                 };
-                bundlesCategory.AddChild(bundleItem);
+                m_BundlesCategory.AddChild(bundleItem);
             }
 
             void TryAddAsset(RichBuildLayout.Asset asset)
@@ -82,18 +97,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (asset == null)
                     return;
 
-                if (assetsCategory == null)
+                if (m_AssetsCategory == null)
                 {
-                    assetsCategory = new CategoryItem()
+                    m_AssetsCategory = new CategoryItem()
                     {
                         treeView = this,
-                        sortValue = 2,
+                        sortValue = 10,
                         id = m_UniqueId++,
                         depth = rootItem.depth + 1,
-                        displayName = "Assets",
-                        icon = Styles.assetIcon
+                        displayName = "Assets"
                     };
-                    rootItem.AddChild(assetsCategory);
+                    rootItem.AddChild(m_AssetsCategory);
                 }
 
                 var assetsItem = new AssetItem()
@@ -101,11 +115,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     treeView = this,
                     asset = asset,
                     id = m_UniqueId++,
-                    depth = assetsCategory.depth + 1,
+                    depth = m_AssetsCategory.depth + 1,
                     displayName = asset.name,
                     icon = Styles.GetBuildLayoutObjectIcon(asset)
                 };
-                assetsCategory.AddChild(assetsItem);
+                m_AssetsCategory.AddChild(assetsItem);
             }
 
             void TryAddGroup(RichBuildLayout.Group group)
@@ -113,18 +127,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (group == null)
                     return;
 
-                if (groupsCategory == null)
+                if (m_GroupsCategory == null)
                 {
-                    groupsCategory = new CategoryItem()
+                    m_GroupsCategory = new CategoryItem()
                     {
                         treeView = this,
-                        sortValue = 3,
+                        sortValue = 1,
                         id = m_UniqueId++,
                         depth = rootItem.depth + 1,
-                        displayName = "Groups",
-                        icon = Styles.groupIcon
+                        displayName = "Groups"
                     };
-                    rootItem.AddChild(groupsCategory);
+                    rootItem.AddChild(m_GroupsCategory);
                 }
 
                 var groupsItem = new GroupItem()
@@ -132,11 +145,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     treeView = this,
                     group = group,
                     id = m_UniqueId++,
-                    depth = groupsCategory.depth + 1,
+                    depth = m_GroupsCategory.depth + 1,
                     displayName = group.name,
                     icon = Styles.GetBuildLayoutObjectIcon(group)
                 };
-                groupsCategory.AddChild(groupsItem);
+                m_GroupsCategory.AddChild(groupsItem);
             }
         }
 
