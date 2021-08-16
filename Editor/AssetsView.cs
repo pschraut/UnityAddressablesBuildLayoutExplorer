@@ -15,6 +15,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         AssetsTreeView m_TreeView;
         SearchField m_SearchField;
         string m_StatusLabel;
+        ReferencesView m_ReferencesToView;
+        ReferencesView m_ReferencedByView;
+        float m_SplitterTree = 0.333f;
+        float m_SplitterReferences = 0.5f;
+        string m_SplitterTreeKey = $"{nameof(AssetsView)}.{nameof(m_SplitterTree)}";
+        string m_SplitterReferencesKey = $"{nameof(AssetsView)}.{nameof(m_SplitterReferences)}";
 
         public override void Awake()
         {
@@ -22,7 +28,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             viewMenuOrder = 15;
             m_TreeView = new AssetsTreeView(window);
+            m_TreeView.selectedItemChanged += SelectionChanged;
             m_SearchField = new SearchField(window);
+
+            m_ReferencesToView = CreateView<ReferencesView>();
+            m_ReferencesToView.titleContent = new GUIContent("References to");
+
+            m_ReferencedByView = CreateView<ReferencesView>();
+            m_ReferencedByView.titleContent = new GUIContent("Referenced by");
+
+            m_SplitterTree = Settings.GetFloat(m_SplitterTreeKey, m_SplitterTree);
+            m_SplitterReferences = Settings.GetFloat(m_SplitterReferencesKey, m_SplitterReferences);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            Settings.SetFloat(m_SplitterTreeKey, m_SplitterTree);
+            Settings.SetFloat(m_SplitterReferencesKey, m_SplitterReferences);
         }
 
         public override void Rebuild(RichBuildLayout buildLayout)
@@ -47,7 +71,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.LabelField(new GUIContent("Assets", Styles.assetIcon), EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(new GUIContent(" Assets", Styles.assetIcon), EditorStyles.boldLabel);
 
                     if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
                         m_TreeView.Search(m_SearchField.text);
@@ -55,6 +79,24 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                 var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                 m_TreeView.OnGUI(rect);
+            }
+
+            m_SplitterTree = SplitterGUI.VerticalSplitter(nameof(m_SplitterTree).GetHashCode(), m_SplitterTree, 0.2f, 0.8f, window);
+
+            // Bottom views
+            using (new EditorGUILayout.HorizontalScope(GUILayout.Height(window.position.height * m_SplitterTree)))
+            {
+                using (new EditorGUILayout.VerticalScope(Styles.viewStyle, GUILayout.Width(window.position.width * (1 - m_SplitterReferences))))
+                {
+                    m_ReferencesToView.OnGUI();
+                }
+
+                m_SplitterReferences = SplitterGUI.HorizontalSplitter(nameof(m_SplitterReferences).GetHashCode(), m_SplitterReferences, 0.3f, 0.7f, window);
+
+                using (new EditorGUILayout.VerticalScope(Styles.viewStyle, GUILayout.Width(window.position.width * m_SplitterReferences)))
+                {
+                    m_ReferencedByView.OnGUI();
+                }
             }
         }
 
@@ -98,18 +140,31 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             m_TreeView.SetState(bm.assetsState);
             m_TreeView.SetFocus();
+
+            m_ReferencesToView.SetBookmark(bm.referencesToBookmark);
+            m_ReferencedByView.SetBookmark(bm.referencedByBookmark);
         }
 
         public override NavigationBookmark GetBookmark()
         {
             var bm = new Bookmark();
             bm.assetsState = m_TreeView.GetState();
+            bm.referencesToBookmark = m_ReferencesToView.GetBookmark();
+            bm.referencedByBookmark = m_ReferencedByView.GetBookmark();
             return bm;
+        }
+
+        void SelectionChanged(BuildLayoutTreeView.BaseItem item)
+        {
+            m_ReferencesToView.ShowReferences(Utility.GetReferencesTo(item.GetObject()));
+            m_ReferencedByView.ShowReferences(Utility.GetReferencedBy(item.GetObject()));
         }
 
         class Bookmark : NavigationBookmark
         {
             public BuildLayoutTreeViewState assetsState;
+            public NavigationBookmark referencesToBookmark;
+            public NavigationBookmark referencedByBookmark;
         }
     }
 }

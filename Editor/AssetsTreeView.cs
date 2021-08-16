@@ -70,34 +70,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     icon = Styles.GetBuildLayoutObjectIcon(asset)
                 };
                 rootItem.AddChild(assetItem);
-
-                if (asset.referencedByBundle.Count > 0)
-                {
-                    var categoryItem = new CategoryItem()
-                    {
-                        treeView = this,
-                        id = m_UniqueId++,
-                        depth = assetItem.depth + 1,
-                        displayName = "Referenced by Bundle",
-                        icon = Styles.bundleDependenciesIcon,
-                        sortValue = 1
-                    };
-                    assetItem.AddChild(categoryItem);
-
-                    foreach(var rbundle in asset.referencedByBundle)
-                    {
-                        var bundleItem = new BundleItem()
-                        {
-                            bundle = rbundle,
-                            treeView = this,
-                            id = m_UniqueId++,
-                            depth = categoryItem.depth + 1,
-                            displayName = Utility.TransformBundleName(rbundle.name),
-                            icon = Styles.GetBuildLayoutObjectIcon(rbundle)
-                        };
-                        categoryItem.AddChild(bundleItem);
-                    }
-                }
             }
         }
 
@@ -173,91 +145,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 void DrawSize(Rect r, long size)
                 {
                     EditorGUI.LabelField(position, EditorUtility.FormatBytes(size));
-                }
-            }
-        }
-
-        [System.Serializable]
-        class BundleItem : BaseItem
-        {
-            public RichBuildLayout.Archive bundle;
-
-            public BundleItem()
-            {
-                supportsSearch = true;
-            }
-
-            public override object GetObject()
-            {
-                return bundle;
-            }
-
-            public override int CompareTo(TreeViewItem other, int column)
-            {
-                var otherItem = other as BundleItem;
-                if (otherItem == null)
-                    return 1;
-
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        return string.Compare(displayName, otherItem.displayName, true);
-
-                    case ColumnIDs.size:
-                        return bundle.size.CompareTo(otherItem.bundle.size);
-                }
-
-                return 0;
-            }
-
-            public override void OnGUI(Rect position, int column)
-            {
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
-                            NavigateTo(bundle);
-                        EditorGUI.LabelField(position, displayName);
-                        break;
-
-                    case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(bundle.size), Styles.ghostLabelStyle);
-                        break;
-                }
-            }
-        }
-
-        [System.Serializable]
-        class CategoryItem : BaseItem
-        {
-            public int sortValue;
-
-            public CategoryItem()
-            {
-                supportsSortingOrder = false;
-            }
-
-            public override object GetObject()
-            {
-                return null;
-            }
-
-            public override int CompareTo(TreeViewItem other, int column)
-            {
-                var otherItem = other as CategoryItem;
-                if (otherItem == null)
-                    return 1;
-
-                return sortValue.CompareTo(otherItem.sortValue);
-            }
-
-            public override void OnGUI(Rect position, int column)
-            {
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName);
-                        break;
                 }
             }
         }
