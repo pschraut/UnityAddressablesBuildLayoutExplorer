@@ -74,7 +74,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.LabelField(new GUIContent("Bundles", Styles.bundleIcon) , EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(new GUIContent(" Bundles", Styles.bundleIcon), EditorStyles.boldLabel);
 
                     if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
                         m_TreeView.Search(m_SearchField.text);

@@ -25,7 +25,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Compression"), width = 80, autoResize = true },
-                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Dependencies"), width = 80, autoResize = true },
+                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("References to Bundles"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Referenced by Bundles"), width = 80, autoResize = true },
                             })))
         {
