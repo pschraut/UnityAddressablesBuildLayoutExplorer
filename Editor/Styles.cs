@@ -110,6 +110,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static GUIStyle iconToolbarButtonStyle
+        {
+            get;
+            private set;
+        }
+
+        public static GUIStyle viewStyle
+        {
+            get;
+            private set;
+        }
+
         static Styles()
         {
             groupIcon = FindBuiltinTexture("ScriptableObject Icon");
@@ -134,6 +146,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             iconButtonStyle.padding = new RectOffset();
             iconButtonStyle.contentOffset = new Vector2(0, 0);
 
+            iconToolbarButtonStyle = new GUIStyle(EditorStyles.toolbarButton);
+            //iconToolbarButtonStyle.fixedWidth = 18;
+            //iconToolbarButtonStyle.fixedHeight = 18;
+            iconToolbarButtonStyle.padding = new RectOffset(1,1,1,1);
+            iconToolbarButtonStyle.contentOffset = new Vector2(0, 0);
+
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;
             iconStyle.fixedHeight = 18;
@@ -144,6 +162,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var tc = ghostLabelStyle.normal.textColor;
             tc.a *= 0.6f;
             ghostLabelStyle.normal.textColor = tc;
+
+            viewStyle = new GUIStyle(EditorStyles.helpBox);
+            viewStyle.margin = new RectOffset(0, 0, 0, 0);
+            viewStyle.padding = new RectOffset(4, 4, 4, 4);
         }
 
         static Texture2D FindBuiltinTexture(string name)

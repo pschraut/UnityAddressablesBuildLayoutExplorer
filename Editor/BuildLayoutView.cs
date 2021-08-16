@@ -127,13 +127,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
         /// <summary>
-        /// Implement the OnToolbarGUI method to draw your own GUI in toolbar menu.
-        /// </summary>
-        public virtual void OnToolbarGUI()
-        {
-        }
-
-        /// <summary>
         /// Implement the OnStatusbarGUI method to draw your own GUI in statusbar menu.
         /// </summary>
         public virtual void OnStatusbarGUI()

@@ -55,30 +55,32 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override void OnGUI()
         {
-            var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            m_TreeView.OnGUI(rect);
+            using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(new GUIContent("Bundles", Styles.bundleIcon) , EditorStyles.boldLabel);
 
+                    if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
+                        m_TreeView.Search(m_SearchField.text);
+                }
+
+                var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                m_TreeView.OnGUI(rect);
+            }
+
+            // Bottom views
             using (new EditorGUILayout.HorizontalScope(GUILayout.Height(window.position.height * 0.333f)))
             {
-                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
                 {
                     m_ReferencesToView.OnGUI();
                 }
-                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
                 {
                     m_ReferencedByView.OnGUI();
                 }
             }
-        }
-
-        public override void OnToolbarGUI()
-        {
-            base.OnToolbarGUI();
-
-            GUILayout.Space(10);
-
-            if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
-                m_TreeView.Search(m_SearchField.text);
         }
 
         public override void OnStatusbarGUI()

@@ -56,13 +56,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        public override void OnToolbarGUI()
-        {
-            base.OnToolbarGUI();
-
-            GUILayout.FlexibleSpace();
-        }
-
         public override void SetBookmark(NavigationBookmark bookmark)
         {
         }

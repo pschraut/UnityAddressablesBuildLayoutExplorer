@@ -225,7 +225,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void DrawSettingsToolbarItem()
         {
-            var click = GUILayout.Button("Settings", EditorStyles.toolbarDropDown, GUILayout.Width(70));
+            var click = GUILayout.Button(new GUIContent(Styles.settingsIcon, "Settings"), Styles.iconToolbarButtonStyle, GUILayout.Width(20));
             if (Event.current.type == EventType.Repaint)
                 m_SettingsButtonRect = GUILayoutUtility.GetLastRect();
             if (!click)
@@ -326,15 +326,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        void DrawCustomToolbarItems()
-        {
-            foreach (var view in m_Views)
-            {
-                if (view.isVisible)
-                    view.OnToolbarGUI();
-            }
-        }
-
         void OnToolbarGUI()
         {
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
@@ -342,7 +333,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 DrawNavigationToolbarItem();
                 DrawFileToolbarItem();
                 DrawViewToolbarItem();
-                DrawCustomToolbarItems();
+                GUILayout.FlexibleSpace();
                 DrawSettingsToolbarItem();
             }
         }

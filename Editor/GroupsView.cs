@@ -62,18 +62,19 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override void OnGUI()
         {
-            var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            m_TreeView.OnGUI(rect);
-        }
+            using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(new GUIContent("Groups", Styles.groupIcon), EditorStyles.boldLabel);
 
-        public override void OnToolbarGUI()
-        {
-            base.OnToolbarGUI();
+                    if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
+                        m_TreeView.Search(m_SearchField.text);
+                }
 
-            GUILayout.Space(10);
-
-            if (m_SearchField.OnToolbarGUI(GUILayout.ExpandWidth(true)))
-                m_TreeView.Search(m_SearchField.text);
+                var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                m_TreeView.OnGUI(rect);
+            }
         }
 
         public override void OnStatusbarGUI()
