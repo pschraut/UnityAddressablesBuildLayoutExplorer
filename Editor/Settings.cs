@@ -4,6 +4,7 @@
 //
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 namespace Oddworm.EditorFramework
 {
@@ -32,16 +33,56 @@ namespace Oddworm.EditorFramework
 
         public static void LoadSettings()
         {
-            stripHashFromBundleName = UnityEditor.EditorPrefs.GetBool($"{k_Prefix}.{nameof(stripHashFromBundleName)}", stripHashFromBundleName);
-            stripExtensionFromBundleName = UnityEditor.EditorPrefs.GetBool($"{k_Prefix}.{nameof(stripExtensionFromBundleName)}", stripExtensionFromBundleName);
-            debugViewMenu = UnityEditor.EditorPrefs.GetBool($"{k_Prefix}.{nameof(debugViewMenu)}", debugViewMenu);
+            stripHashFromBundleName = GetBool(nameof(stripHashFromBundleName), stripHashFromBundleName);
+            stripExtensionFromBundleName = GetBool(nameof(stripExtensionFromBundleName), stripExtensionFromBundleName);
+            debugViewMenu = GetBool(nameof(debugViewMenu), debugViewMenu);
         }
 
         public static void SaveSettings()
         {
-            UnityEditor.EditorPrefs.SetBool($"{k_Prefix}.{nameof(stripHashFromBundleName)}", stripHashFromBundleName);
-            UnityEditor.EditorPrefs.SetBool($"{k_Prefix}.{nameof(stripExtensionFromBundleName)}", stripExtensionFromBundleName);
-            UnityEditor.EditorPrefs.SetBool($"{k_Prefix}.{nameof(debugViewMenu)}", debugViewMenu);
+            SetBool(nameof(stripHashFromBundleName), stripHashFromBundleName);
+            SetBool(nameof(stripExtensionFromBundleName), stripExtensionFromBundleName);
+            SetBool(nameof(debugViewMenu), debugViewMenu);
+        }
+
+        public static float GetFloat(string key, float defaultValue)
+        {
+            return EditorPrefs.GetFloat($"{k_Prefix}.{key}", defaultValue);
+        }
+
+        public static int GetInt(string key, int defaultValue)
+        {
+            return EditorPrefs.GetInt($"{k_Prefix}.{key}", defaultValue);
+        }
+
+        public static bool GetBool(string key, bool defaultValue)
+        {
+            return EditorPrefs.GetBool($"{k_Prefix}.{key}", defaultValue);
+        }
+
+        public static string GetString(string key, string defaultValue)
+        {
+            return EditorPrefs.GetString($"{k_Prefix}.{key}", defaultValue);
+        }
+
+        public static void SetFloat(string key, float value)
+        {
+            EditorPrefs.SetFloat($"{k_Prefix}.{key}", value);
+        }
+
+        public static void SetInt(string key, int value)
+        {
+            EditorPrefs.SetInt($"{k_Prefix}.{key}", value);
+        }
+
+        public static void SetBool(string key, bool value)
+        {
+            EditorPrefs.SetBool($"{k_Prefix}.{key}", value);
+        }
+
+        public static void SetString(string key, string value)
+        {
+            EditorPrefs.SetString($"{k_Prefix}.{key}", value);
         }
     }
 }

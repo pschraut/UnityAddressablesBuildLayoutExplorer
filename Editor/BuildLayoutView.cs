@@ -59,20 +59,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
-        /// <summary>
-        /// The key-prefix to load and save EditorPrefs.
-        /// </summary>
-        public string editorPrefsKey
-        {
-            get;
-            set;
-        }
-
         List<BuildLayoutView> m_Views = new List<BuildLayoutView>();
 
         public BuildLayoutView()
         {
-            editorPrefsKey = GetType().Name;
             viewMenuOrder = int.MaxValue - 1;
         }
 
@@ -151,19 +141,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         /// Restores the view using the specified <paramref name="bookmark"/>.
         /// </summary>
         public abstract void SetBookmark(NavigationBookmark bookmark);
-
-        // This allows to pass a member variable whose name is converted to a string.
-        protected string GetPrefsKey(Expression<Func<object>> exp)
-        {
-            var body = exp.Body as MemberExpression;
-            if (body == null)
-            {
-                var ubody = (UnaryExpression)exp.Body;
-                body = ubody.Operand as MemberExpression;
-            }
-
-            return $"BuildLayoutExplorer.{editorPrefsKey}.{body.Member.Name}";
-        }
 
         protected T CreateView<T>() where T : BuildLayoutView, new()
         {

@@ -399,10 +399,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         void SaveRecentPaths()
         {
             for (var n = 0; n < m_RecentPaths.Length; ++n)
-                EditorPrefs.SetString($"BundleLayoutExplorer.m_RecentPaths[{n}]", m_RecentPaths[n]);
+                Settings.SetString($"m_RecentPaths[{n}]", m_RecentPaths[n]);
 
             for (var n = m_RecentPaths.Length; n < 10; ++n)
-                EditorPrefs.SetString($"BundleLayoutExplorer.m_RecentPaths[{n}]", "");
+                Settings.SetString($"m_RecentPaths[{n}]", "");
         }
 
         void LoadRecentPaths()
@@ -411,7 +411,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             for (var n = 0; n < 10; ++n)
             {
-                var value=EditorPrefs.GetString($"BundleLayoutExplorer.m_RecentPaths[{n}]", "");
+                var value=Settings.GetString($"m_RecentPaths[{n}]", "");
                 if (string.IsNullOrEmpty(value))
                     break;
 

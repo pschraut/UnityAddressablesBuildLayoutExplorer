@@ -17,6 +17,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         string m_StatusLabel;
         ReferencesView m_ReferencesToView;
         ReferencesView m_ReferencedByView;
+        float m_SplitterTree = 0.333f;
+        float m_SplitterReferences = 0.5f;
+        string m_SplitterTreeKey = $"{nameof(BundlesView)}.{nameof(m_SplitterTree)}";
+        string m_SplitterReferencesKey = $"{nameof(BundlesView)}.{nameof(m_SplitterReferences)}";
 
         public override void Awake()
         {
@@ -32,6 +36,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             m_ReferencedByView = CreateView<ReferencesView>();
             m_ReferencedByView.titleContent = new GUIContent("Referenced by");
+
+            m_SplitterTree = Settings.GetFloat(m_SplitterTreeKey, m_SplitterTree);
+            m_SplitterReferences = Settings.GetFloat(m_SplitterReferencesKey, m_SplitterReferences);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            Settings.SetFloat(m_SplitterTreeKey, m_SplitterTree);
+            Settings.SetFloat(m_SplitterReferencesKey, m_SplitterReferences);
         }
 
         public override void Rebuild(RichBuildLayout buildLayout)
@@ -69,14 +84,19 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 m_TreeView.OnGUI(rect);
             }
 
+            m_SplitterTree = SplitterGUI.VerticalSplitter(nameof(m_SplitterTree).GetHashCode(), m_SplitterTree, 0.2f, 0.8f, window);
+
             // Bottom views
-            using (new EditorGUILayout.HorizontalScope(GUILayout.Height(window.position.height * 0.333f)))
+            using (new EditorGUILayout.HorizontalScope(GUILayout.Height(window.position.height * m_SplitterTree)))
             {
-                using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
+                using (new EditorGUILayout.VerticalScope(Styles.viewStyle, GUILayout.Width(window.position.width * (1 - m_SplitterReferences))))
                 {
                     m_ReferencesToView.OnGUI();
                 }
-                using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
+
+                m_SplitterReferences = SplitterGUI.HorizontalSplitter(nameof(m_SplitterReferences).GetHashCode(), m_SplitterReferences, 0.3f, 0.7f, window);
+
+                using (new EditorGUILayout.VerticalScope(Styles.viewStyle, GUILayout.Width(window.position.width * m_SplitterReferences)))
                 {
                     m_ReferencedByView.OnGUI();
                 }
