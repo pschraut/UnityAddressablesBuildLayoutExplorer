@@ -11,12 +11,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
     {
         GUIStyle m_Heading1Style;
         GUIStyle m_Heading2Style;
+        Package m_Package;
 
         public override void Awake()
         {
             base.Awake();
 
             viewMenuOrder = -1; // negative number indicates to hide it in the View menu
+            m_Package = Package.Load();
         }
 
         public override void OnGUI()
@@ -33,7 +35,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
 
             GUILayout.Space(4);
-            GUILayout.Label($"Addressables BuildLayout Explorer for Unity", m_Heading1Style);
+            GUILayout.Label($"{m_Package.displayName} {m_Package.version} for Unity", m_Heading1Style);
             GUILayout.Label("Created by Peter Schraut (www.console-dev.de)");
             GUILayout.Space(16);
 
@@ -116,7 +118,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                var docuURL = "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer";
+                var docuURL = m_Package.documentationUrl;
                 GUILayout.Label("Latest version", m_Heading2Style);
                 if (LinkButton(docuURL))
                     Application.OpenURL(docuURL);
