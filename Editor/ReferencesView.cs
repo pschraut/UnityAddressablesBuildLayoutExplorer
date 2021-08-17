@@ -41,7 +41,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
-                GUILayout.Label(titleContent, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(titleContent, EditorStyles.boldLabel);
 
                 GUILayout.Space(10);
 

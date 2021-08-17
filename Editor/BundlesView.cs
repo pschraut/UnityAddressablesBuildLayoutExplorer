@@ -32,10 +32,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_SearchField = new SearchField(window);
 
             m_ReferencesToView = CreateView<ReferencesView>();
-            m_ReferencesToView.titleContent = new GUIContent("References to");
-
             m_ReferencedByView = CreateView<ReferencesView>();
-            m_ReferencedByView.titleContent = new GUIContent("Referenced by");
 
             m_SplitterTree = Settings.GetFloat(m_SplitterTreeKey, m_SplitterTree);
             m_SplitterReferences = Settings.GetFloat(m_SplitterReferencesKey, m_SplitterReferences);
@@ -70,6 +67,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override void OnGUI()
         {
+            m_ReferencesToView.titleContent = new GUIContent(" References to", Styles.referencesToIcon);
+            m_ReferencedByView.titleContent = new GUIContent(" Referenced by", Styles.referencedByIcon);
+
             using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
             {
                 using (new EditorGUILayout.HorizontalScope())

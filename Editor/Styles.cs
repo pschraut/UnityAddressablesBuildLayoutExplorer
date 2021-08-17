@@ -39,42 +39,19 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
-        public static Texture2D bundleDependenciesIcon
+        public static Texture2D referencesToIcon
         {
             get;
             private set;
         }
 
-        public static Texture2D bundleExpandedDependenciesIcon
-        {
-            get;
-            private set;
-        }
-        public static Texture2D referencedByBundleIcon
-        {
-            get;
-            private set;
-        }
-
-        public static Texture2D explicitAssetsIcon
+        public static Texture2D referencedByIcon
         {
             get;
             private set;
         }
 
         public static Texture2D assetIcon
-        {
-            get;
-            private set;
-        }
-
-        public static Texture2D externalAssetReferenceIcon
-        {
-            get;
-            private set;
-        }
-
-        public static Texture2D internalAssetReferenceIcon
         {
             get;
             private set;
@@ -126,18 +103,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             groupIcon = FindBuiltinTexture("ScriptableObject Icon");
             bundleIcon = FindBuiltinTexture("LODGroup Icon");
-            bundleDependenciesIcon = FindBuiltinTexture("Animator Icon");
-            bundleExpandedDependenciesIcon = FindBuiltinTexture("d_NetworkAnimator Icon");
-            explicitAssetsIcon = FindBuiltinTexture("d_DefaultAsset Icon");
-            internalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController On Icon");
-            externalAssetReferenceIcon = FindBuiltinTexture("d_AnimatorOverrideController Icon");
-            referencedByBundleIcon = FindBuiltinTexture("d_VisualEffectSubgraphOperator Icon");
-            navigateBackwardsIcon = FindBuiltinTexture("d_back@2x");
-            navigateForwardsIcon = FindBuiltinTexture("d_forward@2x");
-            assetIcon = FindBuiltinTexture("d_DefaultAsset Icon");
+            referencesToIcon = FindBuiltinTexture("Animator Icon");
+            //bundleExpandedDependenciesIcon = FindBuiltinTexture("d_NetworkAnimator Icon");
+            referencedByIcon = FindBuiltinTexture("VisualEffectSubgraphOperator Icon");
+            navigateBackwardsIcon = FindBuiltinTexture("back@2x");
+            navigateForwardsIcon = FindBuiltinTexture("forward@2x");
+            assetIcon = FindBuiltinTexture("DefaultAsset Icon");
             builtinBundleIcon = FindBuiltinTexture("CanvasGroup Icon");
-            navigateIcon = FindBuiltinTexture("d_PlayButton@2x");
-            settingsIcon = FindBuiltinTexture("d_Settings@2x");
+            navigateIcon = FindBuiltinTexture("PlayButton@2x");
+            settingsIcon = FindBuiltinTexture("Settings@2x");
             // d_UnityEditor.Graphs.AnimatorControllerTool@2x
 
             iconButtonStyle = new GUIStyle(GUI.skin.button);
