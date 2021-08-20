@@ -33,6 +33,7 @@ namespace Oddworm.EditorFramework
             public List<string> bundleDependencies = new List<string>();
             public List<string> expandedBundleDependencies = new List<string>();
             public List<ExplicitAsset> explicitAssets = new List<ExplicitAsset>();
+            public List<File> files = new List<File>();
         }
 
         [System.Serializable]
@@ -46,6 +47,24 @@ namespace Oddworm.EditorFramework
             public List<string> externalReferences = new List<string>();
             public List<string> internalReferences = new List<string>();
         }
+
+        [System.Serializable]
+        public class File
+        {
+            public string name;
+            public int monoScriptCount;
+            public long monoScriptSize;
+            public List<CAB> cabs = new List<CAB>();
+            public List<ExplicitAsset> assets = new List<ExplicitAsset>();
+        }
+
+        [System.Serializable]
+        public class CAB
+        {
+            public string name;
+            public long size;
+        }
+
 
         public static BuildLayout Load(string path)
         {
@@ -116,8 +135,7 @@ namespace Oddworm.EditorFramework
                 // Read the group name
                 var groupName = groupLine;
                 groupName = groupName.Substring(groupName.IndexOf("Group ") + "Group ".Length); // Remove everything before and including "Group"
-                groupName = groupName.Substring(0, groupName.IndexOf(" (Bundles:")); // Remove everything after and including " (Bundles:"
-                groupName = groupName.Trim();
+                groupName = RemoveAttributes(groupName).Trim();
                 group.name = groupName;
 
                 foreach (var attribute in ReadAttributes(groupLine))
@@ -137,6 +155,8 @@ namespace Oddworm.EditorFramework
                         Debug.LogError($"loopguard");
                         break;
                     }
+                    if (lines.Count <= index)
+                        break;
 
                     var line = lines[index];
                     var lineIndend = GetIndend(line);
@@ -178,6 +198,8 @@ namespace Oddworm.EditorFramework
                         Debug.LogError($"loopguard");
                         break;
                     }
+                    if (lines.Count <= index)
+                        break;
 
                     var line = lines[index];
                     var lineIndend = GetIndend(line);
@@ -220,8 +242,7 @@ namespace Oddworm.EditorFramework
                 // Read the archive name
                 var archiveName = archiveLine;
                 archiveName = archiveName.Substring(archiveName.IndexOf("Archive") + "Archive".Length); // Remove everything before and including "Archive"
-                archiveName = archiveName.Substring(0, archiveName.IndexOf("(Size:")); // Remove everything after and including "(Size:"
-                archiveName = archiveName.Trim();
+                archiveName = RemoveAttributes(archiveName).Trim();
                 archive.name = archiveName;
 
                 foreach (var attribute in ReadAttributes(archiveLine))
@@ -268,14 +289,114 @@ namespace Oddworm.EditorFramework
                         continue;
                     }
 
-                    if (trimmedLine.StartsWith("Files", System.StringComparison.OrdinalIgnoreCase))
+                    if (trimmedLine.StartsWith("Files:", System.StringComparison.OrdinalIgnoreCase))
                     {
-                        //SkipBlock(ref index);
+                        archive.files.AddRange(ReadFiles(ref index));
                         continue;
                     }
                 }
 
                 return archive;
+            }
+
+            List<File> ReadFiles(ref int index)
+            {
+                //Files:
+                //	File 0 (MonoScripts: 0, MonoScript Size: 0B)
+                //		CAB-3f4cacd59255eef4dfe2788e687ba0e2 (Size: 7.59KB)
+                //		CAB-3f4cacd59255eef4dfe2788e687ba0e2.resS (Size: 2.68KB)
+                //		Data From Other Assets (1)
+                //			Assets/Files/Texture.png (Size: 2.87KB, Size from Objects: 192B, Size from Streamed Data: 2.68KB, Object Count: 1)
+                //				Referencing Assets: Assets/Files/Material_A.mat
+
+                var files = new List<File>();
+                var filesIndend = GetIndend(lines[index]);
+                index++; // skip "Files:" line
+
+                for (; index < lines.Count - 1; ++index)
+                {
+                    var line = lines[index];
+                    var lineIndend = GetIndend(line);
+                    if (lineIndend <= filesIndend)
+                    {
+                        index--;
+                        break;
+                    }
+
+                    var file = ReadFile(ref index);
+                    if (file != null)
+                        files.Add(file);
+                }
+
+                return files;
+            }
+
+            File ReadFile(ref int index)
+            {
+                //	File 0 (MonoScripts: 0, MonoScript Size: 0B)
+                //		CAB-3f4cacd59255eef4dfe2788e687ba0e2 (Size: 7.59KB)
+                //		CAB-3f4cacd59255eef4dfe2788e687ba0e2.resS (Size: 2.68KB)
+                //		Data From Other Assets (1)
+                //			Assets/Files/Texture.png (Size: 2.87KB, Size from Objects: 192B, Size from Streamed Data: 2.68KB, Object Count: 1)
+                //				Referencing Assets: Assets/Files/Material_A.mat
+
+                var file = new File();
+                var fileLine = lines[index];
+                var fileIndend = GetIndend(fileLine);
+                index++; // skip "File" line
+
+                file.name = RemoveAttributes(fileLine).Trim();
+                foreach (var attribute in ReadAttributes(fileLine))
+                {
+                    if (attribute.Key == "MonoScripts")
+                        int.TryParse(attribute.Value, out file.monoScriptCount);
+
+                    if (attribute.Key == "MonoScript Size")
+                        file.monoScriptSize = ParseSize(attribute.Value);
+                }
+
+                for (; index < lines.Count - 1; ++index)
+                {
+                    var line = lines[index];
+                    var lineIndend = GetIndend(line);
+                    if (lineIndend <= fileIndend)
+                    {
+                        index--;
+                        break;
+                    }
+
+                    var trimmedLine = line.Trim();
+                    if (trimmedLine.StartsWith("CAB-"))
+                    {
+                        var cab = new CAB();
+                        cab.name = RemoveAttributes(trimmedLine).Trim();
+                        foreach (var attribute in ReadAttributes(trimmedLine))
+                        {
+                            if (attribute.Key == "Size")
+                                cab.size = ParseSize(attribute.Value);
+                        }
+                        file.cabs.Add(cab);
+                        continue;
+                    }
+
+                    if (trimmedLine.StartsWith("Data From Other Assets"))
+                    {
+                        for (index++; index < lines.Count - 1; ++index)
+                        {
+                            if (GetIndend(lines[index]) <= lineIndend)
+                            {
+                                index--;
+                                break;
+                            }
+
+                            var asset = ReadExplicitAsset(ref index);
+                            if (asset != null)
+                                file.assets.Add(asset);
+                        }
+                    }
+                }
+
+                return file;
             }
 
             List<ExplicitAsset> ReadExplicitAssets(ref int index)
@@ -307,6 +428,38 @@ namespace Oddworm.EditorFramework
                 }
 
                 return assets;
+            }
+
+            string RemoveAttributes(string line)
+            {
+                // Removes everything between the brackets (incl. backets)
+                // input:  Assets/art/debug/debug_checkerboard.png (Total Size: 170.88KB, Size from Objects: 204B, Size from Streamed Data: 170.68KB, File Index: 0, Addressable Name: Assets/art/debug/debug_checkerboard.png)
+                // output: Assets/art/debug/debug_checkerboard.png
+
+                var last = line.LastIndexOf(')');
+                var first = last;
+
+                var count = 1;
+                for (var n = last - 1; n >= 0; --n)
+                {
+                    if (line[n] == ')')
+                        count++;
+                    if (line[n] == '(')
+                        count--;
+                    if (count == 0)
+                    {
+                        first = n;
+                        break;
+                    }
+                }
+
+                if (first != last && first > 0)
+                {
+                    // Remove all the attributes
+                    line = line.Substring(0, first);
+                }
+
+                return line;
             }
 
             Dictionary<string, string> ReadAttributes(string line)
@@ -371,15 +524,14 @@ namespace Oddworm.EditorFramework
                 var assetLine = lines[index++];
                 var assetIndend = GetIndend(assetLine);
 
-                // Read the asset name
-                var assetName = assetLine;
-                assetName = assetName.Substring(0, assetName.IndexOf(" (Total Size:")); // Remove everything after and including " (Total Size:"
-                assetName = assetName.Trim();
-                result.name = assetName;
+                // Read the asset name and attributes
+                result.name = RemoveAttributes(assetLine).Trim();
 
                 foreach (var attribute in ReadAttributes(assetLine))
                 {
-                    if (attribute.Key == "Total Size")
+                    // "Explicit Assets" uses "Total Size"
+                    // "Data From Other Assets" uses "Size"
+                    if (attribute.Key == "Total Size" || attribute.Key == "Size")
                         result.size = ParseSize(attribute.Value);
 
                     if (attribute.Key == "Addressable Name")
