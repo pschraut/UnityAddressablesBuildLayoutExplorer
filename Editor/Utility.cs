@@ -125,7 +125,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return result;
 
             foreach (var b in asset.externalReferences)
+            {
                 result.Add(b);
+
+                foreach (var c in b.referencedByBundle)
+                    result.Add(c);
+            }
 
             return result;
         }

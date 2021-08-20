@@ -70,6 +70,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     icon = Styles.GetBuildLayoutObjectIcon(asset)
                 };
                 rootItem.AddChild(assetItem);
+
+                foreach (var internalReference in asset.internalReferences)
+                {
+                    var assetReference = new AssetReferenceItem()
+                    {
+                        treeView = this,
+                        id = m_UniqueId++,
+                        depth = assetItem.depth + 1,
+                        displayName = internalReference
+                    };
+                    assetItem.AddChild(assetReference);
+                }
             }
         }
 
@@ -144,7 +156,41 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                 void DrawSize(Rect r, long size)
                 {
-                    EditorGUI.LabelField(position, EditorUtility.FormatBytes(size));
+                    EditorGUI.LabelField(r, EditorUtility.FormatBytes(size));
+                }
+            }
+        }
+
+        [System.Serializable]
+        class AssetReferenceItem : BaseItem
+        {
+            public override object GetObject()
+            {
+                return null;
+            }
+
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as AssetReferenceItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return string.Compare(displayName, otherItem.displayName, true);
+                }
+
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        EditorGUI.LabelField(position, displayName);
+                        break;
                 }
             }
         }
