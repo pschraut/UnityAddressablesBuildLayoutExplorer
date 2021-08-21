@@ -202,11 +202,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Open File..."), false, OpenFileDialog);
-            if (System.IO.File.Exists("Library/com.unity.addressables/buildlayout.txt"))
-                menu.AddItem(new GUIContent("Open buildlayout.txt"), false, delegate() { LoadBuildLayout("Library/com.unity.addressables/buildlayout.txt"); });
+
+            var buildLayoutTXT = "Library/com.unity.addressables/buildlayout.txt";
+            if (System.IO.File.Exists(buildLayoutTXT))
+            {
+                menu.AddItem(new GUIContent("Open buildlayout.txt"), false, delegate () { LoadBuildLayout(buildLayoutTXT); });
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("Open buildlayout.txt Folder"), false, delegate () { EditorUtility.RevealInFinder(buildLayoutTXT); });
+                menu.AddItem(new GUIContent("Open buildlayout.txt with default App"), false, delegate () { EditorUtility.OpenWithDefaultApp(buildLayoutTXT); });
+            }
             menu.AddSeparator("");
 
-            if (m_Layout != null)
+            if (m_Layout != null && !string.IsNullOrEmpty(m_Layout.addressablesVersion))
                 menu.AddItem(new GUIContent("Close"), false, CloseBuildLayout);
             else
                 menu.AddDisabledItem(new GUIContent("Close"), false);
