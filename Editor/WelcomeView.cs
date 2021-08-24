@@ -98,7 +98,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                         GUILayout.Label(string.Format("{0,2:##}", n + 1), GUILayout.Width(20));
 
-                        if (GUILayout.Button(new GUIContent("X", "Remove entry from list"), GUILayout.Width(20), GUILayout.Height(16)))
+                        if (GUILayout.Button(new GUIContent(Styles.deleteIcon, "Remove entry from list"), Styles.iconButtonStyle, GUILayout.Width(20), GUILayout.Height(16)))
                         {
                             window.RemoveRecentPath(path);
                             break;
@@ -106,6 +106,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                         if (LinkButton(path))
                             window.LoadBuildLayout(path);
+
+                        if (GUILayout.Button(new GUIContent(Styles.openContainingFolderIcon, "Open containing folder"), Styles.iconButtonStyle, GUILayout.Width(20), GUILayout.Height(16)))
+                        {
+                            EditorUtility.RevealInFinder(path);
+                            break;
+                        }
 
                         if (Event.current.type == EventType.Repaint)
                             EditorGUIUtility.AddCursorRect(GUILayoutUtility.GetLastRect(), MouseCursor.Link);

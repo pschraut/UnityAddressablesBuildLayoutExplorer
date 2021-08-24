@@ -69,6 +69,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static Texture2D openContainingFolderIcon
+        {
+            get;
+            private set;
+        }
+
+        public static Texture2D deleteIcon
+        {
+            get;
+            private set;
+        }
+
         public static GUIStyle iconStyle
         {
             get;
@@ -113,6 +125,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             navigateIcon = FindBuiltinTexture("PlayButton@2x");
             settingsIcon = FindBuiltinTexture("Settings@2x");
             // d_UnityEditor.Graphs.AnimatorControllerTool@2x
+            //
+            openContainingFolderIcon = FindBuiltinTexture("Folder Icon");
+            deleteIcon = FindBuiltinTexture("P4_DeletedLocal");
 
             iconButtonStyle = new GUIStyle(GUI.skin.button);
             iconButtonStyle.fixedWidth = 18;
