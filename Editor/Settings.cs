@@ -18,7 +18,7 @@ namespace Oddworm.EditorFramework
             set;
         } = false;
 
-        public static bool stripExtensionFromBundleName
+        public static bool stripFileExtension
         {
             get;
             set;
@@ -34,14 +34,14 @@ namespace Oddworm.EditorFramework
         public static void LoadSettings()
         {
             stripHashFromBundleName = GetBool(nameof(stripHashFromBundleName), stripHashFromBundleName);
-            stripExtensionFromBundleName = GetBool(nameof(stripExtensionFromBundleName), stripExtensionFromBundleName);
+            stripFileExtension = GetBool(nameof(stripFileExtension), stripFileExtension);
             debugViewMenu = GetBool(nameof(debugViewMenu), debugViewMenu);
         }
 
         public static void SaveSettings()
         {
             SetBool(nameof(stripHashFromBundleName), stripHashFromBundleName);
-            SetBool(nameof(stripExtensionFromBundleName), stripExtensionFromBundleName);
+            SetBool(nameof(stripFileExtension), stripFileExtension);
             SetBool(nameof(debugViewMenu), debugViewMenu);
         }
 

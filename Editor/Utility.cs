@@ -144,11 +144,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             if (Settings.stripHashFromBundleName)
             {
-                TryStripHashFromBundleName(out var s, bundleName, Settings.stripExtensionFromBundleName);
+                TryStripHashFromBundleName(out var s, bundleName, Settings.stripFileExtension);
                 return s;
             }
 
-            if (Settings.stripExtensionFromBundleName)
+            if (Settings.stripFileExtension)
             {
                 var i = bundleName.LastIndexOf('.');
                 if (i != -1)

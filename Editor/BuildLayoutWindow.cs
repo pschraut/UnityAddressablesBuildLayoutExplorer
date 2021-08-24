@@ -246,9 +246,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 RebuildViews();
             });
 
-            menu.AddItem(new GUIContent("Strip Extension from Bundle name"), Settings.stripExtensionFromBundleName, delegate ()
+            menu.AddItem(new GUIContent("Strip File-Extensions"), Settings.stripFileExtension, delegate ()
             {
-                Settings.stripExtensionFromBundleName = !Settings.stripExtensionFromBundleName;
+                Settings.stripFileExtension = !Settings.stripFileExtension;
                 Settings.SaveSettings();
                 RebuildViews();
             });
