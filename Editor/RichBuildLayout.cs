@@ -41,23 +41,34 @@ namespace Oddworm.EditorFramework
             public BuildLayout.Archive lowlevel; // a reference to the underlaying object
             public List<Group> referencedByGroups = new List<Group>();
             public List<Archive> referencedByBundles = new List<Archive>();
+            public List<Asset> allAssets = new List<Asset>();
         }
 
         public class Asset
         {
+            public string uid;
             public string name;
             public long size;
             public long sizeFromObjects;
             public long sizeFromStreamedData;
             public string address;
             public List<Asset> externalReferences = new List<Asset>();
-            public List<string> internalReferences = new List<string>();
+            public List<Asset> internalReferences = new List<Asset>();
             public BuildLayout.ExplicitAsset lowlevel; // a reference to the underlaying object
             public List<Archive> referencedByBundle = new List<Archive>();
+
+            public bool isEmbedded;
+            public Asset embeddedByAsset;
+            public Archive embeddedInBundle;
         }
 
         public RichBuildLayout()
         {
+        }
+
+        string GetUID(string bundleName, string assetName)
+        {
+            return $"{bundleName}###{assetName}";
         }
 
         public RichBuildLayout(BuildLayout buildLayout)
@@ -145,18 +156,64 @@ namespace Oddworm.EditorFramework
                         asset = new Asset()
                         {
                             lowlevel = baseAsset,
+                            uid = GetUID(bundle.name, baseAsset.name),
                             name = baseAsset.name,
                             size = baseAsset.size,
                             sizeFromObjects = baseAsset.sizeFromObjects,
                             sizeFromStreamedData = baseAsset.sizeFromStreamedData,
                             address = baseAsset.address,
                             //externalReferences = new List<string>(baseAsset.externalReferences),
-                            internalReferences = new List<string>(baseAsset.internalReferences)
+                            //internalReferences = new List<string>(baseAsset.internalReferences)
+                            embeddedInBundle = bundle
                         };
                         assets.Add(asset);
                     }
                     bundle.explicitAssets.Add(asset);
-                    asset.referencedByBundle.Add(bundle);
+                    bundle.allAssets.Add(asset);
+                    //asset.referencedByBundle.Add(bundle);
+
+                    foreach (var internalRef in baseAsset.internalReferences)
+                    {
+                        BuildLayout.ExplicitAsset internalBaseAsset = null;
+                        foreach(var file in bundle.lowlevel.files)
+                        {
+                            foreach(var a in file.assets)
+                            {
+                                if (string.Equals(a.name, internalRef, System.StringComparison.OrdinalIgnoreCase))
+                                {
+                                    internalBaseAsset = a;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (internalBaseAsset == null)
+                        {
+                            Debug.LogError($"Could not find '{internalRef}'");
+                            continue;
+                        }
+
+                        var internalAsset = FindAsset(GetUID(bundle.name, internalRef));
+                        if (internalAsset == null)
+                        {
+                            internalAsset = new Asset()
+                            {
+                                lowlevel = internalBaseAsset,
+                                uid = GetUID(bundle.name, internalRef),
+                                name = internalRef,
+                                size = internalBaseAsset.size,
+                                sizeFromObjects = internalBaseAsset.sizeFromObjects,
+                                sizeFromStreamedData = internalBaseAsset.sizeFromStreamedData,
+                                isEmbedded = true,
+                                embeddedByAsset = asset,
+                                embeddedInBundle = bundle
+                            };
+                            //internalAsset.referencedByBundle.Add(bundle);
+                            assets.Add(internalAsset);
+                            bundle.allAssets.Add(internalAsset);
+                        }
+                        asset.internalReferences.Add(internalAsset);
+                    }
                 }
             }
 
@@ -196,18 +253,18 @@ namespace Oddworm.EditorFramework
             }
         }
 
-        public Asset FindAsset(string assetName)
+        Asset FindAsset(string uid)
         {
             foreach (var asset in assets)
             {
-                if (string.Equals(asset.name, assetName, System.StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(asset.uid, uid, System.StringComparison.OrdinalIgnoreCase))
                     return asset;
             }
 
             return null;
         }
 
-        public Archive FindBundle(string bundleName)
+        Archive FindBundle(string bundleName)
         {
             foreach(var bundle in bundles)
             {
@@ -218,7 +275,7 @@ namespace Oddworm.EditorFramework
             return null;
         }
 
-        public Group FindGroup(string groupName)
+        Group FindGroup(string groupName)
         {
             foreach(var group in groups)
             {

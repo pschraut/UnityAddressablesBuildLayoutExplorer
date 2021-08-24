@@ -72,7 +72,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 };
                 rootItem.AddChild(bundleItem);
 
-                foreach (var asset in bundle.explicitAssets)
+                foreach (var asset in bundle.allAssets)
                 {
                     var assetItem = new AssetItem
                     {
@@ -80,23 +80,39 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         asset = asset,
                         id = m_UniqueId++,
                         depth = bundleItem.depth + 1,
-                        displayName = asset.name,
+                        displayName = Utility.TransformBundleName(asset.name),
                         icon = Styles.GetBuildLayoutObjectIcon(asset)
                     };
                     bundleItem.AddChild(assetItem);
-
-                    foreach(var internalReference in asset.internalReferences)
-                    {
-                        var assetReference = new AssetReferenceItem()
-                        {
-                            treeView = this,
-                            id = m_UniqueId++,
-                            depth = assetItem.depth + 1,
-                            displayName = internalReference
-                        };
-                        assetItem.AddChild(assetReference);
-                    }
                 }
+
+                //foreach (var asset in bundle.explicitAssets)
+                //{
+                //    var assetItem = new AssetItem
+                //    {
+                //        treeView = this,
+                //        asset = asset,
+                //        id = m_UniqueId++,
+                //        depth = bundleItem.depth + 1,
+                //        displayName = Utility.TransformBundleName(asset.name),
+                //        icon = Styles.GetBuildLayoutObjectIcon(asset)
+                //    };
+                //    bundleItem.AddChild(assetItem);
+
+                //    foreach(var internalReference in asset.internalReferences)
+                //    {
+                //        var assetReference = new AssetItem()
+                //        {
+                //            treeView = this,
+                //            asset = internalReference,
+                //            id = m_UniqueId++,
+                //            depth = assetItem.depth + 1,
+                //            displayName = Utility.TransformBundleName(internalReference.name),
+                //            //icon = Styles.GetBuildLayoutObjectIcon(internalReference)
+                //        };
+                //        assetItem.AddChild(assetReference);
+                //    }
+                //}
 #if false
                 if (bundle.explicitAssets.Count > 0)
                 {
@@ -259,7 +275,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     }
                 }
 #endif
-                }
+            }
         }
 
         [System.Serializable]
@@ -408,7 +424,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(asset);
 
-                        EditorGUI.LabelField(position, asset.name);
+                        EditorGUI.LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:

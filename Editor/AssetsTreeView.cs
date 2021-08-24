@@ -66,19 +66,22 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     asset = asset,
                     id = m_UniqueId++,
                     depth = 0,
-                    displayName = asset.name,
+                    displayName = Utility.TransformBundleName(asset.name),
                     icon = Styles.GetBuildLayoutObjectIcon(asset)
                 };
                 rootItem.AddChild(assetItem);
 
                 foreach (var internalReference in asset.internalReferences)
                 {
-                    var assetReference = new AssetReferenceItem()
+                    var assetReference = new AssetItem()
                     {
                         treeView = this,
+                        asset = internalReference,
+                        ghosted = true,
                         id = m_UniqueId++,
                         depth = assetItem.depth + 1,
-                        displayName = internalReference
+                        displayName = Utility.TransformBundleName(internalReference.name),
+                        //icon = Styles.GetBuildLayoutObjectIcon(internalReference)
                     };
                     assetItem.AddChild(assetReference);
                 }
@@ -90,6 +93,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         class AssetItem : BaseItem
         {
             public RichBuildLayout.Asset asset;
+            public bool ghosted;
 
             public AssetItem()
             {
@@ -131,10 +135,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column)
             {
+                var style = ghosted ? Styles.ghostLabelStyle : EditorStyles.label;
                 switch(column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, asset.name);
+                        EditorGUI.LabelField(position, displayName, style);
                         break;
 
                     case ColumnIDs.size:
@@ -142,7 +147,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         break;
 
                     case ColumnIDs.address:
-                        EditorGUI.LabelField(position, asset.address);
+                        EditorGUI.LabelField(position, asset.address, style);
                         break;
 
                     case ColumnIDs.sizeFromObjects:
@@ -156,7 +161,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                 void DrawSize(Rect r, long size)
                 {
-                    EditorGUI.LabelField(r, EditorUtility.FormatBytes(size));
+                    EditorGUI.LabelField(r, EditorUtility.FormatBytes(size), style);
                 }
             }
         }
