@@ -327,6 +327,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 }
 
                 menu.AddSeparator("");
+                menu.AddItem(new GUIContent("Open with default App"), false, OpenInDefaultApp);
+                menu.AddItem(new GUIContent("Open containing Folder"), false, OpenContainingFolder);
+
+                menu.AddSeparator("");
                 menu.AddItem(new GUIContent("New Window"), false, NewWindow);
 
                 menu.DropDown(m_ViewButtonRect);
@@ -343,6 +347,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 GUILayout.FlexibleSpace();
                 DrawSettingsToolbarItem();
             }
+        }
+
+        void OpenInDefaultApp()
+        {
+            EditorUtility.OpenWithDefaultApp(m_LoadedPath);
+        }
+
+        void OpenContainingFolder()
+        {
+            EditorUtility.RevealInFinder(m_LoadedPath);
         }
 
         void NewWindow()
