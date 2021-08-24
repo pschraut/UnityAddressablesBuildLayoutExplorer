@@ -231,6 +231,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
 
             Reload();
+
+            var selected = GetSelection();
+            if (selected.Count > 0)
+                FrameItem(selected[0]);
         }
 
         protected int CompareItem(TreeViewItem x, TreeViewItem y)
