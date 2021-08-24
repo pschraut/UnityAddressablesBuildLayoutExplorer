@@ -267,7 +267,7 @@ namespace Oddworm.EditorFramework
                         break;
                     }
 
-                    if (GetIndend(lines[index + 1]) <= archiveIndend)
+                    if (GetIndend(lines[index]) <= archiveIndend)
                         break;
 
                     var trimmedLine = lines[index].Trim();
