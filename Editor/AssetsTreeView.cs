@@ -19,6 +19,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public const int address = 4;
         }
 
+        const string kAssetSizeTooltip = "Uncompressed asset size";
+
         public AssetsTreeView(BuildLayoutWindow window)
                    : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
@@ -139,11 +141,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch(column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName, style);
+                        EditorGUI.LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        DrawSize(position, asset.size);
+                        EditorGUI.LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(asset.size), kAssetSizeTooltip), style);
                         break;
 
                     case ColumnIDs.address:
@@ -151,50 +153,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         break;
 
                     case ColumnIDs.sizeFromObjects:
-                        DrawSize(position, asset.sizeFromObjects);
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(asset.sizeFromObjects), style);
                         break;
 
                     case ColumnIDs.sizeFromStreamedData:
-                        DrawSize(position, asset.sizeFromStreamedData);
-                        break;
-                }
-
-                void DrawSize(Rect r, long size)
-                {
-                    EditorGUI.LabelField(r, EditorUtility.FormatBytes(size), style);
-                }
-            }
-        }
-
-        [System.Serializable]
-        class AssetReferenceItem : BaseItem
-        {
-            public override object GetObject()
-            {
-                return null;
-            }
-
-            public override int CompareTo(TreeViewItem other, int column)
-            {
-                var otherItem = other as AssetReferenceItem;
-                if (otherItem == null)
-                    return 1;
-
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        return string.Compare(displayName, otherItem.displayName, true);
-                }
-
-                return 0;
-            }
-
-            public override void OnGUI(Rect position, int column)
-            {
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName);
+                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(asset.sizeFromStreamedData), style);
                         break;
                 }
             }

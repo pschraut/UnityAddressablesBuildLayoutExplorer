@@ -371,6 +371,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             static GUIContent s_GUIContent = new GUIContent();
 
+            protected static GUIContent CachedGUIContent(string text, string tooltip)
+            {
+                s_GUIContent.text = text;
+                s_GUIContent.tooltip = tooltip;
+                s_GUIContent.image = null;
+                return s_GUIContent;
+            }
+
             protected static GUIContent CachedGUIContent(Texture image, string tooltip)
             {
                 s_GUIContent.text = "";

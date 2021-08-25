@@ -18,6 +18,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public const int count = 2;
         }
 
+        const string kAssetSizeTooltip = "Combined uncompressed asset size";
+
         public AssetDuplicatesTreeView(BuildLayoutWindow window)
                    : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
@@ -189,7 +191,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(size));
+                        EditorGUI.LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(size), kAssetSizeTooltip));
                         break;
                 }
             }
