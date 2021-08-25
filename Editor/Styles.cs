@@ -51,6 +51,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static Texture2D includedByIcon
+        {
+            get;
+            private set;
+        }
+
+        public static Texture2D includedInIcon
+        {
+            get;
+            private set;
+        }
+
         public static Texture2D assetIcon
         {
             get;
@@ -116,7 +128,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             groupIcon = FindBuiltinTexture("ScriptableObject Icon");
             bundleIcon = FindBuiltinTexture("LODGroup Icon");
             referencesToIcon = FindBuiltinTexture("Animator Icon");
-            //bundleExpandedDependenciesIcon = FindBuiltinTexture("d_NetworkAnimator Icon");
             referencedByIcon = FindBuiltinTexture("VisualEffectSubgraphOperator Icon");
             navigateBackwardsIcon = FindBuiltinTexture("back@2x");
             navigateForwardsIcon = FindBuiltinTexture("forward@2x");
@@ -124,10 +135,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             builtinBundleIcon = FindBuiltinTexture("CanvasGroup Icon");
             navigateIcon = FindBuiltinTexture("PlayButton@2x");
             settingsIcon = FindBuiltinTexture("Settings@2x");
-            // d_UnityEditor.Graphs.AnimatorControllerTool@2x
-            //
             openContainingFolderIcon = FindBuiltinTexture("Folder Icon");
             deleteIcon = FindBuiltinTexture("P4_DeletedLocal");
+
+            includedByIcon = FindBuiltinTexture("AnimatorStateMachine Icon");
+            includedInIcon = FindBuiltinTexture("AnimatorController Icon");
 
             iconButtonStyle = new GUIStyle(GUI.skin.button);
             iconButtonStyle.fixedWidth = 18;

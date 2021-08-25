@@ -92,8 +92,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         asset = asset,
                         id = m_UniqueId++,
                         depth = categoryItem.depth + 1,
-                        displayName = Utility.TransformBundleName(asset.embeddedInBundle.name),
-                        icon = Styles.GetBuildLayoutObjectIcon(asset.embeddedInBundle)
+                        displayName = Utility.TransformBundleName(asset.includedInBundle.name),
+                        icon = Styles.GetBuildLayoutObjectIcon(asset.includedInBundle)
                     };
                     categoryItem.AddChild(assetItem);
                 }
@@ -125,7 +125,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(asset.embeddedInBundle.name, otherItem.asset.embeddedInBundle.name, true);
+                        return string.Compare(asset.includedInBundle.name, otherItem.asset.includedInBundle.name, true);
                 }
 
                 return 0;
@@ -137,7 +137,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
-                            NavigateTo(asset.embeddedInBundle);
+                            NavigateTo(asset.includedInBundle);
                         EditorGUI.LabelField(position, displayName);
                         break;
                 }

@@ -22,10 +22,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_SearchField = new SearchField(window);
         }
 
+        public void Clear()
+        {
+            m_TreeView.Clear();
+        }
+
         public void ShowReferences(List<object> references)
         {
             m_TreeView.Clear();
-            m_TreeView.references = references;
+            m_TreeView.references = references ?? new List<object>();
             m_TreeView.SetBuildLayout(buildLayout);
             m_TreeView.ExpandCategories();
         }

@@ -58,8 +58,8 @@ namespace Oddworm.EditorFramework
             public List<Archive> referencedByBundle = new List<Archive>();
 
             public bool isEmbedded;
-            public Asset embeddedByAsset;
-            public Archive embeddedInBundle;
+            public Asset includedByAsset;
+            public Archive includedInBundle;
         }
 
         public RichBuildLayout()
@@ -164,7 +164,7 @@ namespace Oddworm.EditorFramework
                             address = baseAsset.address,
                             //externalReferences = new List<string>(baseAsset.externalReferences),
                             //internalReferences = new List<string>(baseAsset.internalReferences)
-                            embeddedInBundle = bundle
+                            includedInBundle = bundle
                         };
                         assets.Add(asset);
                     }
@@ -205,8 +205,8 @@ namespace Oddworm.EditorFramework
                                 sizeFromObjects = internalBaseAsset.sizeFromObjects,
                                 sizeFromStreamedData = internalBaseAsset.sizeFromStreamedData,
                                 isEmbedded = true,
-                                embeddedByAsset = asset,
-                                embeddedInBundle = bundle
+                                includedByAsset = asset,
+                                includedInBundle = bundle
                             };
                             //internalAsset.referencedByBundle.Add(bundle);
                             assets.Add(internalAsset);
