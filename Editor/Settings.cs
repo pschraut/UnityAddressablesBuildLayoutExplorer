@@ -12,13 +12,19 @@ namespace Oddworm.EditorFramework
     {
         const string k_Prefix = "BuildLayoutExplorer";
 
-        public static bool stripHashFromBundleName
+        public static bool stripHashFromName
         {
             get;
             set;
         } = false;
 
-        public static bool stripFileExtension
+        public static bool stripExtensionFromName
+        {
+            get;
+            set;
+        } = false;
+
+        public static bool stripDirectoryFromName
         {
             get;
             set;
@@ -33,16 +39,18 @@ namespace Oddworm.EditorFramework
 
         public static void LoadSettings()
         {
-            stripHashFromBundleName = GetBool(nameof(stripHashFromBundleName), stripHashFromBundleName);
-            stripFileExtension = GetBool(nameof(stripFileExtension), stripFileExtension);
+            stripHashFromName = GetBool(nameof(stripHashFromName), stripHashFromName);
+            stripExtensionFromName = GetBool(nameof(stripExtensionFromName), stripExtensionFromName);
             debugViewMenu = GetBool(nameof(debugViewMenu), debugViewMenu);
+            stripDirectoryFromName = GetBool(nameof(stripDirectoryFromName), stripDirectoryFromName);
         }
 
         public static void SaveSettings()
         {
-            SetBool(nameof(stripHashFromBundleName), stripHashFromBundleName);
-            SetBool(nameof(stripFileExtension), stripFileExtension);
+            SetBool(nameof(stripHashFromName), stripHashFromName);
+            SetBool(nameof(stripExtensionFromName), stripExtensionFromName);
             SetBool(nameof(debugViewMenu), debugViewMenu);
+            SetBool(nameof(stripDirectoryFromName), stripDirectoryFromName);
         }
 
         public static float GetFloat(string key, float defaultValue)

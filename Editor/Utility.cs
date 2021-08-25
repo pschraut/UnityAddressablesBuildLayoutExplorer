@@ -142,18 +142,24 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         /// <returns>The bundle name perhaps modified according to the current settings.</returns>
         public static string TransformBundleName(string bundleName)
         {
-            if (Settings.stripHashFromBundleName)
+            if (Settings.stripHashFromName)
             {
-                TryStripHashFromBundleName(out var s, bundleName, Settings.stripFileExtension);
-                return s;
+                TryStripHashFromBundleName(out var s, bundleName, false);
+                bundleName = s;
             }
 
-            if (Settings.stripFileExtension)
+            if (Settings.stripExtensionFromName)
             {
                 var i = bundleName.LastIndexOf('.');
                 if (i != -1)
                     bundleName = bundleName.Substring(0, i);
-                return bundleName;
+            }
+
+            if (Settings.stripDirectoryFromName)
+            {
+                var i = bundleName.LastIndexOf('/');
+                if (i != -1)
+                    bundleName = bundleName.Substring(i + 1, bundleName.Length - i - 1);
             }
 
             return bundleName;

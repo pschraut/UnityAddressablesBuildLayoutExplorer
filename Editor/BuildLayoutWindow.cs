@@ -239,16 +239,23 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
 
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Strip Hash from Bundle name"), Settings.stripHashFromBundleName, delegate()
+            menu.AddItem(new GUIContent("Strip Hash from name"), Settings.stripHashFromName, delegate()
             {
-                Settings.stripHashFromBundleName = !Settings.stripHashFromBundleName;
+                Settings.stripHashFromName = !Settings.stripHashFromName;
                 Settings.SaveSettings();
                 RebuildViews();
             });
 
-            menu.AddItem(new GUIContent("Strip File-Extensions"), Settings.stripFileExtension, delegate ()
+            menu.AddItem(new GUIContent("Strip Extension from name"), Settings.stripExtensionFromName, delegate ()
             {
-                Settings.stripFileExtension = !Settings.stripFileExtension;
+                Settings.stripExtensionFromName = !Settings.stripExtensionFromName;
+                Settings.SaveSettings();
+                RebuildViews();
+            });
+
+            menu.AddItem(new GUIContent("Strip Directory from name"), Settings.stripDirectoryFromName, delegate ()
+            {
+                Settings.stripDirectoryFromName = !Settings.stripDirectoryFromName;
                 Settings.SaveSettings();
                 RebuildViews();
             });
