@@ -218,7 +218,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(displayName, otherItem.displayName, true);
+                        return string.Compare(bundle.name, otherItem.bundle.name, true);
 
                     case ColumnIDs.size:
                         return bundle.size.CompareTo(otherItem.bundle.size);
@@ -268,7 +268,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(displayName, otherItem.displayName, true);
+                        return string.Compare(asset.name, otherItem.asset.name, true);
 
                     case ColumnIDs.size:
                         return asset.size.CompareTo(otherItem.asset.size);
@@ -318,7 +318,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(displayName, otherItem.displayName, true);
+                        return string.Compare(group.name, otherItem.group.name, true);
 
                     case ColumnIDs.size:
                         return group.size.CompareTo(otherItem.group.size);

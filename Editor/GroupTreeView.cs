@@ -161,7 +161,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(displayName, otherItem.displayName, true);
+                        return string.Compare(bundle.name, otherItem.bundle.name, true);
 
                     case ColumnIDs.size:
                         return bundle.size.CompareTo(otherItem.bundle.size);
