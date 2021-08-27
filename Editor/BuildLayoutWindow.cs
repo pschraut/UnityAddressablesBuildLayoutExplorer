@@ -207,9 +207,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             if (System.IO.File.Exists(buildLayoutTXT))
             {
                 menu.AddItem(new GUIContent("Open buildlayout.txt"), false, delegate () { LoadBuildLayout(buildLayoutTXT); });
-                menu.AddSeparator("");
-                menu.AddItem(new GUIContent("Open buildlayout.txt Folder"), false, delegate () { EditorUtility.RevealInFinder(buildLayoutTXT); });
-                menu.AddItem(new GUIContent("Open buildlayout.txt with default App"), false, delegate () { EditorUtility.OpenWithDefaultApp(buildLayoutTXT); });
+                //menu.AddSeparator("");
+                //menu.AddItem(new GUIContent("Open buildlayout.txt Folder"), false, delegate () { EditorUtility.RevealInFinder(buildLayoutTXT); });
+                //menu.AddItem(new GUIContent("Open buildlayout.txt with default App"), false, delegate () { EditorUtility.OpenWithDefaultApp(buildLayoutTXT); });
             }
             menu.AddSeparator("");
 
