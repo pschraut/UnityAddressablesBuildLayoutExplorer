@@ -177,19 +177,19 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return sortValue.CompareTo(otherItem.sortValue);
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.count:
                         if (hasChildren)
-                            EditorGUI.LabelField(position, $"{children.Count}");
+                            LabelField(position, $"{children.Count}");
                         else
-                            EditorGUI.LabelField(position, $"0");
+                            LabelField(position, $"0");
                         break;
                 }
             }
@@ -227,7 +227,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch (column)
                 {
@@ -235,11 +235,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(bundle.size));
+                        LabelField(position, EditorUtility.FormatBytes(bundle.size));
                         break;
                 }
             }
@@ -277,7 +277,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch (column)
                 {
@@ -285,11 +285,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(asset.size));
+                        LabelField(position, EditorUtility.FormatBytes(asset.size));
                         break;
                 }
             }
@@ -327,7 +327,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch (column)
                 {
@@ -335,11 +335,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to group"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(group.size));
+                        LabelField(position, EditorUtility.FormatBytes(group.size));
                         break;
                 }
             }

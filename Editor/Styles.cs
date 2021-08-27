@@ -105,6 +105,24 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static GUIStyle selectedGhostLabelStyle
+        {
+            get;
+            private set;
+        }
+
+        public static GUIStyle labelStyle
+        {
+            get;
+            private set;
+        }
+
+        public static GUIStyle selectedLabelStyle
+        {
+            get;
+            private set;
+        }
+
         public static GUIStyle iconButtonStyle
         {
             get;
@@ -153,16 +171,26 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             iconToolbarButtonStyle.padding = new RectOffset(1,1,1,1);
             iconToolbarButtonStyle.contentOffset = new Vector2(0, 0);
 
+            labelStyle = new GUIStyle(EditorStyles.label);
+
+            selectedLabelStyle = new GUIStyle(EditorStyles.label);
+            selectedLabelStyle.normal.textColor = new Color(0.95f, 0.95f, 0.95f);
+
             iconStyle = new GUIStyle(EditorStyles.label);
             iconStyle.fixedWidth = 18;
             iconStyle.fixedHeight = 18;
             iconStyle.padding = new RectOffset();
             iconStyle.contentOffset = new Vector2(0, 0);
 
-            ghostLabelStyle = new GUIStyle(EditorStyles.label);
+            ghostLabelStyle = new GUIStyle(labelStyle);
             var tc = ghostLabelStyle.normal.textColor;
             tc.a *= 0.6f;
             ghostLabelStyle.normal.textColor = tc;
+
+            selectedGhostLabelStyle = new GUIStyle(labelStyle);
+            tc = selectedLabelStyle.normal.textColor;
+            tc.a *= 0.6f;
+            selectedGhostLabelStyle.normal.textColor = tc;
 
             viewStyle = new GUIStyle(EditorStyles.helpBox);
             viewStyle.margin = new RectOffset(0, 0, 0, 0);

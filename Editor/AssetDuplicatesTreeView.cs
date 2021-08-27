@@ -133,14 +133,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch(column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(asset.includedInBundle);
-                        EditorGUI.LabelField(position, displayName);
+
+                        LabelField(position, displayName);
                         break;
                 }
             }
@@ -178,20 +179,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.count:
-                        EditorGUI.LabelField(position, $"{assets.Count}");
+                        LabelField(position, $"{assets.Count}");
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(size), kAssetSizeTooltip));
+                        LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(size), kAssetSizeTooltip));
                         break;
                 }
             }

@@ -14,7 +14,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
     {
         BundleTreeView m_TreeView;
         SearchField m_SearchField;
-        string m_StatusLabel;
         ReferencesView m_ReferencesToView;
         ReferencesView m_ReferencedByView;
         float m_SplitterTree = 0.333f;
@@ -51,18 +50,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             base.Rebuild(buildLayout);
 
             m_TreeView.SetBuildLayout(buildLayout);
-
-            var size = 0L;
-            var count = 0;
-            foreach(var group in buildLayout.groups)
-            {
-                foreach(var bundle in group.bundles)
-                {
-                    size += bundle.size;
-                    count++;
-                }
-            }
-            m_StatusLabel = $"{count} bundles making up {EditorUtility.FormatBytes(size)}";
         }
 
         public override void OnGUI()
@@ -101,13 +88,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     m_ReferencedByView.OnGUI();
                 }
             }
-        }
-
-        public override void OnStatusbarGUI()
-        {
-            base.OnStatusbarGUI();
-
-            GUILayout.Label(m_StatusLabel);
         }
 
         public override bool CanNavigateTo(object target)

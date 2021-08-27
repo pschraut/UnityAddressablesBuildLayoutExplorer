@@ -83,7 +83,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         id = m_UniqueId++,
                         depth = assetItem.depth + 1,
                         displayName = Utility.TransformBundleName(internalReference.name),
-                        //icon = Styles.GetBuildLayoutObjectIcon(internalReference)
+                        icon = Styles.GetBuildLayoutObjectIcon(internalReference)
                     };
                     assetItem.AddChild(assetReference);
                 }
@@ -122,7 +122,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return asset.size.CompareTo(otherItem.asset.size);
 
                     case ColumnIDs.address:
-                        return string.Compare(asset.address, otherItem.asset.address, true);
+                        return string.Compare(asset.address, otherItem.asset.address, System.StringComparison.OrdinalIgnoreCase);
 
                     case ColumnIDs.sizeFromObjects:
                         return asset.sizeFromObjects.CompareTo(otherItem.asset.sizeFromObjects);
@@ -135,29 +135,28 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
-                var style = ghosted ? Styles.ghostLabelStyle : EditorStyles.label;
                 switch(column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(asset.size), kAssetSizeTooltip), style);
+                        LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(asset.size), kAssetSizeTooltip), ghosted);
                         break;
 
                     case ColumnIDs.address:
-                        EditorGUI.LabelField(position, asset.address, style);
+                        LabelField(position, asset.address, ghosted);
                         break;
 
                     case ColumnIDs.sizeFromObjects:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(asset.sizeFromObjects), style);
+                        LabelField(position, EditorUtility.FormatBytes(asset.sizeFromObjects), ghosted);
                         break;
 
                     case ColumnIDs.sizeFromStreamedData:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(asset.sizeFromStreamedData), style);
+                        LabelField(position, EditorUtility.FormatBytes(asset.sizeFromStreamedData), ghosted);
                         break;
                 }
             }

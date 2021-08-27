@@ -118,20 +118,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch(column)
                 {
                     case ColumnIDs.name:
-                        EditorGUI.LabelField(position, group.name);
+                        LabelField(position, group.name);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(group.size));
+                        LabelField(position, EditorUtility.FormatBytes(group.size));
                         break;
 
                     case ColumnIDs.bundles:
-                        EditorGUI.LabelField(position, $"{group.bundles.Count}");
+                        LabelField(position, $"{group.bundles.Count}");
                         break;
                 }
             }
@@ -168,22 +168,22 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return 0;
             }
 
-            public override void OnGUI(Rect position, int column)
+            public override void OnGUI(Rect position, int column, bool selected)
             {
                 switch (column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(bundle);
-                        EditorGUI.LabelField(position, displayName);
+                        LabelField(position, displayName);
                         break;
 
                     case ColumnIDs.size:
-                        EditorGUI.LabelField(position, EditorUtility.FormatBytes(bundle.size), Styles.ghostLabelStyle);
+                        LabelField(position, EditorUtility.FormatBytes(bundle.size), true);
                         break;
 
                     case ColumnIDs.bundles:
-                        EditorGUI.LabelField(position, $"1", Styles.ghostLabelStyle);
+                        LabelField(position, $"1", true);
                         break;
                 }
             }

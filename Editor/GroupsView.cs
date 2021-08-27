@@ -14,7 +14,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
     {
         GroupTreeView m_TreeView;
         SearchField m_SearchField;
-        string m_StatusLabel;
 
         public override void Awake()
         {
@@ -49,15 +48,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             base.Rebuild(buildLayout);
 
             m_TreeView.SetBuildLayout(buildLayout);
-
-            var size = 0L;
-            var count = 0;
-            foreach (var group in buildLayout.groups)
-            {
-                size += group.size;
-                count++;
-            }
-            m_StatusLabel = $"{count} groups making up {EditorUtility.FormatBytes(size)}";
         }
 
         public override void OnGUI()
@@ -75,13 +65,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 var rect = GUILayoutUtility.GetRect(10, 10, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                 m_TreeView.OnGUI(rect);
             }
-        }
-
-        public override void OnStatusbarGUI()
-        {
-            base.OnStatusbarGUI();
-
-            GUILayout.Label(m_StatusLabel);
         }
 
         public override bool CanNavigateTo(object target)

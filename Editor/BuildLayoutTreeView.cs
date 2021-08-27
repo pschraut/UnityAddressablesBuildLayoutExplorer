@@ -186,9 +186,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 var item = args.item as BaseItem;
                 if (item == null)
                     continue;
+                item.PrepareGUI(args.focused, args.selected);
 
                 var rect = args.GetCellRect(i);
 
+                // Draw the column separator line
                 if (args.row == m_FirstVisibleRow)
                 {
                     var r = rect;
@@ -220,7 +222,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (item != null)
                 {
                     var column = args.GetColumn(i);
-                    item.OnGUI(rect, column);
+                    item.OnGUI(rect, column, args.selected);
                 }
             }
         }
@@ -370,6 +372,59 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public BuildLayoutTreeView treeView;
 
             static GUIContent s_GUIContent = new GUIContent();
+            static bool s_Selected = false;
+            static bool s_Focused = false;
+
+            public void PrepareGUI(bool focused, bool selected)
+            {
+                s_Selected = selected;
+                s_Focused = focused;
+            }
+
+            public abstract object GetObject();
+            public abstract void OnGUI(Rect position, int column, bool selected);
+            public abstract int CompareTo(TreeViewItem other, int column);
+
+            public void NavigateTo(object target)
+            {
+                treeView.m_Window.NavigateTo(target);
+            }
+
+            protected void LabelField(Rect position, string text, bool ghosted = false)
+            {
+                LabelField(position, CachedGUIContent(text), ghosted);
+            }
+
+            protected void LabelField(Rect position, GUIContent text, bool ghosted = false)
+            {
+                var style = s_Focused && s_Selected ? Styles.selectedLabelStyle : Styles.labelStyle;
+                if (ghosted)
+                    style = s_Focused && s_Selected ? Styles.selectedGhostLabelStyle: Styles.ghostLabelStyle;
+
+                EditorGUI.LabelField(position, text, style);
+            }
+
+            protected Rect ButtonSpaceR(ref Rect position)
+            {
+                var pixels = treeView.rowHeight - 2;
+
+                var r = position;
+                r.x = r.xMax;
+                r.width = Mathf.Min(pixels, r.width); //pixels;
+                r.x -= (r.width + 2);
+                r.y += 1;
+                r.height -= 2;
+                position.width -= (r.width + 2);
+                return r;
+            }
+
+            protected static GUIContent CachedGUIContent(string text)
+            {
+                s_GUIContent.text = text;
+                s_GUIContent.tooltip = "";
+                s_GUIContent.image = null;
+                return s_GUIContent;
+            }
 
             protected static GUIContent CachedGUIContent(string text, string tooltip)
             {
@@ -385,29 +440,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 s_GUIContent.tooltip = tooltip;
                 s_GUIContent.image = image;
                 return s_GUIContent;
-            }
-
-            public abstract object GetObject();
-            public abstract void OnGUI(Rect position, int column);
-            public abstract int CompareTo(TreeViewItem other, int column);
-
-            public void NavigateTo(object target)
-            {
-                treeView.m_Window.NavigateTo(target);
-            }
-
-            protected Rect ButtonSpaceR(ref Rect position)
-            {
-                var pixels = treeView.rowHeight - 2;
-
-                var r = position;
-                r.x = r.xMax;
-                r.width = Mathf.Min(pixels, r.width); //pixels;
-                r.x -= (r.width + 2);
-                r.y += 1;
-                r.height -= 2;
-                position.width -= (r.width + 2);
-                return r;
             }
         }
     }
