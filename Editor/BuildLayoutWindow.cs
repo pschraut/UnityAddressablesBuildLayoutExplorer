@@ -45,6 +45,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_Layout = new RichBuildLayout();
             m_LoadedPath = "";
             m_Views = new List<BuildLayoutView>();
+            Settings.changed += OnSettingsChanged;
             Settings.LoadSettings();
             LoadRecentPaths();
 
@@ -57,6 +58,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void OnDisable()
         {
+            Settings.changed -= OnSettingsChanged;
             Settings.SaveSettings();
             CloseBuildLayout();
 
@@ -104,6 +106,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
 
             return null;
+        }
+
+        void OnSettingsChanged()
+        {
+            if (string.IsNullOrEmpty(m_Layout.unityVersion))
+                return;
+
+            RebuildViews();
         }
 
         void OnStatusbarGUI()
