@@ -33,3 +33,6 @@ In Unity's Package Manager, choose "Add package from git URL" and insert one of 
 If you find this package useful, please mention my name in your credits screen.
 Something like "Addressables BuildLayout Explorer by Peter Schraut" or "Thanks to Peter Schraut" would be very much appreciated.
 
+# Contact
+
+Please use the Unity forum thread I created for BuildLayout Explorer: https://forum.unity.com/threads/addressables-buildlayout-explorer-for-unity.1162418/
