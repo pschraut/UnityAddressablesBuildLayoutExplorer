@@ -153,6 +153,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public List<RichBuildLayout.Asset> assets;
             public long size;
 
+            public CategoryItem()
+            {
+                supportsSearch = true;
+            }
+
             public override object GetObject()
             {
                 return null;

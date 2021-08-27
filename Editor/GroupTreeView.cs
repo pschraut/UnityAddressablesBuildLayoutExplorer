@@ -142,6 +142,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             public RichBuildLayout.Archive bundle;
 
+            public BundleItem()
+            {
+                supportsSearch = true;
+            }
+
             public override object GetObject()
             {
                 return bundle;

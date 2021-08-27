@@ -193,46 +193,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-
-        [System.Serializable]
-        class CategoryItem : BaseItem
-        {
-            public int sortValue;
-
-            public CategoryItem()
-            {
-                supportsSortingOrder = false;
-            }
-
-            public override object GetObject()
-            {
-                return null;
-            }
-
-            public override int CompareTo(TreeViewItem other, int column)
-            {
-                var otherItem = other as CategoryItem;
-                if (otherItem == null)
-                    return 1;
-
-                return sortValue.CompareTo(otherItem.sortValue);
-            }
-
-            public override void OnGUI(Rect position, int column, bool selected)
-            {
-                switch (column)
-                {
-                    case ColumnIDs.name:
-                        LabelField(position, displayName);
-                        break;
-                }
-            }
-        }
-
         [System.Serializable]
         class AssetItem : BaseItem
         {
             public RichBuildLayout.Asset asset;
+
+            public AssetItem()
+            {
+                supportsSearch = true;
+            }
 
             public override object GetObject()
             {
