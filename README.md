@@ -25,6 +25,7 @@ In Unity's Package Manager, choose "Add package from git URL" and insert one of 
 
 | Version  |     Link      |
 |----------|---------------|
+| 1.0.0-pre.2 | https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer.git#1.0.0-pre.2 |
 | 1.0.0-pre.1 | https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer.git#1.0.0-pre.1 |
 
 
