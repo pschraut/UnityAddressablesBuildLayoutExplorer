@@ -39,7 +39,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             IterateItems(delegate (TreeViewItem i)
             {
-                var b = i as AssetItem;
+                var b = i as BundleItem;
                 if (b == null)
                     return false;
 
@@ -77,6 +77,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     treeView = this,
                     assets = list,
+                    path = pair.Key,
                     id = m_UniqueId++,
                     depth = rootItem.depth + 1,
                     displayName = pair.Key,
@@ -88,7 +89,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     categoryItem.size += asset.size;
 
-                    var assetItem = new AssetItem
+                    var assetItem = new BundleItem
                     {
                         treeView = this,
                         asset = asset,
@@ -104,11 +105,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
 
         [System.Serializable]
-        class AssetItem : BaseItem
+        class BundleItem : BaseItem
         {
             public RichBuildLayout.Asset asset;
 
-            public AssetItem()
+            public BundleItem()
             {
                 supportsSearch = true;
             }
@@ -120,7 +121,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override int CompareTo(TreeViewItem other, int column)
             {
-                var otherItem = other as AssetItem;
+                var otherItem = other as BundleItem;
                 if (otherItem == null)
                     return 1;
 
@@ -152,6 +153,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             public List<RichBuildLayout.Asset> assets;
             public long size;
+            public string path;
 
             public CategoryItem()
             {
@@ -189,6 +191,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project"), Styles.iconButtonStyle))
+                            TrySelectAsset(path);
+
                         LabelField(position, displayName);
                         break;
 

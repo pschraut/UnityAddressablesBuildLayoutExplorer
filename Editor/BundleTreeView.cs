@@ -234,6 +234,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(asset);
 
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project"), Styles.iconButtonStyle))
+                            TrySelectAsset(asset.name);
+
                         LabelField(position, displayName);
                         break;
 

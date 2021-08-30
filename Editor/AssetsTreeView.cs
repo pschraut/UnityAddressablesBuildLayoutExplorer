@@ -140,6 +140,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch(column)
                 {
                     case ColumnIDs.name:
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project"), Styles.iconButtonStyle))
+                            TrySelectAsset(asset.name);
+
                         LabelField(position, displayName);
                         break;
 

@@ -81,6 +81,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             private set;
         }
 
+        public static Texture2D selectAssetIcon
+        {
+            get;
+            private set;
+        }
+
         public static Texture2D openContainingFolderIcon
         {
             get;
@@ -154,6 +160,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             navigateIcon = FindBuiltinTexture("PlayButton@2x");
             settingsIcon = FindBuiltinTexture("Settings@2x");
             openContainingFolderIcon = FindBuiltinTexture("Folder Icon");
+            selectAssetIcon = FindBuiltinTexture("Search Icon");
             deleteIcon = FindBuiltinTexture("P4_DeletedLocal");
 
             includedByIcon = FindBuiltinTexture("AnimatorStateMachine Icon");

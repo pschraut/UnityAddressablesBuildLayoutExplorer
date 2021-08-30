@@ -390,6 +390,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 treeView.m_Window.NavigateTo(target);
             }
 
+            protected void TrySelectAsset(string assetPath)
+            {
+                var obj = AssetDatabase.LoadMainAssetAtPath(assetPath);
+                if (obj != null)
+                    Selection.activeObject = obj;
+                else
+                    treeView.m_Window.ShowNotification(CachedGUIContent($"'{assetPath}' doesn't exist in project."));
+            }
+
             protected void LabelField(Rect position, string text, bool ghosted = false)
             {
                 LabelField(position, CachedGUIContent(text), ghosted);
