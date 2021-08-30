@@ -135,6 +135,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (LinkButton(changelogURL))
                     Application.OpenURL(changelogURL);
                 GUILayout.Space(8);
+
+                var feedbackURL = "https://forum.unity.com/threads/addressables-buildlayout-explorer-for-unity.1162418/";
+                GUILayout.Label("Feedback", m_Heading2Style);
+                if (LinkButton(feedbackURL))
+                    Application.OpenURL(feedbackURL);
+                GUILayout.Space(8);
             }
         }
 
