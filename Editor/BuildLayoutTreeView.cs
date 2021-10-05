@@ -172,6 +172,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         protected abstract void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout);
 
+        protected override void DoubleClickedItem(int id)
+        {
+            base.DoubleClickedItem(id);
+
+            var item = FindItem(id, rootItem) as BaseItem;
+            if (item != null)
+                item.OnDoubleClick();
+        }
+
         protected override void BeforeRowsGUI()
         {
             base.BeforeRowsGUI();
@@ -384,6 +393,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public abstract object GetObject();
             public abstract void OnGUI(Rect position, int column, bool selected);
             public abstract int CompareTo(TreeViewItem other, int column);
+
+            public virtual void OnDoubleClick()
+            {
+
+            }
 
             public void NavigateTo(object target)
             {

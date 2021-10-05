@@ -234,7 +234,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(asset);
 
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
                             TrySelectAsset(asset.name);
 
                         LabelField(position, displayName);
@@ -244,6 +244,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(asset.size), kAssetSizeTooltip), true);
                         break;
                 }
+            }
+
+            public override void OnDoubleClick()
+            {
+                base.OnDoubleClick();
+
+                TrySelectAsset(asset.name);
             }
         }
     }

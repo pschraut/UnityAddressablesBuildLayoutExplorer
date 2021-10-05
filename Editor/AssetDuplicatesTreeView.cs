@@ -191,7 +191,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project"), Styles.iconButtonStyle))
+                        if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
                             TrySelectAsset(path);
 
                         LabelField(position, displayName);
@@ -205,6 +205,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(size), kAssetSizeTooltip));
                         break;
                 }
+            }
+
+            public override void OnDoubleClick()
+            {
+                base.OnDoubleClick();
+
+                TrySelectAsset(path);
             }
         }
     }
