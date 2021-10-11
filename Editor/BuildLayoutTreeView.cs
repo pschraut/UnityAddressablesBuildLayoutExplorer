@@ -27,6 +27,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         TreeViewItem m_CachedTree;
         List<TreeViewItem> m_CachedRows;
 
+        class CopyCellTextArgs
+        {
+            public BaseItem item;
+            public int column;
+        }
+
+        class CopyRowTextArgs
+        {
+            public BaseItem item;
+        }
+
+        protected class ContextMenuArgs
+        {
+            public GenericMenu menu;
+            public BaseItem item;
+            public int column;
+            public Rect rect;
+        }
+
         public BuildLayoutTreeView(BuildLayoutWindow window, TreeViewState state, MultiColumnHeader multiColumnHeader)
                    : base(state, multiColumnHeader)
         {
@@ -188,8 +207,48 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             GetFirstAndLastVisibleRows(out m_FirstVisibleRow, out _);
         }
 
+        protected virtual void OnContextMenu(ContextMenuArgs args)
+        {
+            AddCopyContextMenuItem(args);
+            AddCopyRowContextMenuItem(args);
+        }
+
+        void AddCopyContextMenuItem(ContextMenuArgs args)
+        {
+            args.menu.AddItem(new GUIContent("Copy"), false, OnCopyCellText, new CopyCellTextArgs() { item = args.item, column = args.column });
+
+            void OnCopyCellText(object o)
+            {
+                var ctx = o as CopyCellTextArgs;
+                EditorGUIUtility.systemCopyBuffer = ctx.item.ToString(ctx.column);
+            }
+        }
+
+        void AddCopyRowContextMenuItem(ContextMenuArgs args)
+        {
+            args.menu.AddItem(new GUIContent("Copy Row"), false, OnCopyRowText, new CopyRowTextArgs() { item = args.item });
+
+            void OnCopyRowText(object o)
+            {
+                var text = "";
+                var ctx = o as CopyRowTextArgs;
+
+                for (var n = 0; n < multiColumnHeader.state.columns.Length; ++n)
+                {
+                    if (n > 0)
+                        text += $", {ctx.item.ToString(n)}";
+                    else
+                        text += ctx.item.ToString(n);
+                }
+
+                EditorGUIUtility.systemCopyBuffer = text;
+            }
+        }
+
         protected override void RowGUI(RowGUIArgs args)
         {
+            var isContextClick = Event.current.type == EventType.ContextClick;
+
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
             {
                 var item = args.item as BaseItem;
@@ -198,6 +257,22 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 item.PrepareGUI(args.focused, args.selected);
 
                 var rect = args.GetCellRect(i);
+
+                if (isContextClick && rect.Contains(Event.current.mousePosition))
+                {
+                    var ctx = new ContextMenuArgs();
+                    ctx.menu = new GenericMenu();
+                    ctx.item = item;
+                    ctx.column = i;
+                    ctx.rect = rect;
+
+                    OnContextMenu(ctx);
+                    if (ctx.menu.GetItemCount() > 0)
+                    {
+                        ctx.menu.ShowAsContext();
+                        throw new ExitGUIException();
+                    }
+                }
 
                 // Draw the column separator line
                 if (args.row == m_FirstVisibleRow)
@@ -402,6 +477,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public void NavigateTo(object target)
             {
                 treeView.m_Window.NavigateTo(target);
+            }
+
+            public virtual string ToString(int column)
+            {
+                return "";
             }
 
             protected void TrySelectAsset(string assetPath)

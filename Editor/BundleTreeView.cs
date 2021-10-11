@@ -167,29 +167,53 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
-                switch(column)
+                var text = ToString(column);
+                switch (column)
                 {
                     case ColumnIDs.name:
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, EditorUtility.FormatBytes(bundle.size));
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.compression:
-                        LabelField(position, CachedGUIContent(bundle.compression, kCompressionTooltip));
+                        LabelField(position, CachedGUIContent(text, kCompressionTooltip));
                         break;
 
                     case ColumnIDs.dependencies:
-                        var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
-                        LabelField(position, $"{dependencyCount}");
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.referencedByBundles:
-                        LabelField(position, $"{bundle.referencedByBundles.Count}");
+                        LabelField(position, text);
                         break;
                 }
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(bundle.size);
+
+                    case ColumnIDs.compression:
+                        return bundle.compression;
+
+                    case ColumnIDs.dependencies:
+                        var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
+                        return $"{dependencyCount}";
+
+                    case ColumnIDs.referencedByBundles:
+                        return $"{bundle.referencedByBundles.Count}";
+                }
+
+                return base.ToString(column);
             }
         }
 
@@ -228,6 +252,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch (column)
                 {
                     case ColumnIDs.name:
@@ -237,11 +262,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
                             TrySelectAsset(asset.name);
 
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(asset.size), kAssetSizeTooltip), true);
+                        LabelField(position, CachedGUIContent(text, kAssetSizeTooltip), true);
                         break;
                 }
             }
@@ -251,6 +276,20 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 base.OnDoubleClick();
 
                 TrySelectAsset(asset.name);
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(asset.size);
+                }
+
+                return base.ToString(column);
             }
         }
     }

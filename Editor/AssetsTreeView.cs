@@ -137,29 +137,30 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch(column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
                             TrySelectAsset(asset.name);
 
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(asset.size), kAssetSizeTooltip), ghosted);
+                        LabelField(position, CachedGUIContent(text, kAssetSizeTooltip), ghosted);
                         break;
 
                     case ColumnIDs.address:
-                        LabelField(position, asset.address, ghosted);
+                        LabelField(position, text, ghosted);
                         break;
 
                     case ColumnIDs.sizeFromObjects:
-                        LabelField(position, EditorUtility.FormatBytes(asset.sizeFromObjects), ghosted);
+                        LabelField(position, text, ghosted);
                         break;
 
                     case ColumnIDs.sizeFromStreamedData:
-                        LabelField(position, EditorUtility.FormatBytes(asset.sizeFromStreamedData), ghosted);
+                        LabelField(position, text, ghosted);
                         break;
                 }
             }
@@ -169,6 +170,29 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 base.OnDoubleClick();
 
                 TrySelectAsset(asset.name);
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(asset.size);
+
+                    case ColumnIDs.address:
+                        return asset.address;
+
+                    case ColumnIDs.sizeFromObjects:
+                        return EditorUtility.FormatBytes(asset.sizeFromObjects);
+
+                    case ColumnIDs.sizeFromStreamedData:
+                        return EditorUtility.FormatBytes(asset.sizeFromStreamedData);
+                }
+
+                return base.ToString(column);
             }
         }
     }

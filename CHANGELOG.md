@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0-pre.3] - 2021-??-??
 ### Added
- - Double-clicking an asset in BuildLayout Explorer is not trying to select the asset in the Unity project window.
+ - Double-clicking an asset in BuildLayout Explorer is now trying to select the asset in the Unity project window.
+ - Added "Copy" context menu item to every list, can be used to copy the text of a cell to clipboard.
+ - Added "Copy Row" context menu item to every list, can be used to copy the text of a row to clipboard.
 
 ## [1.0.0-pre.2] - 2021-08-30
 ### Added

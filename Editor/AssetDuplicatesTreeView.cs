@@ -146,6 +146,17 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         break;
                 }
             }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+                }
+
+                return base.ToString(column);
+            }
         }
 
         [System.Serializable]
@@ -188,21 +199,22 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch (column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
                             TrySelectAsset(path);
 
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.count:
-                        LabelField(position, $"{assets.Count}");
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, CachedGUIContent(EditorUtility.FormatBytes(size), kAssetSizeTooltip));
+                        LabelField(position, CachedGUIContent(text, kAssetSizeTooltip));
                         break;
                 }
             }
@@ -212,6 +224,23 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 base.OnDoubleClick();
 
                 TrySelectAsset(path);
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.count:
+                        return $"{assets.Count}";
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(size);
+                }
+
+                return base.ToString(column);
             }
         }
     }

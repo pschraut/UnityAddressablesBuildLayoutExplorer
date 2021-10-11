@@ -179,19 +179,33 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.count:
-                        if (hasChildren)
-                            LabelField(position, $"{children.Count}");
-                        else
-                            LabelField(position, $"0");
+                        LabelField(position, text);
                         break;
                 }
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.count:
+                        if (hasChildren)
+                            return $"{children.Count}";
+                        return $"0";
+                }
+
+                return base.ToString(column);
             }
         }
 
@@ -229,19 +243,34 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch (column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, EditorUtility.FormatBytes(bundle.size));
+                        LabelField(position, text);
                         break;
                 }
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(bundle.size);
+                }
+
+                return base.ToString(column);
             }
         }
 
@@ -279,19 +308,34 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch (column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, EditorUtility.FormatBytes(asset.size));
+                        LabelField(position, text);
                         break;
                 }
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(asset.size);
+                }
+
+                return base.ToString(column);
             }
         }
 
@@ -329,19 +373,34 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override void OnGUI(Rect position, int column, bool selected)
             {
+                var text = ToString(column);
                 switch (column)
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to group"), Styles.iconButtonStyle))
                             NavigateTo(GetObject());
 
-                        LabelField(position, displayName);
+                        LabelField(position, text);
                         break;
 
                     case ColumnIDs.size:
-                        LabelField(position, EditorUtility.FormatBytes(group.size));
+                        LabelField(position, text);
                         break;
                 }
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes(group.size);
+                }
+
+                return base.ToString(column);
             }
         }
     }
