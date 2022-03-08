@@ -3,6 +3,7 @@
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace Oddworm.EditorFramework
@@ -589,25 +590,25 @@ namespace Oddworm.EditorFramework
                 if (size.EndsWith("GB", System.StringComparison.OrdinalIgnoreCase))
                 {
                     var s = size.Substring(0, size.Length - 2);
-                    return (long)(float.Parse(s) * 1024 * 1024 * 1024);
+                    return (long)(float.Parse(s, CultureInfo.InvariantCulture) * 1024 * 1024 * 1024);
                 }
 
                 if (size.EndsWith("MB", System.StringComparison.OrdinalIgnoreCase))
                 {
                     var s = size.Substring(0, size.Length - 2);
-                    return (long)(float.Parse(s) * 1024 * 1024);
+                    return (long)(float.Parse(s, CultureInfo.InvariantCulture) * 1024 * 1024);
                 }
 
                 if (size.EndsWith("KB", System.StringComparison.OrdinalIgnoreCase))
                 {
                     var s = size.Substring(0, size.Length - 2);
-                    return (long)(float.Parse(s) * 1024);
+                    return (long)(float.Parse(s, CultureInfo.InvariantCulture) * 1024);
                 }
 
                 if (size.EndsWith("B", System.StringComparison.OrdinalIgnoreCase))
                 {
                     var s = size.Substring(0, size.Length - 1);
-                    return long.Parse(s);
+                    return long.Parse(s, CultureInfo.InvariantCulture);
                 }
 
                 return -1;
