@@ -62,7 +62,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
-            foreach(var bundle in buildLayout.bundles)
+            foreach(var bundle in buildLayout.bundles.Values)
             {
                 var bundleItem = new BundleItem
                 {
