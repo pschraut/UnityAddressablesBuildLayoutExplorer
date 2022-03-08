@@ -56,7 +56,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
             var lut = new Dictionary<string, List<RichBuildLayout.Asset>>();
-            foreach (var asset in buildLayout.assets)
+            foreach (var asset in buildLayout.assets.Values)
             {
                 if (!lut.TryGetValue(asset.name, out var list))
                 {

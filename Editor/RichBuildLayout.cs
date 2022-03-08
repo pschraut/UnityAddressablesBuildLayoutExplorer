@@ -2,6 +2,8 @@
 // Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,8 +19,8 @@ namespace Oddworm.EditorFramework
         public string unityVersion = "";
         public string addressablesVersion = "";
         public List<Group> groups = new List<Group>();
-        public List<Archive> bundles = new List<Archive>();
-        public List<Asset> assets = new List<Asset>();
+        public Dictionary<string, Archive> bundles = new Dictionary<string, Archive>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Asset> assets = new Dictionary<string, Asset>(StringComparer.OrdinalIgnoreCase);
 
         public class Group
         {
@@ -93,7 +95,7 @@ namespace Oddworm.EditorFramework
                     assetBundleObjectSize = baseBundle.assetBundleObjectSize,
                     isBuiltin = true
                 };
-                bundles.Add(bundle);
+                bundles.Add(bundle.name, bundle);
             }
 
             // collect all bundles
@@ -113,12 +115,12 @@ namespace Oddworm.EditorFramework
                         compression = baseBundle.compression.ToUpper(),
                         assetBundleObjectSize = baseBundle.assetBundleObjectSize
                     };
-                    bundles.Add(bundle);
+                    bundles.Add(bundle.name, bundle);
                 }
             }
 
             // resolve bundle dependencies
-            foreach(var bundle in bundles)
+            foreach(var bundle in bundles.Values)
             {
                 foreach (var baseBundle in bundle.lowlevel.bundleDependencies)
                 {
@@ -146,7 +148,7 @@ namespace Oddworm.EditorFramework
             }
 
             // collect all assets
-            foreach (var bundle in bundles)
+            foreach (var bundle in bundles.Values)
             {
                 foreach (var baseAsset in bundle.lowlevel.explicitAssets)
                 {
@@ -166,7 +168,7 @@ namespace Oddworm.EditorFramework
                             //internalReferences = new List<string>(baseAsset.internalReferences)
                             includedInBundle = bundle
                         };
-                        assets.Add(asset);
+                        assets.Add(asset.uid, asset);
                     }
                     bundle.explicitAssets.Add(asset);
                     bundle.allAssets.Add(asset);
@@ -209,7 +211,7 @@ namespace Oddworm.EditorFramework
                                 includedInBundle = bundle
                             };
                             //internalAsset.referencedByBundle.Add(bundle);
-                            assets.Add(internalAsset);
+                            assets.Add(internalAsset.uid, internalAsset);
                             bundle.allAssets.Add(internalAsset);
                         }
                         asset.internalReferences.Add(internalAsset);
@@ -218,7 +220,7 @@ namespace Oddworm.EditorFramework
             }
 
             // resolve external asset references
-            foreach(var asset in assets)
+            foreach(var asset in assets.Values)
             {
                 foreach (var baseReferece in asset.lowlevel.externalReferences)
                 {
@@ -255,10 +257,9 @@ namespace Oddworm.EditorFramework
 
         Asset FindAsset(string uid)
         {
-            foreach (var asset in assets)
+            if (assets.TryGetValue(uid, out var asset))
             {
-                if (string.Equals(asset.uid, uid, System.StringComparison.OrdinalIgnoreCase))
-                    return asset;
+                return asset;
             }
 
             return null;
@@ -266,12 +267,11 @@ namespace Oddworm.EditorFramework
 
         Archive FindBundle(string bundleName)
         {
-            foreach(var bundle in bundles)
+            if (bundles.TryGetValue(bundleName, out var bundle))
             {
-                if (string.Equals(bundle.name, bundleName, System.StringComparison.OrdinalIgnoreCase))
-                    return bundle;
+                return bundle;
             }
-
+            
             return null;
         }
 
