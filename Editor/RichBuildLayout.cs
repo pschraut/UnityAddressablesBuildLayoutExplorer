@@ -152,7 +152,7 @@ namespace Oddworm.EditorFramework
             {
                 foreach (var baseAsset in bundle.lowlevel.explicitAssets)
                 {
-                    var asset = FindAsset(baseAsset.name);
+                    var asset = FindAsset(GetUID(bundle.name, baseAsset.name));
                     if (asset == null)
                     {
                         asset = new Asset()
@@ -169,9 +169,9 @@ namespace Oddworm.EditorFramework
                             includedInBundle = bundle
                         };
                         assets.Add(asset.uid, asset);
+                        bundle.allAssets.Add(asset);
+                        bundle.explicitAssets.Add(asset);
                     }
-                    bundle.explicitAssets.Add(asset);
-                    bundle.allAssets.Add(asset);
                     //asset.referencedByBundle.Add(bundle);
 
                     foreach (var internalRef in baseAsset.internalReferences)
@@ -271,7 +271,7 @@ namespace Oddworm.EditorFramework
             {
                 return bundle;
             }
-            
+
             return null;
         }
 

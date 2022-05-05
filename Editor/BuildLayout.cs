@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Oddworm.EditorFramework
 {
     [System.Serializable]
-    public class BuildLayout
+    public partial class BuildLayout
     {
         public string unityVersion;
         public string addressablesVersion;
@@ -70,6 +70,12 @@ namespace Oddworm.EditorFramework
         public static BuildLayout Load(string path)
         {
             var text = System.IO.File.ReadAllText(path);
+
+#if ADDRESSABLES_JSON_SUPPORT
+            if (path.EndsWith(".json", System.StringComparison.OrdinalIgnoreCase))
+                return ParseJson(text);
+#endif
+
             return Parse(text);
         }
 

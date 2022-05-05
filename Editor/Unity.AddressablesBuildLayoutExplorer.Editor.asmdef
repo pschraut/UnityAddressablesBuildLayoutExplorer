@@ -18,6 +18,11 @@
             "name": "com.unity.addressables",
             "expression": "0.0.0",
             "define": "ADDRESSABLES_PRESENT"
+        },
+        {
+            "name": "com.unity.addressables",
+            "expression": "1.20.0",
+            "define": "ADDRESSABLES_JSON_SUPPORT"
         }
     ],
     "noEngineReferences": false

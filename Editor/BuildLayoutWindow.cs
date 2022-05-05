@@ -395,7 +395,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             if (m_RecentPaths.Length > 0)
                 directory = System.IO.Path.GetDirectoryName(m_RecentPaths[0]);
 
-            var path = EditorUtility.OpenFilePanelWithFilters("Open BuildLayout.txt", directory, new[] { "Text Files (*.txt)", "txt" });
+            var path = EditorUtility.OpenFilePanelWithFilters("Open BuildLayout...", directory, new[]
+            {
+#if ADDRESSABLES_JSON_SUPPORT
+                "Supported Files (*.json, *.txt)", "json,txt",
+                "Json Files (*.json)", "json",
+#endif
+                "Text Files (*.txt)", "txt",
+            });
             if (string.IsNullOrEmpty(path))
                 return;
             LoadBuildLayout(path);
