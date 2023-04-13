@@ -4,6 +4,10 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-pre.4] - 2023-??-??
+### Added
+ - Added "Labels" view. It shows bundles grouped by their label. The buildlayout.txt file doesn't include label information, therefore labels are fetched from the project instead. See [PR#4](https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer/pull/4) for details. Thank you vandelpal for the contribution.
+
 ## [1.0.0-pre.3] - 2022-03-11
 ### Added
  - Double-clicking an asset in BuildLayout Explorer is now trying to select the asset in the Unity project window.

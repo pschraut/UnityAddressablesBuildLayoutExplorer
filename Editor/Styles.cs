@@ -26,6 +26,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             get;
             private set;
         }
+        
+        public static Texture2D labelIcon
+        {
+            get;
+            private set;
+        }
 
         public static Texture2D bundleIcon
         {
@@ -150,6 +156,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         static Styles()
         {
             groupIcon = FindBuiltinTexture("ScriptableObject Icon");
+            labelIcon = FindBuiltinTexture("FilterByLabel@2x");
             bundleIcon = FindBuiltinTexture("LODGroup Icon");
             referencesToIcon = FindBuiltinTexture("Animator Icon");
             referencedByIcon = FindBuiltinTexture("VisualEffectSubgraphOperator Icon");
