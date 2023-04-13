@@ -4,7 +4,7 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.0-pre.4] - 2023-??-??
+## [1.0.0-pre.4] - 2023-04-13
 ### Added
  - Added "Labels" view. It shows bundles grouped by their label. The buildlayout.txt file doesn't include label information, therefore labels are fetched from the project instead. See [PR#4](https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer/pull/4) for details. Thank you vandelpal for the contribution.
 

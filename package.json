@@ -1,6 +1,6 @@
 {
   "name": "com.oddworm.addressablesbuildlayoutexplorer",
-  "version": "1.0.0-pre.3",
+  "version": "1.0.0-pre.4",
   "displayName": "Addressables BuildLayout Explorer",
   "description": "Addressables BuildLayout Explorer allows you to inspect the 'buildlayout.txt' file that Addressables generates when building content.\n\nYou can open the Addressables BuildLayout Explorer window from the main-menu under 'Window > Asset Management > Addressables > BuildLayout Explorer'.",
   "unity": "2019.3",
