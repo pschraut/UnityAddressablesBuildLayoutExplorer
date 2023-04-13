@@ -1,14 +1,14 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Oddworm.EditorFramework.BuildLayoutExplorer {
-   
+namespace Oddworm.EditorFramework.BuildLayoutExplorer
+{
     [BuildLayoutView]
-    public class LabelsView  : BuildLayoutView
+    public class LabelsView : BuildLayoutView
     {
         LabelsTreeView m_TreeView;
         SearchField m_SearchField;
-        
+
         public override void Awake()
         {
             base.Awake();
@@ -17,13 +17,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer {
             m_TreeView = new LabelsTreeView(window);
             m_SearchField = new SearchField(window);
         }
-        
+
         public override void Rebuild(RichBuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
             m_TreeView.SetBuildLayout(buildLayout);
         }
-        
+
         public override void OnGUI()
         {
             using (new EditorGUILayout.VerticalScope(Styles.viewStyle))
@@ -40,14 +40,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer {
                 m_TreeView.OnGUI(rect);
             }
         }
-        
-        public override NavigationBookmark GetBookmark() 
+
+        public override NavigationBookmark GetBookmark()
         {
             var bm = new Bookmark();
             bm.labelsState = m_TreeView.GetState();
             return bm;
         }
-        public override void SetBookmark(NavigationBookmark bookmark) 
+
+        public override void SetBookmark(NavigationBookmark bookmark)
         {
             var bm = bookmark as Bookmark;
             if (bm == null)
@@ -59,7 +60,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer {
             m_TreeView.SetState(bm.labelsState);
             m_TreeView.SetFocus();
         }
-        
+
         class Bookmark : NavigationBookmark
         {
             public BuildLayoutTreeViewState labelsState;
