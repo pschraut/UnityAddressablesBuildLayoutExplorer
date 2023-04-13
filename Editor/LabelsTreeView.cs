@@ -16,9 +16,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public const int bundles = 2;
             public const int otherLabels = 3;
         }
-        
+
         private Dictionary<string, HashSet<string>> _assetNameToLabelsMap = new Dictionary<string, HashSet<string>>();
-        
+
         public LabelsTreeView(BuildLayoutWindow window)
             : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                 new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
@@ -37,16 +37,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
         private void FillLabels() {
-            if (AddressableAssetSettingsDefaultObject.Settings == null) 
+            if (AddressableAssetSettingsDefaultObject.Settings == null)
             {
                 return;
             }
-            
-            foreach (var group in AddressableAssetSettingsDefaultObject.Settings.groups) 
+
+            foreach (var group in AddressableAssetSettingsDefaultObject.Settings.groups)
             {
-                foreach (var entry in group.entries) 
+                foreach (var entry in group.entries)
                 {
-                    if (entry.labels.Count == 0) 
+                    if (entry.labels.Count == 0)
                     {
                         continue;
                     }
@@ -55,16 +55,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-       
+
         protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
         {
             var labelToBundlesMap = new Dictionary<string, HashSet<RichBuildLayout.Archive>>();
             var bundlesToLabelsMap = new Dictionary<RichBuildLayout.Archive, HashSet<string>>();
 
-            foreach (var bundle in buildLayout.bundles.Values) 
+            foreach (var bundle in buildLayout.bundles.Values)
             {
                 foreach (var asset in bundle.allAssets) {
-                    if (_assetNameToLabelsMap.TryGetValue(asset.name, out var labels)) 
+                    if (_assetNameToLabelsMap.TryGetValue(asset.name, out var labels))
                     {
                         foreach (var label in labels) {
                             if (!labelToBundlesMap.ContainsKey(label)) {
@@ -78,26 +78,26 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 }
             }
 
-            foreach (var (label, bundles) in labelToBundlesMap) 
+            foreach (var pair in labelToBundlesMap)
             {
-                var labelItem = new LabelItem 
+                var labelItem = new LabelItem
                 {
                     treeView = this,
-                    bundles = bundles.ToList(),
+                    bundles = pair.Value.ToList(),
                     id = m_UniqueId++,
                     depth = 0,
-                    displayName = label,
+                    displayName = pair.Key,
                     icon = Styles.labelIcon
                 };
                 rootItem.AddChild(labelItem);
-                
-                foreach (var bundle in bundles) 
+
+                foreach (var bundle in pair.Value)
                 {
                     var bundleItem = new BundleItem
                     {
                         treeView = this,
                         bundle = bundle,
-                        otherLabels = bundlesToLabelsMap[bundle].Except(new []{label}).ToList(),
+                        otherLabels = bundlesToLabelsMap[bundle].Except(new []{ pair.Key }).ToList(),
                         id = m_UniqueId++,
                         depth = labelItem.depth + 1,
                         displayName = Utility.TransformBundleName(bundle.name),
@@ -106,9 +106,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     labelItem.AddChild(bundleItem);
                 }
             }
-            
+
         }
-        
+
         [System.Serializable]
         class LabelItem : BaseItem
         {
@@ -138,7 +138,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.size:
                         return bundles.Sum(b=>b.size).CompareTo(otherItem.bundles.Sum(b=>b.size));
-                    
+
                     case ColumnIDs.bundles:
                         return bundles.Count.CompareTo(otherItem.bundles.Count);
                 }
@@ -158,7 +158,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     case ColumnIDs.size:
                         LabelField(position, text);
                         break;
-                    
+
                     case ColumnIDs.bundles:
                         LabelField(position, text);
                         break;
@@ -174,7 +174,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
                     case ColumnIDs.size:
                         return EditorUtility.FormatBytes(bundles.Sum(b=>b.size));
-                    
+
                     case ColumnIDs.bundles:
                         return $"{bundles.Count}";
                 }
@@ -182,7 +182,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return base.ToString(column);
             }
         }
-        
+
         [System.Serializable]
         class BundleItem : BaseItem
         {
@@ -210,13 +210,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         return string.Compare(bundle.name, otherItem.bundle.name, true);
-                    
+
                     case ColumnIDs.otherLabels:
                         return otherLabels.Count.CompareTo(otherItem.otherLabels.Count);
-                    
+
                     case ColumnIDs.size:
                         return bundle.size.CompareTo(otherItem.bundle.size);
-                    
+
                     case ColumnIDs.bundles:
                         return 0;
                 }
@@ -234,7 +234,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                             NavigateTo(bundle);
                         LabelField(position, text);
                         break;
-                    
+
                     case ColumnIDs.otherLabels:
                         LabelField(position, text);
                         break;
@@ -242,7 +242,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     case ColumnIDs.size:
                         LabelField(position, text);
                         break;
-                    
+
                     case ColumnIDs.bundles:
                         LabelField(position, text, true);
                         break;
@@ -255,16 +255,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         return displayName;
-                    
+
                     case ColumnIDs.otherLabels:
                         if (otherLabels.Count > 0) {
-                            return $"{string.Join(',', otherLabels)}";
+                            return string.Join(",", otherLabels);
                         }
                         return string.Empty;
 
                     case ColumnIDs.size:
                         return EditorUtility.FormatBytes(bundle.size);
-                    
+
                     case ColumnIDs.bundles:
                         return "1";
                 }
@@ -272,8 +272,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return base.ToString(column);
             }
         }
-        
+
     }
-    
-    
+
+
 }
