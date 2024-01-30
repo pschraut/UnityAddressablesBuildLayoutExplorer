@@ -43,9 +43,12 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             foreach (var group in AddressableAssetSettingsDefaultObject.Settings.groups)
             {
+                if (group == null)
+                    continue;
+
                 foreach (var entry in group.entries)
                 {
-                    if (entry.labels.Count == 0)
+                    if (entry == null || entry.labels.Count == 0)
                         continue;
 
                     m_AssetNameToLabelsMap[entry.AssetPath] = entry.labels;
