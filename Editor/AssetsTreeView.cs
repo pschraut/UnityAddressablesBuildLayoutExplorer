@@ -1,8 +1,9 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -38,7 +39,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-        public TreeViewItem FindItem(RichBuildLayout.Asset asset)
+        public TreeViewItem FindItem(object asset)
         {
             TreeViewItem result = null;
 
@@ -48,7 +49,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (b == null)
                     return false;
 
-                if (b.asset != asset)
+                if (b.asset != asset && b.other != asset)
                     return false;
 
                 result = b;
@@ -58,44 +59,72 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
         {
-            foreach (var asset in buildLayout.assets.Values)
-            {
-                var assetItem = new AssetItem
-                {
-                    treeView = this,
-                    asset = asset,
-                    id = m_UniqueId++,
-                    depth = 0,
-                    displayName = Utility.TransformBundleName(asset.name),
-                    icon = Styles.GetBuildLayoutObjectIcon(asset)
-                };
-                rootItem.AddChild(assetItem);
-
-                foreach (var internalReference in asset.internalReferences)
-                {
-                    var assetReference = new AssetItem()
+            foreach (var group in buildLayout.Groups)
+                foreach (var bundle in group.Bundles)
+                    foreach (var file in bundle.Files)
                     {
-                        treeView = this,
-                        asset = internalReference,
-                        ghosted = true,
-                        id = m_UniqueId++,
-                        depth = assetItem.depth + 1,
-                        displayName = Utility.TransformBundleName(internalReference.name),
-                        icon = Styles.GetBuildLayoutObjectIcon(internalReference)
-                    };
-                    assetItem.AddChild(assetReference);
-                }
-            }
+                        foreach (var asset in file.OtherAssets)
+                        {
+                            var assetItem = new AssetItem
+                            {
+                                treeView = this,
+                                other = asset,
+                                id = m_UniqueId++,
+                                depth = 0,
+                                displayName = Utility.TransformBundleName(asset.AssetPath),
+                                icon = Styles.GetBuildLayoutObjectIcon(asset)
+                            };
+                            rootItem.AddChild(assetItem);
+                        }
+
+                        foreach (var asset in file.Assets)
+                        {
+                            var assetItem = new AssetItem
+                            {
+                                treeView = this,
+                                asset = asset,
+                                id = m_UniqueId++,
+                                depth = 0,
+                                displayName = Utility.TransformBundleName(asset.AssetPath),
+                                icon = Styles.GetBuildLayoutObjectIcon(asset)
+                            };
+                            rootItem.AddChild(assetItem);
+
+                            foreach (var internalReference in asset.InternalReferencedExplicitAssets)
+                            {
+                                var assetReference = new AssetItem()
+                                {
+                                    treeView = this,
+                                    asset = internalReference,
+                                    ghosted = true,
+                                    id = m_UniqueId++,
+                                    depth = assetItem.depth + 1,
+                                    displayName = Utility.TransformBundleName(internalReference.AssetPath),
+                                    icon = Styles.GetBuildLayoutObjectIcon(internalReference)
+                                };
+                                assetItem.AddChild(assetReference);
+                            }
+
+                            // foreach (var internalReference in asset.InternalReferencedOtherAssets) // TODO
+
+                        }
+                    }
         }
 
 
         [System.Serializable]
         class AssetItem : BaseItem
         {
-            public RichBuildLayout.Asset asset;
+            public BuildLayout.ExplicitAsset asset;
+            public BuildLayout.DataFromOtherAsset other;
             public bool ghosted;
+
+            string address => asset?.AddressableName ?? "";
+            string assetPath => asset?.AssetPath ?? other.AssetPath;
+            ulong serializedSize => asset?.SerializedSize ?? other.SerializedSize;
+            ulong streamedSize => asset?.StreamedSize ?? other.StreamedSize;
 
             public AssetItem()
             {
@@ -104,7 +133,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override object GetObject()
             {
-                return asset;
+                return asset != null ? asset : other;
             }
 
             public override int CompareTo(TreeViewItem other, int column)
@@ -116,19 +145,19 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(asset.name, otherItem.asset.name, true);
+                        return string.Compare(assetPath, otherItem.assetPath, true);
 
                     case ColumnIDs.size:
-                        return asset.size.CompareTo(otherItem.asset.size);
+                        return serializedSize.CompareTo(otherItem.serializedSize);
 
                     case ColumnIDs.address:
-                        return string.Compare(asset.address, otherItem.asset.address, System.StringComparison.OrdinalIgnoreCase);
+                        return string.Compare(asset.AddressableName, otherItem.asset.AddressableName, System.StringComparison.OrdinalIgnoreCase);
 
                     case ColumnIDs.sizeFromObjects:
-                        return asset.sizeFromObjects.CompareTo(otherItem.asset.sizeFromObjects);
+                        return serializedSize.CompareTo(otherItem.serializedSize);
 
                     case ColumnIDs.sizeFromStreamedData:
-                        return asset.sizeFromStreamedData.CompareTo(otherItem.asset.sizeFromStreamedData);
+                        return streamedSize.CompareTo(otherItem.streamedSize);
 
                 }
 
@@ -142,7 +171,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
-                            TrySelectAsset(asset.name);
+                            TrySelectAsset(assetPath);
 
                         LabelField(position, text);
                         break;
@@ -169,7 +198,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 base.OnDoubleClick();
 
-                TrySelectAsset(asset.name);
+                TrySelectAsset(assetPath);
             }
 
             public override string ToString(int column)
@@ -180,16 +209,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return displayName;
 
                     case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(asset.size);
+                        return EditorUtility.FormatBytes((long)serializedSize);
 
                     case ColumnIDs.address:
-                        return asset.address;
+                        return address;
 
                     case ColumnIDs.sizeFromObjects:
-                        return EditorUtility.FormatBytes(asset.sizeFromObjects);
+                        return EditorUtility.FormatBytes((long)serializedSize);
 
                     case ColumnIDs.sizeFromStreamedData:
-                        return EditorUtility.FormatBytes(asset.sizeFromStreamedData);
+                        return EditorUtility.FormatBytes((long)streamedSize);
                 }
 
                 return base.ToString(column);

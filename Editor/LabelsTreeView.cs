@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -56,27 +57,29 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
         {
-            var labelToBundlesMap = new Dictionary<string, HashSet<RichBuildLayout.Archive>>();
-            var bundlesToLabelsMap = new Dictionary<RichBuildLayout.Archive, HashSet<string>>();
+            var labelToBundlesMap = new Dictionary<string, HashSet<BuildLayout.Bundle>>();
+            var bundlesToLabelsMap = new Dictionary<BuildLayout.Bundle, HashSet<string>>();
+            var assets = new HashSet<BuildLayout.ExplicitAsset>();
+            
+            foreach (var group in buildLayout.Groups)
+            foreach (var bundle in group.Bundles)
+            foreach (var file in bundle.Files)
+            foreach (var asset in file.Assets)
+                assets.Add(asset);
 
-            foreach (var bundle in buildLayout.bundles.Values)
+            foreach (var asset in assets)
             {
-                foreach (var asset in bundle.allAssets)
+                foreach (var label in asset.Labels)
                 {
-                    if (m_AssetNameToLabelsMap.TryGetValue(asset.name, out var labels))
-                    {
-                        foreach (var label in labels)
-                        {
-                            if (!labelToBundlesMap.ContainsKey(label))
-                                labelToBundlesMap[label] = new HashSet<RichBuildLayout.Archive>() { bundle };
-                            else
-                                labelToBundlesMap[label].Add(bundle);
-                        }
+                    if (!labelToBundlesMap.TryGetValue(label, out var bundleList))
+                        labelToBundlesMap[label] = bundleList = new HashSet<BuildLayout.Bundle>();
+                    bundleList.Add(asset.Bundle);
 
-                        bundlesToLabelsMap[bundle] = labels;
-                    }
+                    if (!bundlesToLabelsMap.TryGetValue(asset.Bundle, out var labelsList))
+                        bundlesToLabelsMap[asset.Bundle] = labelsList = new ();
+                    labelsList.Add(label);
                 }
             }
 
@@ -102,7 +105,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         otherLabels = bundlesToLabelsMap[bundle].Except(new[] { pair.Key }).ToList(),
                         id = m_UniqueId++,
                         depth = labelItem.depth + 1,
-                        displayName = Utility.TransformBundleName(bundle.name),
+                        displayName = Utility.TransformBundleName(bundle.Name),
                         icon = Styles.GetBuildLayoutObjectIcon(bundle)
                     };
                     labelItem.AddChild(bundleItem);
@@ -115,7 +118,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         class LabelItem : BaseItem
         {
             public string label;
-            public List<RichBuildLayout.Archive> bundles;
+            public List<BuildLayout.Bundle> bundles;
 
             public LabelItem()
             {
@@ -139,7 +142,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return string.Compare(label, otherItem.label, true);
 
                     case ColumnIDs.size:
-                        return bundles.Sum(b => b.size).CompareTo(otherItem.bundles.Sum(b => b.size));
+                        return bundles.Sum(b => (long)b.FileSize).CompareTo(otherItem.bundles.Sum(b => (long)b.FileSize));
 
                     case ColumnIDs.bundles:
                         return bundles.Count.CompareTo(otherItem.bundles.Count);
@@ -175,7 +178,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return displayName;
 
                     case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(bundles.Sum(b => b.size));
+                        return EditorUtility.FormatBytes(bundles.Sum(b => (long)b.FileSize));
 
                     case ColumnIDs.bundles:
                         return $"{bundles.Count}";
@@ -188,7 +191,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class BundleItem : BaseItem
         {
-            public RichBuildLayout.Archive bundle;
+            public BuildLayout.Bundle bundle;
 
             public List<string> otherLabels;
 
@@ -211,13 +214,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(bundle.name, otherItem.bundle.name, true);
+                        return string.Compare(bundle.Name, otherItem.bundle.Name, true);
 
                     case ColumnIDs.otherLabels:
                         return otherLabels.Count.CompareTo(otherItem.otherLabels.Count);
 
                     case ColumnIDs.size:
-                        return bundle.size.CompareTo(otherItem.bundle.size);
+                        return bundle.FileSize.CompareTo(otherItem.bundle.FileSize);
 
                     case ColumnIDs.bundles:
                         return 0;
@@ -264,7 +267,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return string.Empty;
 
                     case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(bundle.size);
+                        return EditorUtility.FormatBytes((long)bundle.FileSize);
 
                     case ColumnIDs.bundles:
                         return "1";

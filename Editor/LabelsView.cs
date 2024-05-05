@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
@@ -18,7 +19,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_SearchField = new SearchField(window);
         }
 
-        public override void Rebuild(RichBuildLayout buildLayout)
+        public override void Rebuild(BuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
             m_TreeView.SetBuildLayout(buildLayout);

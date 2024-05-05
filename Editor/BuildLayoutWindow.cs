@@ -1,16 +1,17 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.AddressableAssets.Build.Layout;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     public class BuildLayoutWindow : EditorWindow
     {
-        RichBuildLayout m_Layout;
+        BuildLayout m_Layout;
 
         Rect m_ViewButtonRect;
         Rect m_FileButtonRect;
@@ -42,7 +43,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         void OnEnable()
         {
             titleContent = new GUIContent("BuildLayout Explorer");
-            m_Layout = new RichBuildLayout();
+            m_Layout = new BuildLayout();
             m_LoadedPath = "";
             m_Views = new List<BuildLayoutView>();
             Settings.changed += OnSettingsChanged;
@@ -110,7 +111,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void OnSettingsChanged()
         {
-            if (string.IsNullOrEmpty(m_Layout.unityVersion))
+            if (string.IsNullOrEmpty(m_Layout.UnityVersion))
                 return;
 
             RebuildViews();
@@ -223,7 +224,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
             menu.AddSeparator("");
 
-            if (m_Layout != null && !string.IsNullOrEmpty(m_Layout.addressablesVersion))
+            if (m_Layout != null && !string.IsNullOrEmpty(m_Layout.PackageVersion))
                 menu.AddItem(new GUIContent("Close"), false, CloseBuildLayout);
             else
                 menu.AddDisabledItem(new GUIContent("Close"), false);
@@ -420,7 +421,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void CloseBuildLayout()
         {
-            m_Layout = new RichBuildLayout();
+            m_Layout = new BuildLayout();
             m_LoadedPath = "";
             m_Navigation = new NavigationHistory();
 
@@ -546,7 +547,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             try
             {
-                m_Layout = new RichBuildLayout(BuildLayout.Load(path));
+                var json = System.IO.File.ReadAllText(path);
+                m_Layout = JsonUtility.FromJson<BuildLayout>(json);
                 m_LoadedPath = path;
             }
             catch (System.Exception e)

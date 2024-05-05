@@ -1,9 +1,10 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_SearchField = new SearchField(window);
         }
 
-        public override void Rebuild(RichBuildLayout buildLayout)
+        public override void Rebuild(BuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
 
@@ -51,7 +52,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override bool CanNavigateTo(object target)
         {
-            if (target is RichBuildLayout.Asset)
+            if (target is BuildLayout.ExplicitAsset)
                 return true;
 
             return base.CanNavigateTo(target);
@@ -59,7 +60,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override void NavigateTo(object target)
         {
-            var asset = target as RichBuildLayout.Asset;
+            var asset = target as BuildLayout.ExplicitAsset;
             if (asset == null)
                 return;
 
@@ -68,6 +69,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return;
 
             m_TreeView.SetSelection(new[] { item.id }, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.FrameItem(item.id); // TreeViewSelectionOptions.RevealAndFrame often doesn't reveal the item, using FrameItem does
             m_TreeView.SetFocus();
         }
 

@@ -1,90 +1,100 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor.AddressableAssets.Build.Layout;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     internal static class Utility
     {
-        public static List<object> GetReferencedBy(object obj)
+        public static List<object> GetReferencedBy(BuildLayout layout, object obj)
         {
             var hashset = new HashSet<object>();
 
-            var archive = obj as RichBuildLayout.Archive;
+            var archive = obj as BuildLayout.Bundle;
             if (archive != null)
-                hashset.UnionWith(GetReferencedBy(archive));
+                hashset.UnionWith(GetReferencedBy(layout, archive));
 
-            var group = obj as RichBuildLayout.Group;
+            var group = obj as BuildLayout.Group;
             if (group != null)
-                hashset.UnionWith(GetReferencedBy(group));
+                hashset.UnionWith(GetReferencedBy(layout, group));
 
-            var asset = obj as RichBuildLayout.Asset;
+            var asset = obj as BuildLayout.ExplicitAsset;
             if (asset != null)
-                hashset.UnionWith(GetReferencedBy(asset));
+                hashset.UnionWith(GetReferencedBy(layout, asset));
+
+            var other = obj as BuildLayout.DataFromOtherAsset;
+            if (other != null)
+                hashset.UnionWith(GetReferencedBy(layout, other));
 
             return new List<object>(hashset);
         }
 
-        public static List<object> GetReferencesTo(object obj)
+        public static List<object> GetReferencesTo(BuildLayout layout, object obj)
         {
             var hashset = new HashSet<object>();
 
-            var archive = obj as RichBuildLayout.Archive;
+            var archive = obj as BuildLayout.Bundle;
             if (archive != null)
-                hashset.UnionWith(GetReferencesTo(archive));
+                hashset.UnionWith(GetReferencesTo(layout, archive));
 
-            var group = obj as RichBuildLayout.Group;
+            var group = obj as BuildLayout.Group;
             if (group != null)
-                hashset.UnionWith(GetReferencesTo(group));
+                hashset.UnionWith(GetReferencesTo(layout, group));
 
-            var asset = obj as RichBuildLayout.Asset;
+            var asset = obj as BuildLayout.ExplicitAsset;
             if (asset != null)
-                hashset.UnionWith(GetReferencesTo(asset));
+                hashset.UnionWith(GetReferencesTo(layout, asset));
 
             return new List<object>(hashset);
         }
 
-        static HashSet<object> GetReferencedBy(RichBuildLayout.Archive archive)
+        static HashSet<object> GetReferencedBy(BuildLayout layout, BuildLayout.Bundle archive)
         {
             var result = new HashSet<object>();
             if (archive == null)
                 return result;
 
-            foreach (var b in archive.referencedByBundles)
+            foreach (var b in archive.DependentBundles)
                 result.Add(b);
 
-            foreach (var b in archive.referencedByGroups)
-                result.Add(b);
-
-            return result;
-        }
-
-        static HashSet<object> GetReferencesTo(RichBuildLayout.Archive archive)
-        {
-            var result = new HashSet<object>();
-            if (archive == null)
-                return result;
-
-            foreach (var b in archive.bundleDependencies)
-                result.Add(b);
-
-            foreach (var b in archive.expandedBundleDependencies)
-                result.Add(b);
-
-            foreach (var a in archive.explicitAssets)
+            foreach (var g in layout.Groups)
             {
-                foreach (var b in a.externalReferences)
-                    result.Add(b);
+                if (g.Bundles.Contains(archive))
+                    result.Add(g);
             }
 
             return result;
         }
 
-        static HashSet<object> GetReferencedBy(RichBuildLayout.Group group)
+        static HashSet<object> GetReferencesTo(BuildLayout layout, BuildLayout.Bundle archive)
+        {
+            var result = new HashSet<object>();
+            if (archive == null)
+                return result;
+
+            foreach (var b in archive.Dependencies)
+                result.Add(b);
+
+            foreach (var b in archive.ExpandedDependencies)
+                result.Add(b);
+
+            foreach (var f in archive.Files)
+            {
+                foreach(var a in f.Assets)
+                {
+                    result.Add(a);
+                }
+            }
+
+            return result;
+        }
+
+        static HashSet<object> GetReferencedBy(BuildLayout layout, BuildLayout.Group group)
         {
             var result = new HashSet<object>();
             if (group == null)
@@ -94,42 +104,56 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        static HashSet<object> GetReferencesTo(RichBuildLayout.Group group)
+        static HashSet<object> GetReferencesTo(BuildLayout layout, BuildLayout.Group group)
         {
             var result = new HashSet<object>();
             if (group == null)
                 return result;
 
-            foreach (var b in group.bundles)
+            foreach (var b in group.Bundles)
                 result.Add(b);
 
             return result;
         }
 
-        static HashSet<object> GetReferencedBy(RichBuildLayout.Asset asset)
+        static HashSet<object> GetReferencedBy(BuildLayout layout, BuildLayout.ExplicitAsset asset)
         {
             var result = new HashSet<object>();
             if (asset == null)
                 return result;
 
-            foreach (var b in asset.referencedByBundle)
-                result.Add(b);
+            result.Add(asset.Bundle);
 
             return result;
         }
 
-        static HashSet<object> GetReferencesTo(RichBuildLayout.Asset asset)
+        static HashSet<object> GetReferencesTo(BuildLayout layout, BuildLayout.ExplicitAsset asset)
         {
             var result = new HashSet<object>();
             if (asset == null)
                 return result;
 
-            foreach (var b in asset.externalReferences)
+            
+            foreach (var b in asset.ExternallyReferencedAssets)
             {
                 result.Add(b);
+                result.Add(b.Bundle);
+            }
 
-                foreach (var c in b.referencedByBundle)
-                    result.Add(c);
+            return result;
+        }
+
+        static HashSet<object> GetReferencedBy(BuildLayout layout, BuildLayout.DataFromOtherAsset other)
+        {
+            var result = new HashSet<object>();
+            if (other == null)
+                return result;
+
+
+            foreach (var b in other.ReferencingAssets)
+            {
+                result.Add(b);
+                result.Add(b.Bundle);
             }
 
             return result;

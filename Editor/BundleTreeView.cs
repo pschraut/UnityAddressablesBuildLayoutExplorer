@@ -1,10 +1,12 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
@@ -15,9 +17,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         {
             public const int name = 0;
             public const int size = 1;
-            public const int compression = 2;
-            public const int dependencies = 3;
-            public const int referencedByBundles = 4;
+            public const int uncompressedSize = 2;
+            public const int compression = 3;
+            public const int dependencies = 4;
+            public const int referencedByBundles = 5;
         }
 
         const string kAssetSizeTooltip = "Uncompressed asset size";
@@ -27,20 +30,22 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                    : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
+                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Uncompressed Size"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Compression"), width = 80, autoResize = true },
-                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("References to Bundles"), width = 80, autoResize = true },
-                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Referenced by Bundles"), width = 80, autoResize = true },
+                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Refs To"), width = 80, autoResize = true },
+                            new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Refs By"), width = 80, autoResize = true },
                             })))
         {
             multiColumnHeader.SetSortDirection(ColumnIDs.name, true);
             multiColumnHeader.SetSortDirection(ColumnIDs.size, false);
+            multiColumnHeader.SetSortDirection(ColumnIDs.uncompressedSize, false);
             multiColumnHeader.SetSortDirection(ColumnIDs.compression, true);
             multiColumnHeader.SetSortDirection(ColumnIDs.dependencies, false);
             multiColumnHeader.SetSortDirection(ColumnIDs.referencedByBundles, false);
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-        public TreeViewItem FindItem(RichBuildLayout.Archive bundle)
+        public TreeViewItem FindItem(BuildLayout.Bundle bundle)
         {
             TreeViewItem result = null;
 
@@ -60,9 +65,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
         {
-            foreach(var bundle in buildLayout.bundles.Values)
+            var bundles = new HashSet<BuildLayout.Bundle>();
+            bundles.UnionWith(buildLayout.BuiltInBundles);
+            foreach (var group in buildLayout.Groups)
+                bundles.UnionWith(group.Bundles);
+
+            foreach (var bundle in bundles)
             {
                 var bundleItem = new BundleItem
                 {
@@ -70,59 +80,49 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     bundle = bundle,
                     id = m_UniqueId++,
                     depth = 0,
-                    displayName = Utility.TransformBundleName(bundle.name),
+                    displayName = Utility.TransformBundleName(bundle.Name),
                     icon = Styles.GetBuildLayoutObjectIcon(bundle)
                 };
                 rootItem.AddChild(bundleItem);
 
-                foreach (var asset in bundle.allAssets)
+                foreach (var file in bundle.Files)
                 {
-                    var assetItem = new AssetItem
+                    foreach (var asset in file.OtherAssets)
                     {
-                        treeView = this,
-                        asset = asset,
-                        id = m_UniqueId++,
-                        depth = bundleItem.depth + 1,
-                        displayName = Utility.TransformBundleName(asset.name),
-                        icon = Styles.GetBuildLayoutObjectIcon(asset)
-                    };
-                    bundleItem.AddChild(assetItem);
+                        var assetItem = new AssetItem
+                        {
+                            treeView = this,
+                            other = asset,
+                            id = m_UniqueId++,
+                            depth = bundleItem.depth + 1,
+                            displayName = Utility.TransformBundleName(asset.AssetPath),
+                            icon = Styles.GetBuildLayoutObjectIcon(asset),
+                            ghosted = true
+                        };
+                        bundleItem.AddChild(assetItem);
+                    }
+
+                    foreach (var asset in file.Assets)
+                    {
+                        var assetItem = new AssetItem
+                        {
+                            treeView = this,
+                            asset = asset,
+                            id = m_UniqueId++,
+                            depth = bundleItem.depth + 1,
+                            displayName = Utility.TransformBundleName(asset.AssetPath),
+                            icon = Styles.GetBuildLayoutObjectIcon(asset)
+                        };
+                        bundleItem.AddChild(assetItem);
+                    }
                 }
-
-                //foreach (var asset in bundle.explicitAssets)
-                //{
-                //    var assetItem = new AssetItem
-                //    {
-                //        treeView = this,
-                //        asset = asset,
-                //        id = m_UniqueId++,
-                //        depth = bundleItem.depth + 1,
-                //        displayName = Utility.TransformBundleName(asset.name),
-                //        icon = Styles.GetBuildLayoutObjectIcon(asset)
-                //    };
-                //    bundleItem.AddChild(assetItem);
-
-                //    foreach(var internalReference in asset.internalReferences)
-                //    {
-                //        var assetReference = new AssetItem()
-                //        {
-                //            treeView = this,
-                //            asset = internalReference,
-                //            id = m_UniqueId++,
-                //            depth = assetItem.depth + 1,
-                //            displayName = Utility.TransformBundleName(internalReference.name),
-                //            //icon = Styles.GetBuildLayoutObjectIcon(internalReference)
-                //        };
-                //        assetItem.AddChild(assetReference);
-                //    }
-                //}
             }
         }
 
         [System.Serializable]
         class BundleItem : BaseItem
         {
-            public RichBuildLayout.Archive bundle;
+            public BuildLayout.Bundle bundle;
 
             public BundleItem()
             {
@@ -143,23 +143,105 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(bundle.name, otherItem.bundle.name, true);
+                        return string.Compare(bundle.Name, otherItem.bundle.Name, true);
 
                     case ColumnIDs.size:
-                        return bundle.size.CompareTo(otherItem.bundle.size);
+                        return bundle.FileSize.CompareTo(otherItem.bundle.FileSize);
+
+                    case ColumnIDs.uncompressedSize:
+                        return bundle.UncompressedFileSize.CompareTo(otherItem.bundle.UncompressedFileSize);
 
                     case ColumnIDs.compression:
-                        return string.Compare(bundle.compression, otherItem.bundle.compression, true);
+                        return string.Compare(bundle.Compression, otherItem.bundle.Compression, true);
 
                     case ColumnIDs.dependencies:
                         {
-                            var a = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
-                            var b = otherItem.bundle.bundleDependencies.Count + otherItem.bundle.expandedBundleDependencies.Count;
+                            var a = bundle.Dependencies.Count + bundle.ExpandedDependencies.Count;
+                            var b = otherItem.bundle.Dependencies.Count + otherItem.bundle.ExpandedDependencies.Count;
                             return a.CompareTo(b);
                         }
 
                     case ColumnIDs.referencedByBundles:
-                        return bundle.referencedByBundles.Count.CompareTo(otherItem.bundle.referencedByBundles.Count);
+                        return bundle.DependentBundles.Count.CompareTo(otherItem.bundle.DependentBundles.Count);
+                }
+
+                return 0;
+            }
+
+            public override void OnGUI(Rect position, int column, bool selected)
+            {
+                var text = ToString(column);
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                    case ColumnIDs.size:
+                    case ColumnIDs.uncompressedSize:
+                    case ColumnIDs.dependencies:
+                    case ColumnIDs.referencedByBundles:
+                        LabelField(position, text);
+                        break;
+
+                    case ColumnIDs.compression:
+                        LabelField(position, CachedGUIContent(text, kCompressionTooltip));
+                        break;
+                }
+            }
+
+            public override string ToString(int column)
+            {
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return displayName;
+
+                    case ColumnIDs.size:
+                        return EditorUtility.FormatBytes((long)bundle.FileSize);
+
+                    case ColumnIDs.uncompressedSize:
+                        return EditorUtility.FormatBytes((long)bundle.UncompressedFileSize);
+
+                    case ColumnIDs.compression:
+                        return bundle.Compression;
+
+                    case ColumnIDs.dependencies:
+                        var dependencyCount = bundle.Dependencies.Count + bundle.ExpandedDependencies.Count;
+                        return $"{dependencyCount}";
+
+                    case ColumnIDs.referencedByBundles:
+                        return $"{bundle.DependentBundles.Count}";
+                }
+
+                return base.ToString(column);
+            }
+        }
+
+#if false
+        [System.Serializable]
+        class FileItem : BaseItem
+        {
+            public BuildLayout.File file;
+
+            public FileItem()
+            {
+                supportsSearch = false;
+                supportsSortingOrder = false;
+            }
+
+            public override object GetObject()
+            {
+                return file;
+            }
+
+            public override int CompareTo(TreeViewItem other, int column)
+            {
+                var otherItem = other as AssetItem;
+                if (otherItem == null)
+                    return 1;
+
+                switch (column)
+                {
+                    case ColumnIDs.name:
+                        return string.Compare(displayName, otherItem.displayName);
                 }
 
                 return 0;
@@ -173,22 +255,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     case ColumnIDs.name:
                         LabelField(position, text);
                         break;
-
-                    case ColumnIDs.size:
-                        LabelField(position, text);
-                        break;
-
-                    case ColumnIDs.compression:
-                        LabelField(position, CachedGUIContent(text, kCompressionTooltip));
-                        break;
-
-                    case ColumnIDs.dependencies:
-                        LabelField(position, text);
-                        break;
-
-                    case ColumnIDs.referencedByBundles:
-                        LabelField(position, text);
-                        break;
                 }
             }
 
@@ -198,29 +264,25 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         return displayName;
-
-                    case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(bundle.size);
-
-                    case ColumnIDs.compression:
-                        return bundle.compression;
-
-                    case ColumnIDs.dependencies:
-                        var dependencyCount = bundle.bundleDependencies.Count + bundle.expandedBundleDependencies.Count;
-                        return $"{dependencyCount}";
-
-                    case ColumnIDs.referencedByBundles:
-                        return $"{bundle.referencedByBundles.Count}";
                 }
 
                 return base.ToString(column);
             }
         }
+#endif
 
         [System.Serializable]
         class AssetItem : BaseItem
         {
-            public RichBuildLayout.Asset asset;
+            public BuildLayout.ExplicitAsset asset;
+            public BuildLayout.DataFromOtherAsset other;
+            public bool ghosted;
+
+            string address => asset?.AddressableName ?? "";
+            string assetPath => asset?.AssetPath ?? other.AssetPath;
+            ulong serializedSize => asset?.SerializedSize ?? other.SerializedSize;
+            ulong streamedSize => asset?.StreamedSize ?? other.StreamedSize;
+            ulong uncompressedSize => streamedSize > 0 ? streamedSize : serializedSize;
 
             public AssetItem()
             {
@@ -229,7 +291,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override object GetObject()
             {
-                return asset;
+                return asset != null ? asset : other;
             }
 
             public override int CompareTo(TreeViewItem other, int column)
@@ -241,10 +303,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(asset.name, otherItem.asset.name, true);
+                        return string.Compare(displayName, otherItem.displayName, true);
 
-                    case ColumnIDs.size:
-                        return asset.size.CompareTo(otherItem.asset.size);
+                    case ColumnIDs.uncompressedSize:
+                        return uncompressedSize.CompareTo(otherItem.uncompressedSize);
                 }
 
                 return 0;
@@ -257,16 +319,16 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to asset"), Styles.iconButtonStyle))
-                            NavigateTo(asset);
+                            NavigateTo(asset != null ? asset : other);
 
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.selectAssetIcon, "Select asset in project (double click)"), Styles.iconButtonStyle))
-                            TrySelectAsset(asset.name);
+                            TrySelectAsset(assetPath);
 
-                        LabelField(position, text);
+                        LabelField(position, text, ghosted);
                         break;
 
-                    case ColumnIDs.size:
-                        LabelField(position, CachedGUIContent(text, kAssetSizeTooltip), true);
+                    case ColumnIDs.uncompressedSize:
+                        LabelField(position, CachedGUIContent(text, kAssetSizeTooltip), ghosted);
                         break;
                 }
             }
@@ -275,7 +337,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             {
                 base.OnDoubleClick();
 
-                TrySelectAsset(asset.name);
+                TrySelectAsset(assetPath);
             }
 
             public override string ToString(int column)
@@ -285,8 +347,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     case ColumnIDs.name:
                         return displayName;
 
-                    case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(asset.size);
+                    case ColumnIDs.uncompressedSize:
+                        return EditorUtility.FormatBytes((long)uncompressedSize);
                 }
 
                 return base.ToString(column);

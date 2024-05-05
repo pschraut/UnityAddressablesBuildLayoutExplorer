@@ -1,9 +1,10 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -160,7 +161,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             SetSelection(new List<int>());
         }
 
-        public void SetBuildLayout(RichBuildLayout buildLayout)
+        public void SetBuildLayout(BuildLayout buildLayout)
         {
             var expandedIDs = new List<int>(state.expandedIDs);
             var selectedIDs = new List<int>(state.selectedIDs);
@@ -189,7 +190,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             SetSelection(selection, TreeViewSelectionOptions.RevealAndFrame);
         }
 
-        protected abstract void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout);
+        protected abstract void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout);
 
         protected override void DoubleClickedItem(int id)
         {
@@ -484,7 +485,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return "";
             }
 
-            protected void TrySelectAsset(string assetPath)
+            protected void TrySelectAsset(string assetPath) // TODO: use guid
             {
                 var obj = AssetDatabase.LoadMainAssetAtPath(assetPath);
                 if (obj != null)

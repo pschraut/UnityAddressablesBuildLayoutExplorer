@@ -1,8 +1,9 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-        public TreeViewItem FindItem(RichBuildLayout.Group group)
+        public TreeViewItem FindItem(BuildLayout.Group group)
         {
             TreeViewItem result = null;
 
@@ -50,22 +51,21 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
         {
-            foreach (var group in buildLayout.groups)
+            foreach (var group in buildLayout.Groups)
             {
-                var groupItem = new GroupItem
+                var groupItem = new GroupItem(group)
                 {
                     treeView = this,
-                    group = group,
                     id = m_UniqueId++,
                     depth = 0,
-                    displayName = group.name,
+                    displayName = group.Name,
                     icon = Styles.GetBuildLayoutObjectIcon(group)
                 };
                 rootItem.AddChild(groupItem);
 
-                foreach (var bundle in group.bundles)
+                foreach (var bundle in group.Bundles)
                 {
                     var bundleItem = new BundleItem()
                     {
@@ -73,7 +73,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         bundle = bundle,
                         id = m_UniqueId++,
                         depth = groupItem.depth + 1,
-                        displayName = Utility.TransformBundleName(bundle.name),
+                        displayName = Utility.TransformBundleName(bundle.Name),
                         icon = Styles.GetBuildLayoutObjectIcon(bundle)
                     };
                     groupItem.AddChild(bundleItem);
@@ -85,10 +85,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class GroupItem : BaseItem
         {
-            public RichBuildLayout.Group group;
+            public BuildLayout.Group group;
+            public long size;
 
-            public GroupItem()
+            public GroupItem(BuildLayout.Group g)
             {
+                group = g;
+                foreach (var b in group.Bundles)
+                    size += (long)b.FileSize;
+
                 supportsSearch = true;
             }
 
@@ -106,13 +111,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(group.name, otherItem.group.name, true);
+                        return string.Compare(group.Name, otherItem.group.Name, true);
 
                     case ColumnIDs.size:
-                        return group.size.CompareTo(otherItem.group.size);
+                        return size.CompareTo(otherItem.size);
 
                     case ColumnIDs.bundles:
-                        return group.bundles.Count.CompareTo(otherItem.group.bundles.Count);
+                        return group.Bundles.Count.CompareTo(otherItem.group.Bundles.Count);
                 }
 
                 return 0;
@@ -142,13 +147,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return group.name;
+                        return group.Name;
 
                     case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(group.size);
+                        return EditorUtility.FormatBytes(size);
 
                     case ColumnIDs.bundles:
-                        return $"{group.bundles.Count}";
+                        return $"{group.Bundles.Count}";
                 }
 
                 return base.ToString(column);
@@ -158,7 +163,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class BundleItem : BaseItem
         {
-            public RichBuildLayout.Archive bundle;
+            public BuildLayout.Bundle bundle;
 
             public BundleItem()
             {
@@ -179,10 +184,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(bundle.name, otherItem.bundle.name, true);
+                        return string.Compare(bundle.Name, otherItem.bundle.Name, true);
 
                     case ColumnIDs.size:
-                        return bundle.size.CompareTo(otherItem.bundle.size);
+                        return bundle.FileSize.CompareTo(otherItem.bundle.FileSize);
 
                     case ColumnIDs.bundles:
                         return 0;
@@ -220,7 +225,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return displayName;
 
                     case ColumnIDs.size:
-                        return EditorUtility.FormatBytes(bundle.size);
+                        return EditorUtility.FormatBytes((long)bundle.FileSize);
 
                     case ColumnIDs.bundles:
                         return $"1";

@@ -4,6 +4,9 @@
 //
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.AddressableAssets.Build.Layout;
+using System.Collections.Generic;
+using System;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
@@ -226,25 +229,67 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public static Texture2D GetBuildLayoutObjectIcon(object o)
         {
-            if (o is RichBuildLayout.Archive)
+            if (o is BuildLayout.Bundle)
             {
-                var b = o as RichBuildLayout.Archive;
-                if (b.isBuiltin)
-                    return builtinBundleIcon;
                 return bundleIcon;
             }
 
-            if (o is RichBuildLayout.Group)
+            if (o is BuildLayout.Group)
             {
                 return groupIcon;
             }
 
-            if (o is RichBuildLayout.Asset)
+            if (o is BuildLayout.ExplicitAsset asset)
             {
-                return assetIcon;
+                return GetBuildLayoutObjectIconFromPath(asset.AssetPath);
+            }
+
+            if (o is BuildLayout.DataFromOtherAsset otherAsset)
+            {
+                return GetBuildLayoutObjectIconFromPath(otherAsset.AssetPath);
             }
 
             return null;
         }
+
+        public static Texture2D GetBuildLayoutObjectIconFromPath(string assetPath)
+        {
+            var extension = System.IO.Path.GetExtension(assetPath);
+
+            if (s_FileExtensionTypeLookup.TryGetValue(extension, out var type))
+                return AssetPreview.GetMiniTypeThumbnail(type);
+
+            return assetIcon;
+        }
+
+        static readonly Dictionary<string, Type> s_FileExtensionTypeLookup = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        {
+            { ".unity", typeof(SceneAsset) },
+            { ".fbx", typeof(ModelImporter) },
+            { ".blender", typeof(ModelImporter) },
+            { ".ma", typeof(ModelImporter) },
+            { ".mb", typeof(ModelImporter) },
+            { ".png", typeof(TextureImporter) },
+            { ".tga", typeof(TextureImporter) },
+            { ".nmp", typeof(TextureImporter) },
+            { ".jpg", typeof(TextureImporter) },
+            { ".jpeg", typeof(TextureImporter) },
+            { ".gif", typeof(TextureImporter) },
+            { ".wav", typeof(AudioImporter) },
+            { ".mp3", typeof(AudioImporter) },
+            { ".ogg", typeof(AudioImporter) },
+            { ".otf", typeof(TrueTypeFontImporter) },
+            { ".ttf", typeof(TrueTypeFontImporter) },
+            { ".anim", typeof(AnimationClip) },
+            { ".asset", typeof(ScriptableObject) },
+            { ".shader", typeof(ShaderImporter) },
+            { ".shadergraph", typeof(ShaderImporter) },
+            { ".mp4", typeof(VideoClipImporter) },
+            { ".mov", typeof(VideoClipImporter) },
+            { ".renderTexture", typeof(RenderTexture) },
+            { ".lighting", typeof(LightingSettings) },
+            { ".mat", typeof(Material) },
+            { ".controller", typeof(UnityEditor.Animations.AnimatorController) }
+        };
     }
 }

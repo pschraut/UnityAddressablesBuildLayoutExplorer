@@ -1,11 +1,15 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor.AddressableAssets.Build.Layout;
+using NUnit.Framework;
+using System.Collections;
+using UnityEditor.VersionControl;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
@@ -33,7 +37,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-        public TreeViewItem FindItem(RichBuildLayout.Asset asset)
+        public TreeViewItem FindItem(BuildLayout.ExplicitAsset asset)
         {
             TreeViewItem result = null;
 
@@ -43,7 +47,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 if (b == null)
                     return false;
 
-                if (b.asset != asset)
+                if (b.bundle != asset.Bundle)
                     return false;
 
                 result = b;
@@ -53,21 +57,75 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem rootItem, BuildLayout buildLayout)
         {
-            var lut = new Dictionary<string, List<RichBuildLayout.Asset>>();
-            foreach (var asset in buildLayout.assets.Values)
+            //foreach (var asset in buildLayout.DuplicatedAssets)
+            //{
+            //    var assetPath = asset.AssetGuid;
+                
+            //    var categoryItem = new CategoryItem()
+            //    {
+            //        treeView = this,
+            //        bundles = asset.DuplicatedObjects,
+            //        path = assetPath,
+            //        id = m_UniqueId++,
+            //        depth = rootItem.depth + 1,
+            //        displayName = assetPath,
+            //        icon = Styles.assetIcon
+            //    };
+            //    rootItem.AddChild(categoryItem);
+
+            //    foreach (var duplicate in asset.DuplicatedObjects)
+            //    {
+            //        foreach (var file in duplicate.IncludedInBundleFiles)
+            //        {
+            //            categoryItem.size += (long)file.Bundle.FileSize;
+
+            //            var bundleItem = new BundleItem
+            //            {
+            //                treeView = this,
+            //                bundle = file.Bundle,
+            //                id = m_UniqueId++,
+            //                depth = categoryItem.depth + 1,
+            //                displayName = Utility.TransformBundleName(file.Bundle.Name),
+            //                icon = Styles.GetBuildLayoutObjectIcon(file.Bundle)
+            //            };
+            //            categoryItem.AddChild(bundleItem);
+            //        }
+            //    }
+            //}
+
+            var sizeLookup = new Dictionary<string, long>();
+            var bundleLookup = new Dictionary<string, HashSet<BuildLayout.Bundle>>();
+
+            foreach (var group in buildLayout.Groups) foreach (var bundle in group.Bundles) foreach (var file in bundle.Files)
             {
-                if (!lut.TryGetValue(asset.name, out var list))
+                foreach(var asset in file.OtherAssets)
                 {
-                    list = new List<RichBuildLayout.Asset>();
-                    lut.Add(asset.name, list);
+                    if (!bundleLookup.TryGetValue(asset.AssetGuid, out var list))
+                    {
+                        sizeLookup[asset.AssetGuid] = 0;
+                        bundleLookup[asset.AssetGuid] = list = new HashSet<BuildLayout.Bundle>();
+                    }
+
+                    list.Add(bundle);
+                    sizeLookup[asset.AssetGuid] += (long)asset.StreamedSize;
                 }
 
-                list.Add(asset);
+                foreach (var asset in file.Assets)
+                {
+                    if (!bundleLookup.TryGetValue(asset.Guid, out var list))
+                    {
+                        sizeLookup[asset.Guid] = 0;
+                        bundleLookup[asset.Guid] = list = new HashSet<BuildLayout.Bundle>();
+                    }
+
+                    list.Add(bundle);
+                    sizeLookup[asset.Guid] += (long)asset.StreamedSize;
+                }
             }
 
-            foreach (var pair in lut)
+            foreach (var pair in bundleLookup)
             {
                 var list = pair.Value;
                 if (list.Count < 2)
@@ -76,29 +134,28 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 var categoryItem = new CategoryItem()
                 {
                     treeView = this,
-                    assets = list,
+                    count = list.Count,
                     path = pair.Key,
                     id = m_UniqueId++,
                     depth = rootItem.depth + 1,
                     displayName = pair.Key,
-                    icon = Styles.assetIcon
+                    icon = Styles.assetIcon,
+                    size = sizeLookup[pair.Key]
                 };
                 rootItem.AddChild(categoryItem);
 
-                foreach (var asset in list)
+                foreach (var bundle in list)
                 {
-                    categoryItem.size += asset.size;
-
-                    var assetItem = new BundleItem
+                    var bundleItem = new BundleItem
                     {
                         treeView = this,
-                        asset = asset,
+                        bundle = bundle,
                         id = m_UniqueId++,
                         depth = categoryItem.depth + 1,
-                        displayName = Utility.TransformBundleName(asset.includedInBundle.name),
-                        icon = Styles.GetBuildLayoutObjectIcon(asset.includedInBundle)
+                        displayName = Utility.TransformBundleName(bundle.Name),
+                        icon = Styles.GetBuildLayoutObjectIcon(bundle)
                     };
-                    categoryItem.AddChild(assetItem);
+                    categoryItem.AddChild(bundleItem);
                 }
             }
         }
@@ -107,7 +164,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class BundleItem : BaseItem
         {
-            public RichBuildLayout.Asset asset;
+            public BuildLayout.Bundle bundle;
 
             public BundleItem()
             {
@@ -116,7 +173,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public override object GetObject()
             {
-                return asset;
+                return bundle;
             }
 
             public override int CompareTo(TreeViewItem other, int column)
@@ -128,7 +185,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 switch (column)
                 {
                     case ColumnIDs.name:
-                        return string.Compare(asset.includedInBundle.name, otherItem.asset.includedInBundle.name, true);
+                        return string.Compare(bundle.Name, otherItem.bundle.Name, true);
                 }
 
                 return 0;
@@ -140,7 +197,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 {
                     case ColumnIDs.name:
                         if (GUI.Button(ButtonSpaceR(ref position), CachedGUIContent(Styles.navigateIcon, "Navigate to bundle"), Styles.iconButtonStyle))
-                            NavigateTo(asset.includedInBundle);
+                            NavigateTo(bundle);
 
                         LabelField(position, displayName);
                         break;
@@ -162,7 +219,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         [System.Serializable]
         class CategoryItem : BaseItem
         {
-            public List<RichBuildLayout.Asset> assets;
+            public long count;
             public long size;
             public string path;
 
@@ -191,7 +248,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return size.CompareTo(otherItem.size);
 
                     case ColumnIDs.count:
-                        return assets.Count.CompareTo(otherItem.assets.Count);
+                        return count.CompareTo(otherItem.count);
                 }
 
                 return 0;
@@ -234,7 +291,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                         return displayName;
 
                     case ColumnIDs.count:
-                        return $"{assets.Count}";
+                        return $"{count}";
 
                     case ColumnIDs.size:
                         return EditorUtility.FormatBytes(size);

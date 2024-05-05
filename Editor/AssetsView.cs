@@ -1,9 +1,10 @@
 ﻿//
-// Addressables Build Layout Explorer for Unity. Copyright (c) 2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// Addressables Build Layout Explorer for Unity. Copyright (c) 2024 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer
 //
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -45,7 +46,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             Settings.SetFloat(m_SplitterReferencesKey, m_SplitterReferences);
         }
 
-        public override void Rebuild(RichBuildLayout buildLayout)
+        public override void Rebuild(BuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
 
@@ -92,7 +93,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override bool CanNavigateTo(object target)
         {
-            if (target is RichBuildLayout.Asset)
+            if (target is BuildLayout.ExplicitAsset or BuildLayout.DataFromOtherAsset)
                 return true;
 
             return base.CanNavigateTo(target);
@@ -100,15 +101,15 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         public override void NavigateTo(object target)
         {
-            var bundle = target as RichBuildLayout.Asset;
-            if (bundle == null)
-                return;
+            //if (target is not BuildLayout.ExplicitAsset or BuildLayout.DataFromOtherAsset)
+            //    return;
 
-            var item = m_TreeView.FindItem(bundle);
+            var item = m_TreeView.FindItem(target);
             if (item == null)
                 return;
 
             m_TreeView.SetSelection(new[] { item.id }, TreeViewSelectionOptions.RevealAndFrame | TreeViewSelectionOptions.FireSelectionChanged);
+            m_TreeView.FrameItem(item.id); // TreeViewSelectionOptions.RevealAndFrame often doesn't reveal the item, using FrameItem does
             m_TreeView.SetFocus();
         }
 
@@ -139,15 +140,27 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void SelectionChanged(BuildLayoutTreeView.BaseItem item)
         {
-            var asset = item.GetObject() as RichBuildLayout.Asset;
             var includedBy = new List<object>();
             var includedIn = new List<object>();
 
-            if (asset.includedByAsset != null)
-                includedBy.Add(asset.includedByAsset);
+            // TODO
+            //if (asset.includedByAsset != null)
+            //    includedBy.Add(asset.includedByAsset);
 
-            if (asset.includedInBundle != null)
-                includedIn.Add(asset.includedInBundle);
+            if (item.GetObject() is BuildLayout.DataFromOtherAsset other)
+            {
+                foreach (var a in other.ReferencingAssets)
+                    includedBy.Add(a);
+
+                if (other.File.Bundle != null)
+                    includedIn.Add(other.File.Bundle);
+            }
+
+            if (item.GetObject() is BuildLayout.ExplicitAsset asset)
+            {
+                if (asset.Bundle != null)
+                    includedIn.Add(asset.Bundle);
+            }
 
             m_IncludedByView.ShowReferences(includedBy);
             m_IncludedInView.ShowReferences(includedIn);

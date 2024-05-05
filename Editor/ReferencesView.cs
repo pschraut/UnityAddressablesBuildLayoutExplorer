@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEditor.AddressableAssets.Build.Layout;
 
 namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
@@ -35,7 +36,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_TreeView.ExpandCategories();
         }
 
-        public override void Rebuild(RichBuildLayout buildLayout)
+        public override void Rebuild(BuildLayout buildLayout)
         {
             base.Rebuild(buildLayout);
 
