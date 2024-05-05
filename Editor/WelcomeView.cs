@@ -72,11 +72,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 #if ADDRESSABLES_PRESENT
             if (!UnityEditor.AddressableAssets.Settings.ProjectConfigData.GenerateBuildLayout)
             {
-                EditorGUILayout.HelpBox($"Build Layout is disabled in Addressables Preferences.\nTo enable this option, go to the main menu and select 'Edit > Preferences', then choose the 'Addressables' tab and check the 'Debug Build Layout' setting.\nAddressables will generate a build report file the next time you build Addressables content or a Player. These reports can be found in the folder 'Library/com.unity.addressables/BuildReports/'.", MessageType.Warning);
+                EditorGUILayout.HelpBox($"\n\nBuild Layout generation is disabled in Addressables Preferences.\n\nTo enable this option, go to the main menu and select 'Edit > Preferences', then choose the 'Addressables' tab and check the 'Debug Build Layout' setting.\n\nOnce enabled, Addressables will generate a build report file the next time you build Addressables content or a Player. The build layout reports can be found in the folder 'Library/com.unity.addressables/BuildReports/'.\n\n", MessageType.Warning);
                 GUILayout.Space(8);
             }
 #else
-            EditorGUILayout.HelpBox($"Addressables package is not installed.\nYou can install the Addressables package from the main menu under 'Window > Package Manager'.", MessageType.Warning);
+            EditorGUILayout.HelpBox($"\n\nAddressables package is not installed.\n\nYou can install the Addressables package from the main menu under 'Window > Package Manager'.\n\n", MessageType.Warning);
             GUILayout.Space(8);
 #endif
         }
