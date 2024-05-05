@@ -11,6 +11,23 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 {
     internal static class Utility
     {
+        public static string buildReportsDirectory
+            => "C:/Projects/UnityShmup2022/Unity/Library/com.unity.addressables/BuildReports";
+           // => "Library/com.unity.addressables/BuildReports";
+
+        public static List<string> GetBuildReports()
+        {
+            var list = new List<string>(128);
+
+            list.AddRange(System.IO.Directory.GetFiles(buildReportsDirectory, "buildlayout_*.json", System.IO.SearchOption.TopDirectoryOnly));
+            
+            // The filename contains the creation-time, so we can simply sort the paths and
+            // have the entries sorted by age
+            list.Sort((a, b) => string.Compare(b, a, System.StringComparison.OrdinalIgnoreCase));
+
+            return list;
+        }
+
         public static List<object> GetReferencedBy(BuildLayout layout, object obj)
         {
             var hashset = new HashSet<object>();

@@ -72,7 +72,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 #if ADDRESSABLES_PRESENT
             if (!UnityEditor.AddressableAssets.Settings.ProjectConfigData.GenerateBuildLayout)
             {
-                EditorGUILayout.HelpBox($"Build Layout is disabled in Addressables Preferences.\nEnable the option from the main menu under 'Edit > Preferences', then select the 'Addressables' tab and tick the 'Debug Build Layout' setting.\nAddressables will then generate the file 'Library/com.unity.addressables/buildlayout.txt' the next time you build Addressables content.", MessageType.Warning);
+                EditorGUILayout.HelpBox($"Build Layout is disabled in Addressables Preferences.\nTo enable this option, go to the main menu and select 'Edit > Preferences', then choose the 'Addressables' tab and check the 'Debug Build Layout' setting.\nAddressables will generate a build report file the next time you build Addressables content or a Player. These reports can be found in the folder 'Library/com.unity.addressables/BuildReports/'.", MessageType.Warning);
                 GUILayout.Space(8);
             }
 #else
@@ -88,7 +88,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                GUILayout.Label("Recent", m_Heading2Style);
+                GUILayout.Label("Recently opened files", m_Heading2Style);
 
                 for (int n = 0, nend = window.recentPaths.Length; n < nend; ++n)
                 {

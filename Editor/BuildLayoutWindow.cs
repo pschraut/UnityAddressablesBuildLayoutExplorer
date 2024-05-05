@@ -213,15 +213,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Open File..."), false, OpenFileDialog);
-
-            var buildLayoutTXT = "Library/com.unity.addressables/buildlayout.txt";
-            if (System.IO.File.Exists(buildLayoutTXT))
-            {
-                menu.AddItem(new GUIContent("Open buildlayout.txt"), false, delegate () { LoadBuildLayout(buildLayoutTXT); });
-                //menu.AddSeparator("");
-                //menu.AddItem(new GUIContent("Open buildlayout.txt Folder"), false, delegate () { EditorUtility.RevealInFinder(buildLayoutTXT); });
-                //menu.AddItem(new GUIContent("Open buildlayout.txt with default App"), false, delegate () { EditorUtility.OpenWithDefaultApp(buildLayoutTXT); });
-            }
+            menu.AddItem(new GUIContent("Open most recent buildlayout.json"), false, LoadMostRecentBuildLayout);
             menu.AddSeparator("");
 
             if (m_Layout != null && !string.IsNullOrEmpty(m_Layout.PackageVersion))
@@ -392,31 +384,14 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         void OpenFileDialog()
         {
-            var directory = "Library";
+            var directory = Utility.buildReportsDirectory;
             if (m_RecentPaths.Length > 0)
                 directory = System.IO.Path.GetDirectoryName(m_RecentPaths[0]);
 
-            var path = EditorUtility.OpenFilePanelWithFilters("Open BuildLayout...", directory, new[]
-            {
-#if ADDRESSABLES_JSON_SUPPORT
-                "Supported Files (*.json, *.txt)", "json,txt",
-                "Json Files (*.json)", "json",
-#endif
-                "Text Files (*.txt)", "txt",
-            });
+            var path = EditorUtility.OpenFilePanelWithFilters("Open BuildLayout...", directory, new[] { "JSON Files (*.json)", "json", });
             if (string.IsNullOrEmpty(path))
                 return;
             LoadBuildLayout(path);
-        }
-
-        void SaveJsonDialog()
-        {
-            var path = EditorUtility.SaveFilePanel("Save BuildLayout as JSON", "", "BuildLayout.json", "json");
-            if (string.IsNullOrEmpty(path))
-                return;
-
-            var json = JsonUtility.ToJson(m_Layout, true);
-            System.IO.File.WriteAllText(path, json);
         }
 
         void CloseBuildLayout()
@@ -462,6 +437,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     break;
 
                 if (!System.IO.File.Exists(value))
+                    continue;
+
+                if (!string.Equals(System.IO.Path.GetExtension(value), ".json", System.StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 list.Add(value);
@@ -541,6 +519,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             m_RecentPaths = list.ToArray();
             SaveRecentPaths();
+        }
+
+        public void LoadMostRecentBuildLayout()
+        {
+            var paths = Utility.GetBuildReports();
+            if (paths.Count == 0)
+            {
+                ShowNotification(new GUIContent($"No buildlayout files found in\n{Utility.buildReportsDirectory}"));
+                return;
+            }
+
+            LoadBuildLayout(paths[0]);
         }
 
         public void LoadBuildLayout(string path)
