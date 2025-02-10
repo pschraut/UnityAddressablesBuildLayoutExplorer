@@ -578,8 +578,33 @@ namespace Oddworm.EditorFramework
                 bundlesLine = bundlesLine.Trim();
 
                 var bundles = new List<string>();
-                foreach (var b in bundlesLine.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
-                    bundles.Add(b.Trim());
+                if (bundlesLine.StartsWith("Assets/") || bundlesLine.StartsWith("Resources/") || bundlesLine.StartsWith("Packages/"))
+                {
+                    foreach (var b in bundlesLine.Split(new[] { ", Ass", ", Res", ", Pac" }, System.StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (b.StartsWith("ets/"))
+                        {
+                            bundles.Add("Ass" + b.Trim());
+                        }
+                        else if (b.StartsWith("ources/"))
+                        {
+                            bundles.Add("Res" + b.Trim());
+                        }
+                        else if (b.StartsWith("kages/"))
+                        {
+                            bundles.Add("Pac" + b.Trim());
+                        }
+                        else
+                        {
+                            bundles.Add(b.Trim());
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var b in bundlesLine.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
+                        bundles.Add(b.Trim());
+                }
 
                 bundles.Sort();
                 return bundles;
