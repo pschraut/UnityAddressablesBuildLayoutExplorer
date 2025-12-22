@@ -72,7 +72,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 #if ADDRESSABLES_PRESENT
             if (!UnityEditor.AddressableAssets.Settings.ProjectConfigData.GenerateBuildLayout)
             {
-                EditorGUILayout.HelpBox($"Build Layout is disabled in Addressables Preferences.\nEnable the option from the main menu under 'Edit > Preferences', then select the 'Addressables' tab and tick the 'Debug Build Layout' setting.\nAddressables will then generate the file 'Library/com.unity.addressables/buildlayout.txt' the next time you build Addressables content.", MessageType.Warning);
+                EditorGUILayout.HelpBox($"Build Layout is disabled in Addressables Preferences.\n\nEnable the option from the main menu under 'Edit > Preferences', then select the 'Addressables' tab, tick 'Debug Build Layout' and change 'File Format' to 'TXT and JSON'.\n\nAddressables will then generate the file 'Library/com.unity.addressables/buildlayout.txt' the next time you build Addressables content.", MessageType.Warning);
                 GUILayout.Space(8);
             }
 #else
