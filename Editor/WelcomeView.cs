@@ -130,13 +130,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     Application.OpenURL(docuURL);
                 GUILayout.Space(8);
 
-                var changelogURL = "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer/CHANGLOG.MD";
+                var changelogURL = "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer/CHANGELOG.MD";
                 GUILayout.Label("Changelog", m_Heading2Style);
                 if (LinkButton(changelogURL))
                     Application.OpenURL(changelogURL);
                 GUILayout.Space(8);
 
-                var feedbackURL = "https://forum.unity.com/threads/addressables-buildlayout-explorer-for-unity.1162418/";
+                var feedbackURL = "https://discussions.unity.com/t/addressables-buildlayout-explorer-for-unity/853505";
                 GUILayout.Label("Feedback", m_Heading2Style);
                 if (LinkButton(feedbackURL))
                     Application.OpenURL(feedbackURL);
