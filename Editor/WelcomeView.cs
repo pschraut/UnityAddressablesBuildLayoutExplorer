@@ -130,7 +130,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                     Application.OpenURL(docuURL);
                 GUILayout.Space(8);
 
-                var changelogURL = "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer/CHANGELOG.MD";
+                var changelogURL = "https://github.com/pschraut/UnityAddressablesBuildLayoutExplorer/blob/master/CHANGELOG.md";
                 GUILayout.Label("Changelog", m_Heading2Style);
                 if (LinkButton(changelogURL))
                     Application.OpenURL(changelogURL);
