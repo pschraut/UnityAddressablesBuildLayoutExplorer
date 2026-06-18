@@ -4,6 +4,17 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-pre.6] - 2029-06-18
+### Fixed
+ - Fixed Unity 6.5 compile error ```error CS0619: 'TreeView' is obsolete```
+ - Fixed various seralization related warnings, eg ```warning UAC1001: Field 'x' type 'y' is skipped by serialization```
+ - Fixed URL to changelog
+ - Fixed URL to feedback thread in Unity forums
+
+### Changed
+ - Changed Log from an error to a warning, when a reference in the buildlayout file could not be resolved
+ - Improved help text that describes how to enable buildlayout file generation in Unity, in case it's turned off
+
 ## [1.0.0-pre.5] - 2024-01-30
 ### Fixed
  - Fixed NullReferenceException when the AddressableAssetSettings asset contains a reference to a missing asset group.
