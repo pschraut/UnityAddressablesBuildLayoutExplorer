@@ -191,7 +191,7 @@ namespace Oddworm.EditorFramework
 
                         if (internalBaseAsset == null)
                         {
-                            Debug.LogError($"Could not find '{internalRef}'");
+                            Debug.LogWarning($"Could not find '{internalRef}'");
                             continue;
                         }
 
