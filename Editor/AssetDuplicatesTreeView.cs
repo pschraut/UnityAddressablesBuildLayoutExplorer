@@ -21,7 +21,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         const string kAssetSizeTooltip = "Combined uncompressed asset size";
 
         public AssetDuplicatesTreeView(BuildLayoutWindow window)
-                   : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
+                   : base(window, new TreeViewState<int>(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Count"), width = 80, autoResize = true },
@@ -33,11 +33,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             multiColumnHeader.sortedColumnIndex = ColumnIDs.size;
         }
 
-        public TreeViewItem FindItem(RichBuildLayout.Asset asset)
+        public TreeViewItem<int> FindItem(RichBuildLayout.Asset asset)
         {
-            TreeViewItem result = null;
+            TreeViewItem<int> result = null;
 
-            IterateItems(delegate (TreeViewItem i)
+            IterateItems(delegate (TreeViewItem<int> i)
             {
                 var b = i as BundleItem;
                 if (b == null)
@@ -53,7 +53,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem<int> rootItem, RichBuildLayout buildLayout)
         {
             var lut = new Dictionary<string, List<RichBuildLayout.Asset>>();
             foreach (var asset in buildLayout.assets.Values)
@@ -119,7 +119,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return asset;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as BundleItem;
                 if (otherItem == null)
@@ -176,7 +176,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return null;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as CategoryItem;
                 if (otherItem == null)

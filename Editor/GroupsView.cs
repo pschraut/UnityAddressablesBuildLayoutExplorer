@@ -32,7 +32,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             m_TreeView.selectedItemChanged -= OnSelectedItemChanged;
         }
 
-        void OnSelectedItemChanged(TreeViewItem selectedItem)
+        void OnSelectedItemChanged(TreeViewItem<int> selectedItem)
         {
             if (selectedItem == null)
                 return;

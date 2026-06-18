@@ -16,7 +16,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         public Vector2 scrollPosition;
     }
 
-    public abstract class BuildLayoutTreeView : UnityEditor.IMGUI.Controls.TreeView
+    public abstract class BuildLayoutTreeView : UnityEditor.IMGUI.Controls.TreeView<int>
     {
         public System.Action<BaseItem> selectedItemChanged;
 
@@ -24,8 +24,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         protected int m_UniqueId;
 
         int m_FirstVisibleRow;
-        TreeViewItem m_CachedTree;
-        List<TreeViewItem> m_CachedRows;
+        TreeViewItem<int> m_CachedTree;
+        List<TreeViewItem<int>> m_CachedRows;
 
         class CopyCellTextArgs
         {
@@ -46,7 +46,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             public Rect rect;
         }
 
-        public BuildLayoutTreeView(BuildLayoutWindow window, TreeViewState state, MultiColumnHeader multiColumnHeader)
+        public BuildLayoutTreeView(BuildLayoutWindow window, TreeViewState<int> state, MultiColumnHeader multiColumnHeader)
                    : base(state, multiColumnHeader)
         {
             m_Window = window;
@@ -81,18 +81,18 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             state.scrollPos = treeViewState.scrollPosition;
         }
 
-        protected override bool CanMultiSelect(TreeViewItem item)
+        protected override bool CanMultiSelect(TreeViewItem<int> item)
         {
             return false;
         }
 
-        protected override TreeViewItem BuildRoot()
+        protected override TreeViewItem<int> BuildRoot()
         {
             if (m_CachedTree != null)
                 return m_CachedTree;
 
-            var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
-            root.AddChild(new TreeViewItem { id = root.id + 1, depth = -1, displayName = "" });
+            var root = new TreeViewItem<int> { id = 0, depth = -1, displayName = "Root" };
+            root.AddChild(new TreeViewItem<int> { id = root.id + 1, depth = -1, displayName = "" });
             return root;
         }
 
@@ -100,7 +100,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         /// Iterates the tree and calls the specified <paramref name="callback"/> for each tree item.
         /// </summary>
         /// <param name="callback">The method that is called for each item. Return true to abort the iteration process, false to continue.</param>
-        public void IterateItems(System.Func<TreeViewItem, bool> callback)
+        public void IterateItems(System.Func<TreeViewItem<int>, bool> callback)
         {
             IterateItemsInternal(rootItem, callback);
         }
@@ -109,13 +109,13 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         /// Iterates the tree and calls the specified <paramref name="callback"/> for each item that is part of the specified <paramref name="parent"/>.
         /// </summary>
         /// <param name="callback">The method that is called for each item. Return true to abort the iteration process, false to continue.</param>
-        public void IterateItems(TreeViewItem parent, System.Func<TreeViewItem, bool> callback)
+        public void IterateItems(TreeViewItem<int> parent, System.Func<TreeViewItem<int>, bool> callback)
         {
             IterateItemsInternal(parent, callback);
         }
 
         // Return value indicates to abort the iteration process. false=continue, true=abort
-        bool IterateItemsInternal(TreeViewItem parent, System.Func<TreeViewItem, bool> callback)
+        bool IterateItemsInternal(TreeViewItem<int> parent, System.Func<TreeViewItem<int>, bool> callback)
         {
             if (parent == null)
                 return false;
@@ -149,8 +149,8 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         public void Clear()
         {
             m_UniqueId = 0;
-            var root = new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "Root" };
-            root.AddChild(new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "" });
+            var root = new TreeViewItem<int> { id = m_UniqueId++, depth = -1, displayName = "Root" };
+            root.AddChild(new TreeViewItem<int> { id = m_UniqueId++, depth = -1, displayName = "" });
 
             m_CachedTree = root;
             Reload();
@@ -167,11 +167,11 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             var scrollPos = state.scrollPos;
 
             m_UniqueId = 0;
-            var root = new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "Root" };
+            var root = new TreeViewItem<int> { id = m_UniqueId++, depth = -1, displayName = "Root" };
 
             OnBuildTree(root, buildLayout);
             if (!root.hasChildren)
-                root.AddChild(new TreeViewItem { id = m_UniqueId++, depth = -1, displayName = "" });
+                root.AddChild(new TreeViewItem<int> { id = m_UniqueId++, depth = -1, displayName = "" });
 
             m_CachedTree = root;
             Reload();
@@ -189,7 +189,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             SetSelection(selection, TreeViewSelectionOptions.RevealAndFrame);
         }
 
-        protected abstract void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout);
+        protected abstract void OnBuildTree(TreeViewItem<int> rootItem, RichBuildLayout buildLayout);
 
         protected override void DoubleClickedItem(int id)
         {
@@ -323,7 +323,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 FrameItem(selected[0]);
         }
 
-        protected int CompareItem(TreeViewItem x, TreeViewItem y)
+        protected int CompareItem(TreeViewItem<int> x, TreeViewItem<int> y)
         {
             var sortingColumn = multiColumnHeader.sortedColumnIndex;
             if (sortingColumn < 0)
@@ -352,7 +352,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return result;
         }
 
-        protected virtual void SortAndAddExpandedRows(TreeViewItem root, IList<TreeViewItem> rows)
+        protected virtual void SortAndAddExpandedRows(TreeViewItem<int> root, IList<TreeViewItem<int>> rows)
         {
             if (!root.hasChildren)
                 return;
@@ -362,7 +362,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 GetAndSortExpandedRowsRecursive(child, rows);
         }
 
-        void GetAndSortExpandedRowsRecursive(TreeViewItem item, IList<TreeViewItem> expandedRows)
+        void GetAndSortExpandedRowsRecursive(TreeViewItem<int> item, IList<TreeViewItem<int>> expandedRows)
         {
             if (item == null)
                 return;
@@ -377,10 +377,10 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
         {
             if (m_CachedRows == null)
-                m_CachedRows = new List<TreeViewItem>(128);
+                m_CachedRows = new List<TreeViewItem<int>>(128);
             m_CachedRows.Clear();
 
             if (hasSearch)
@@ -396,9 +396,9 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             return m_CachedRows;
         }
 
-        protected virtual void SearchTree(TreeViewItem root, string search, List<TreeViewItem> result)
+        protected virtual void SearchTree(TreeViewItem<int> root, string search, List<TreeViewItem<int>> result)
         {
-            var stack = new Stack<TreeViewItem>();
+            var stack = new Stack<TreeViewItem<int>>();
 
             stack.Push(root);
             while (stack.Count > 0)
@@ -449,7 +449,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
         [System.Serializable]
-        public abstract class BaseItem : TreeViewItem
+        public abstract class BaseItem : TreeViewItem<int>
         {
             public bool supportsSortingOrder = true;
             public bool supportsSearch = false;
@@ -467,7 +467,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
             public abstract object GetObject();
             public abstract void OnGUI(Rect position, int column, bool selected);
-            public abstract int CompareTo(TreeViewItem other, int column);
+            public abstract int CompareTo(TreeViewItem<int> other, int column);
 
             public virtual void OnDoubleClick()
             {

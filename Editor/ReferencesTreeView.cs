@@ -25,7 +25,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         CategoryItem m_GroupsCategory;
 
         public ReferencesTreeView(BuildLayoutWindow window)
-                   : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
+                   : base(window, new TreeViewState<int>(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Count"), width = 80, autoResize = true },
                             new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
@@ -49,7 +49,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 SetExpanded(m_GroupsCategory.id, true);
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem<int> rootItem, RichBuildLayout buildLayout)
         {
             m_BundlesCategory = null;
             m_AssetsCategory = null;
@@ -168,7 +168,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return null;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as CategoryItem;
                 if (otherItem == null)
@@ -223,7 +223,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return bundle;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as BundleItem;
                 if (otherItem == null)
@@ -288,7 +288,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return asset;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as AssetItem;
                 if (otherItem == null)
@@ -353,7 +353,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return group;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as GroupItem;
                 if (otherItem == null)

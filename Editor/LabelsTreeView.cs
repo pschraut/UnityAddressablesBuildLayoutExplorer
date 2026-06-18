@@ -20,7 +20,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         Dictionary<string, HashSet<string>> m_AssetNameToLabelsMap = new Dictionary<string, HashSet<string>>();
 
         public LabelsTreeView(BuildLayoutWindow window)
-            : base(window, new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
+            : base(window, new TreeViewState<int>(), new MultiColumnHeader(new MultiColumnHeaderState(new[] {
                 new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Name"), width = 250, autoResize = true },
                 new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Size"), width = 80, autoResize = true },
                 new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Bundles"), width = 80, autoResize = true },
@@ -56,7 +56,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        protected override void OnBuildTree(TreeViewItem rootItem, RichBuildLayout buildLayout)
+        protected override void OnBuildTree(TreeViewItem<int> rootItem, RichBuildLayout buildLayout)
         {
             var labelToBundlesMap = new Dictionary<string, HashSet<RichBuildLayout.Archive>>();
             var bundlesToLabelsMap = new Dictionary<RichBuildLayout.Archive, HashSet<string>>();
@@ -127,7 +127,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return label;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as LabelItem;
                 if (otherItem == null)
@@ -202,7 +202,7 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 return bundle;
             }
 
-            public override int CompareTo(TreeViewItem other, int column)
+            public override int CompareTo(TreeViewItem<int> other, int column)
             {
                 var otherItem = other as BundleItem;
                 if (otherItem == null)
