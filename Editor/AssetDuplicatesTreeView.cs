@@ -104,7 +104,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
 
-        [System.Serializable]
         class BundleItem : BaseItem
         {
             public RichBuildLayout.Asset asset;
@@ -159,7 +158,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        [System.Serializable]
         class CategoryItem : BaseItem
         {
             public List<RichBuildLayout.Asset> assets;

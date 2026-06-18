@@ -81,8 +81,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-
-        [System.Serializable]
         class GroupItem : BaseItem
         {
             public RichBuildLayout.Group group;
@@ -155,7 +153,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        [System.Serializable]
         class BundleItem : BaseItem
         {
             public RichBuildLayout.Archive bundle;

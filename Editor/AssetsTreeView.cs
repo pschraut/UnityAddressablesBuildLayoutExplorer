@@ -91,7 +91,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
         }
 
 
-        [System.Serializable]
         class AssetItem : BaseItem
         {
             public RichBuildLayout.Asset asset;

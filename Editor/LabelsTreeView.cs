@@ -111,7 +111,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
 
         }
 
-        [System.Serializable]
         class LabelItem : BaseItem
         {
             public string label;
@@ -185,7 +184,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        [System.Serializable]
         class BundleItem : BaseItem
         {
             public RichBuildLayout.Archive bundle;

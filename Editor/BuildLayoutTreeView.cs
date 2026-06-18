@@ -448,7 +448,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
                 selectedItemChanged?.Invoke(selectedItem);
         }
 
-        [System.Serializable]
         public abstract class BaseItem : TreeViewItem<int>
         {
             public bool supportsSortingOrder = true;

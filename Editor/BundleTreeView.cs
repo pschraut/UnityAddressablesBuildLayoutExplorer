@@ -119,7 +119,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        [System.Serializable]
         class BundleItem : BaseItem
         {
             public RichBuildLayout.Archive bundle;
@@ -217,7 +216,6 @@ namespace Oddworm.EditorFramework.BuildLayoutExplorer
             }
         }
 
-        [System.Serializable]
         class AssetItem : BaseItem
         {
             public RichBuildLayout.Asset asset;
